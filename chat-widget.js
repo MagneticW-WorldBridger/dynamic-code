@@ -96,11 +96,13 @@
   const matchPath = (patterns) => {
     if (!patterns || !patterns.length) return true;
     const path = window.location.pathname;
-    return patterns.some((p) => {
+    const result = patterns.some((p) => {
       if (p === "*") return true;
       if (p.endsWith("*")) return path.startsWith(p.slice(0, -1));
       return path === p;
     });
+    console.log('[ChatWidget] matchPath:', { path, patterns, result });
+    return result;
   };
 
   const css = (cfg) => `
@@ -238,10 +240,33 @@
   const shouldShow = (cfg) => {
     const w = window.innerWidth;
     const isMobile = w < 768;
-    if (isMobile && !cfg.rules.showOnMobile) return false;
-    if (!isMobile && !cfg.rules.showOnDesktop) return false;
-    if (!matchPath(cfg.rules.includePaths)) return false;
-    if (matchPath(cfg.rules.excludePaths)) return false;
+    console.log('[ChatWidget] shouldShow check:', {
+      width: w,
+      isMobile,
+      showOnMobile: cfg.rules.showOnMobile,
+      showOnDesktop: cfg.rules.showOnDesktop,
+      currentPath: window.location.pathname,
+      includePaths: cfg.rules.includePaths,
+      excludePaths: cfg.rules.excludePaths
+    });
+    
+    if (isMobile && !cfg.rules.showOnMobile) {
+      console.log('[ChatWidget] Blocked: mobile not allowed');
+      return false;
+    }
+    if (!isMobile && !cfg.rules.showOnDesktop) {
+      console.log('[ChatWidget] Blocked: desktop not allowed');
+      return false;
+    }
+    if (!matchPath(cfg.rules.includePaths)) {
+      console.log('[ChatWidget] Blocked: path not in includePaths');
+      return false;
+    }
+    if (matchPath(cfg.rules.excludePaths)) {
+      console.log('[ChatWidget] Blocked: path in excludePaths');
+      return false;
+    }
+    console.log('[ChatWidget] shouldShow: ALLOWED');
     return true;
   };
 
