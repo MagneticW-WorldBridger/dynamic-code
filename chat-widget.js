@@ -16,7 +16,7 @@
   };
 
   const defaults = {
-    chatUrl: "https://app.aiprlassist.com/webchat/?p=1145545&id=O1T4KXJ9xZ",
+    chatUrl: "https://app.aiprlassist.com/webchat/?p=1145545&ref=1746548719207",
     delay: 0, // legacy
     bubbleText: "¿Necesitas ayuda?",
     bubble: {
@@ -201,7 +201,7 @@
     try {
       const u = new URL(url);
       u.searchParams.set('embed', '1');
-      u.searchParams.set('host', location.hostname);
+      u.searchParams.set('host', location.host);
       u.searchParams.set('page', location.href);
       if (document.referrer) u.searchParams.set('ref', document.referrer);
       if (cfg.rules.appendUTM) {

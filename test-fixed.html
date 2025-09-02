@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WIDGET FIXED - Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="info success">
+        <h1>🎯 WIDGET FIXED VERSION</h1>
+        <p><strong>ESTE DEBE FUNCIONAR AL 100%</strong></p>
+        <p>Bubble ROJO aparece en 1 segundo abajo-derecha</p>
+        <p>Clic abre iframe full-screen</p>
+        <p>Logs en consola (F12)</p>
+    </div>
+
+    <script>
+        window.ChatWidget = {
+            inlineConfig: {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=1145545&ref=1746548719207",
+                triggers: {
+                    showBubbleAfterMs: 1000
+                },
+                bubble: {
+                    bg: "#ff0000", // ROJO BRILLANTE
+                    size: 80
+                },
+                analytics: {
+                    console: true
+                }
+            }
+        };
+    </script>
+
+    <script src="./chat-widget-fixed.js"></script>
+</body>
+</html>

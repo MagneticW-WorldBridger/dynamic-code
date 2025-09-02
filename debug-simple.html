@@ -18,7 +18,7 @@
     </div>
 
     <script>
-        // Config mínima para debug
+        // Config mínima para debug - SIN RESTRICCIONES
         window.ChatWidget = {
             siteId: "debug-test",
             inlineConfig: {
@@ -31,6 +31,12 @@
                 bubble: {
                     bg: "#ff0000",  // rojo para que se vea
                     size: 80        // más grande
+                },
+                rules: {
+                    includePaths: ["*"],     // permitir TODO
+                    excludePaths: [],        // NO excluir nada
+                    showOnMobile: true,
+                    showOnDesktop: true
                 }
             }
         };
