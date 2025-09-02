@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chat Widget Demo</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <h1>Demo del Chat Widget</h1>
+    <p>Este ejemplo ya apunta a <code>dynamiccode-ochre.vercel.app</code>.</p>
+
+    <script>
+      window.ChatWidget = {
+        siteId: "demo-site-001",
+        inlineConfig: {
+          bubbleText: "¿Tienes dudas? 😎",
+          delay: 2000
+        },
+        configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
+      };
+    </script>
+
+    <script async src="https://dynamiccode-ochre.vercel.app/chat-widget.js"></script>
+  </body>
+  </html>
+
+

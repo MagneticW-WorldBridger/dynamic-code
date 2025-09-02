@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/chat-widget.js",
+      "headers": {
+        "Cache-Control": "public, max-age=0, s-maxage=300"
+      }
+    },
+    {
+      "src": "/configs/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=0, s-maxage=60"
+      }
+    }
+  ]
+}
+
+
