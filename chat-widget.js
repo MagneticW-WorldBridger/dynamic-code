@@ -105,7 +105,12 @@
     return result;
   };
 
-  const css = (cfg) => `
+  const css = (cfg) => {
+    const isWindowMode = cfg.overlay.windowMode;
+    const windowWidth = cfg.overlay.windowWidth || '400px';
+    const windowHeight = cfg.overlay.windowHeight || '600px';
+    
+    return `
     :host { all: initial; }
     .cw-wrap { position: fixed; inset: 0; pointer-events: none; }
     .cw-bubble { position: fixed; ${cfg.bubble.position === 'bl' ? 'left:20px' : 'right:20px'}; bottom:20px; width:${cfg.bubble.size}px; height:${cfg.bubble.size}px; border-radius:50%; background:${cfg.bubble.bg}; color:${cfg.bubble.color}; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 10px 24px rgba(0,0,0,.18); outline:2px solid ${cfg.bubble.outline}; pointer-events:auto; z-index:${cfg.bubble.zIndex}; }
@@ -114,12 +119,44 @@
     .cw-label.hide { display:none; }
     .cw-teaser { position: fixed; ${cfg.bubble.position === 'bl' ? 'left:20px' : 'right:20px'}; bottom:${20 + cfg.bubble.size + 12}px; background:#fff; color:#1c1c1e; border:2px solid #e9ecef; border-radius:8px; padding:8px 12px; font:600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto; box-shadow:0 4px 14px rgba(0,0,0,.12); display:none; pointer-events:auto; z-index:${cfg.bubble.zIndex}; max-width: 300px; }
     .cw-overlay { position: fixed; inset: 0; background:${cfg.overlay.bg}; display:none; z-index:${cfg.bubble.zIndex + 1}; }
-    .cw-modal { position: fixed; inset:0; background:#0000; display:flex; align-items:stretch; justify-content:stretch; }
+    .cw-modal { 
+      position: fixed; 
+      ${isWindowMode ? `
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: ${windowWidth}; 
+        height: ${windowHeight}; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      ` : `
+        inset: 0;
+      `}
+      background: #fff; 
+      display: flex; 
+      align-items: stretch; 
+      justify-content: stretch; 
+    }
     .cw-iframe { width:100%; height:100%; border:0; }
     .cw-close { position: fixed; top:14px; ${cfg.bubble.position === 'bl' ? 'left:14px' : 'right:14px'}; background:#fff; border:2px solid #e9ecef; border-radius:10px; font:700 13px/1 system-ui, -apple-system, Segoe UI, Roboto; padding:10px 12px; cursor:pointer; z-index:${cfg.bubble.zIndex + 2}; }
     .cw-pulse { animation: cw-pulse 1.2s infinite; }
     @keyframes cw-pulse { 0%{box-shadow:0 0 0 0 rgba(18,167,18,.6)} 70%{box-shadow:0 0 0 14px rgba(18,167,18,0)} 100%{box-shadow:0 0 0 0 rgba(18,167,18,0)} }
+    
+    /* Mobile: siempre full screen */
+    @media (max-width: 768px) {
+      .cw-modal { 
+        inset: 0 !important; 
+        transform: none !important;
+        width: 100% !important; 
+        height: 100% !important; 
+        border-radius: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+      }
+    }
   `;
+  };
 
   const addShadow = () => {
     const host = document.createElement('div');
