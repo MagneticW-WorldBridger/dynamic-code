@@ -76,8 +76,12 @@
 
     // Resolve remote config URL
     let remoteUrl = g.configUrl;
+    console.log('[ChatWidget] Original configUrl:', remoteUrl);
+    console.log('[ChatWidget] siteId:', base.siteId);
+    
     if (remoteUrl && base.siteId) {
       remoteUrl = remoteUrl.replace(/\{\{siteId\}\}/g, base.siteId);
+      console.log('[ChatWidget] Final remoteUrl:', remoteUrl);
     }
     return { base, remoteUrl };
   };

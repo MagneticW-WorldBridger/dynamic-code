@@ -27,7 +27,7 @@
   },
   "rules": {
     "includePaths": ["*"],
-    "excludePaths": ["/checkout*", "/admin*"],
+    "excludePaths": [],
     "showOnMobile": true,
     "showOnDesktop": true,
     "minWidth": 0,
