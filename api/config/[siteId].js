@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   // Enable CORS for widget loading
@@ -21,9 +21,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+
     if (req.method === 'GET') {
       // Load configuration
-      const result = await sql`
+      const result = await pool.sql`
         SELECT config, client_name, updated_at 
         FROM widget_configs 
         WHERE site_id = ${siteId}
@@ -72,7 +76,7 @@ export default async function handler(req, res) {
         }
       }
 
-      const result = await sql`
+      const result = await pool.sql`
         INSERT INTO widget_configs (site_id, client_name, config, updated_at)
         VALUES (${siteId}, ${clientName || `Client ${siteId}`}, ${JSON.stringify(config)}, NOW())
         ON CONFLICT (site_id)
@@ -96,7 +100,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'DELETE') {
       // Delete configuration
-      const result = await sql`
+      const result = await pool.sql`
         DELETE FROM widget_configs 
         WHERE site_id = ${siteId}
         RETURNING id, client_name

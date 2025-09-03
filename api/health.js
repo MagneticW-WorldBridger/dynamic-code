@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -21,8 +21,13 @@ export default async function handler(req, res) {
   try {
     const startTime = Date.now();
     
+    // Create connection pool
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+    
     // Test database connection
-    const result = await sql`SELECT COUNT(*) as total FROM widget_configs`;
+    const result = await pool.sql`SELECT COUNT(*) as total FROM widget_configs`;
     
     const endTime = Date.now();
     const responseTime = endTime - startTime;

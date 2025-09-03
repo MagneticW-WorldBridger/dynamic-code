@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createPool } from '@vercel/postgres';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -12,9 +12,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    const pool = createPool({
+      connectionString: process.env.POSTGRES_URL
+    });
+
     if (req.method === 'GET') {
       // List all configurations
-      const result = await sql`
+      const result = await pool.sql`
         SELECT 
           id,
           site_id, 
@@ -61,7 +65,7 @@ export default async function handler(req, res) {
       }
 
       // Check if siteId already exists
-      const existing = await sql`
+      const existing = await pool.sql`
         SELECT site_id FROM widget_configs WHERE site_id = ${siteId}
       `;
 
@@ -73,7 +77,7 @@ export default async function handler(req, res) {
         });
       }
 
-      const result = await sql`
+      const result = await pool.sql`
         INSERT INTO widget_configs (site_id, client_name, config)
         VALUES (${siteId}, ${clientName || `Client ${siteId}`}, ${JSON.stringify(config)})
         RETURNING id, created_at, updated_at
