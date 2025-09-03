@@ -1,5 +1,8 @@
 {
+  "siteId": "aiprlassist-default",
+  "clientName": "AI PRL Assist (Default)",
   "chatUrl": "https://app.aiprlassist.com/webchat/?p=1145545&ref=1746548719207",
+  "fallbackUrl": "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
   "bubble": {
     "position": "br",
     "size": 68,
