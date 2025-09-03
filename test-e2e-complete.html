@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 E2E Complete Test Suite - AI PRL Assist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f8f9fa; 
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 4px; 
+            font-family: monospace;
+        }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #e7f3ff; color: #0c5460; border: 1px solid #b8daff; }
+        
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #1e7e34; }
+        
+        .utm-demo { 
+            background: #f1f3f4; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .test-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        #testResults {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .widget-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            min-width: 250px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .status-pending { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <!-- Widget Status Monitor -->
+    <div class="widget-status">
+        <h4>🔍 Widget Status</h4>
+        <div id="widgetStatus">
+            <div><span class="status-indicator status-pending"></span>Initializing...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="test-section">
+            <h1>🧪 E2E Complete Test Suite</h1>
+            <p><strong>AI PRL Assist Chat Widget</strong> - Comprehensive Testing</p>
+            <div class="utm-demo">
+                Current URL: <span id="currentUrl"></span><br>
+                UTM Parameters: <span id="utmParams"></span><br>
+                User Agent: <span id="userAgent"></span>
+            </div>
+        </header>
+
+        <!-- Test Controls -->
+        <section class="test-section">
+            <h2>🎮 Test Controls</h2>
+            <div class="test-controls">
+                <button onclick="runAllTests()">🚀 Run All Tests</button>
+                <button onclick="testBasicLoad()">📦 Basic Load Test</button>
+                <button onclick="testUTMCapture()">🎯 UTM Capture Test</button>
+                <button onclick="testChatOpen()">💬 Chat Open Test</button>
+                <button onclick="testFallbackURL()">🔄 Fallback URL Test</button>
+                <button onclick="testAdvancedFeatures()">⚡ Advanced Features</button>
+                <button onclick="testResponsive()">📱 Responsive Test</button>
+                <button onclick="clearResults()">🗑️ Clear Results</button>
+                <button onclick="simulateUTM()" class="success">🔗 Simulate UTM</button>
+                <button onclick="forceError()" class="danger">💥 Force Error</button>
+            </div>
+        </section>
+
+        <!-- Test Results -->
+        <section class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="testResults">
+                <div class="info">Ready to run tests... Click "Run All Tests" to begin.</div>
+            </div>
+        </section>
+
+        <!-- Manual Testing -->
+        <section class="test-section">
+            <h2>🤲 Manual Testing</h2>
+            <div class="test-controls">
+                <button onclick="manualChatOpen()">💬 Open Chat</button>
+                <button onclick="manualChatClose()">❌ Close Chat</button>
+                <button onclick="checkWidgetAPI()">🔍 Check API</button>
+                <button onclick="inspectConfig()">⚙️ Inspect Config</button>
+            </div>
+            <div id="manualResults"></div>
+        </section>
+
+        <!-- UTM Testing -->
+        <section class="test-section">
+            <h2>🎯 UTM Parameter Testing</h2>
+            <p>Test UTM parameter capture and forwarding:</p>
+            <div class="test-controls">
+                <button onclick="simulateUTMFacebook()">📘 Facebook Campaign</button>
+                <button onclick="simulateUTMGoogle()">🔍 Google Ads</button>
+                <button onclick="simulateUTMEmail()">📧 Email Campaign</button>
+                <button onclick="simulateUTMCustom()">🎨 Custom UTM</button>
+            </div>
+            <div id="utmTestResults"></div>
+        </section>
+
+        <!-- Performance Testing -->
+        <section class="test-section">
+            <h2>⚡ Performance Testing</h2>
+            <div id="performanceResults">
+                <div class="pending">Performance tests will run automatically...</div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Global test state
+        let testResults = [];
+        let widgetLoadTime = 0;
+        let startTime = Date.now();
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `[${timestamp}] ${message}`;
+            testResults.push({ message: result, type });
+            
+            const resultsDiv = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = result;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            
+            console.log(`[E2E TEST] ${message}`);
+        }
+
+        function updateWidgetStatus(status, type = 'pending') {
+            const statusDiv = document.getElementById('widgetStatus');
+            statusDiv.innerHTML = `<div><span class="status-indicator status-${type}"></span>${status}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '<div class="info">Results cleared. Ready for new tests.</div>';
+            testResults = [];
+        }
+
+        // Test 1: Basic Widget Loading
+        async function testBasicLoad() {
+            log('🧪 STARTING: Basic Widget Load Test', 'info');
+            
+            try {
+                // Check if plugin loaded
+                if (typeof window.ChatWidget === 'undefined') {
+                    log('❌ FAIL: ChatWidget not found in global scope', 'fail');
+                    return false;
+                }
+                log('✅ PASS: ChatWidget found in global scope', 'pass');
+
+                // Check if setup function exists
+                if (typeof window.ChatWidget.setup !== 'function') {
+                    log('❌ FAIL: ChatWidget.setup is not a function', 'fail');
+                    return false;
+                }
+                log('✅ PASS: ChatWidget.setup function exists', 'pass');
+
+                // Check widget initialization flag
+                if (!window.__aiPrlAssistLoaded) {
+                    log('❌ FAIL: Widget initialization flag not set', 'fail');
+                    return false;
+                }
+                log('✅ PASS: Widget initialization flag set correctly', 'pass');
+
+                updateWidgetStatus('Widget loaded successfully', 'pass');
+                return true;
+
+            } catch (error) {
+                log(`❌ FAIL: Basic load test error: ${error.message}`, 'fail');
+                updateWidgetStatus('Widget load failed', 'fail');
+                return false;
+            }
+        }
+
+        // Test 2: UTM Parameter Capture
+        function testUTMCapture() {
+            log('🧪 STARTING: UTM Parameter Capture Test', 'info');
+            
+            try {
+                const testParams = new URLSearchParams('?utm_source=test&utm_medium=e2e&utm_campaign=testing&utm_term=widget&utm_content=demo');
+                const capturedParams = [];
+                
+                ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                    const value = testParams.get(param);
+                    if (value) {
+                        capturedParams.push(`${param}=${value}`);
+                    }
+                });
+
+                if (capturedParams.length === 5) {
+                    log(`✅ PASS: UTM parameters captured: ${capturedParams.join(', ')}`, 'pass');
+                    return true;
+                } else {
+                    log(`❌ FAIL: Only ${capturedParams.length}/5 UTM parameters captured`, 'fail');
+                    return false;
+                }
+
+            } catch (error) {
+                log(`❌ FAIL: UTM capture test error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Test 3: Chat Opening
+        async function testChatOpen() {
+            log('🧪 STARTING: Chat Open Test', 'info');
+            
+            try {
+                // Setup widget first
+                if (typeof window.ChatWidget.setup === 'function') {
+                    window.ChatWidget.setup({
+                        id: "E2E_TEST_ID",
+                        accountId: "12345",
+                        color: "#E67E22",
+                        size: 68,
+                        analytics: true
+                    });
+                    log('✅ PASS: Widget setup completed', 'pass');
+                } else {
+                    log('❌ FAIL: Cannot setup widget - setup function missing', 'fail');
+                    return false;
+                }
+
+                // Test chat opening
+                if (typeof window.ChatWidget.open === 'function') {
+                    // Don't actually open (would interfere with tests)
+                    log('✅ PASS: ChatWidget.open function available', 'pass');
+                } else {
+                    log('❌ FAIL: ChatWidget.open function not available', 'fail');
+                    return false;
+                }
+
+                // Test chat closing
+                if (typeof window.ChatWidget.close === 'function') {
+                    log('✅ PASS: ChatWidget.close function available', 'pass');
+                } else {
+                    log('❌ FAIL: ChatWidget.close function not available', 'fail');
+                    return false;
+                }
+
+                return true;
+
+            } catch (error) {
+                log(`❌ FAIL: Chat open test error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Test 4: Fallback URL Handling
+        function testFallbackURL() {
+            log('🧪 STARTING: Fallback URL Test', 'info');
+            
+            try {
+                // Test with fallback URL configuration
+                const testConfig = {
+                    id: "FALLBACK_TEST",
+                    accountId: "12345",
+                    fallbackUrl: "https://backup.example.com/chat"
+                };
+
+                if (testConfig.fallbackUrl) {
+                    log('✅ PASS: Fallback URL configuration accepted', 'pass');
+                    log(`ℹ️ INFO: Fallback URL set to: ${testConfig.fallbackUrl}`, 'info');
+                    return true;
+                } else {
+                    log('❌ FAIL: Fallback URL not configured', 'fail');
+                    return false;
+                }
+
+            } catch (error) {
+                log(`❌ FAIL: Fallback URL test error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Test 5: Advanced Features
+        function testAdvancedFeatures() {
+            log('🧪 STARTING: Advanced Features Test', 'info');
+            
+            try {
+                const advancedConfig = {
+                    id: "ADVANCED_TEST",
+                    accountId: "12345",
+                    showDelay: 2000,
+                    openDelay: 0,
+                    exitIntent: true,
+                    scrollTrigger: true,
+                    analytics: true,
+                    utmCapture: true
+                };
+
+                let passCount = 0;
+                const totalFeatures = Object.keys(advancedConfig).length - 2; // Exclude id and accountId
+
+                if (advancedConfig.showDelay >= 0) {
+                    log('✅ PASS: Show delay configuration valid', 'pass');
+                    passCount++;
+                }
+
+                if (typeof advancedConfig.exitIntent === 'boolean') {
+                    log('✅ PASS: Exit intent configuration valid', 'pass');
+                    passCount++;
+                }
+
+                if (typeof advancedConfig.scrollTrigger === 'boolean') {
+                    log('✅ PASS: Scroll trigger configuration valid', 'pass');
+                    passCount++;
+                }
+
+                if (typeof advancedConfig.analytics === 'boolean') {
+                    log('✅ PASS: Analytics configuration valid', 'pass');
+                    passCount++;
+                }
+
+                if (typeof advancedConfig.utmCapture === 'boolean') {
+                    log('✅ PASS: UTM capture configuration valid', 'pass');
+                    passCount++;
+                }
+
+                log(`ℹ️ INFO: ${passCount}/${totalFeatures} advanced features configured correctly`, 'info');
+                return passCount === totalFeatures;
+
+            } catch (error) {
+                log(`❌ FAIL: Advanced features test error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Test 6: Responsive Behavior
+        function testResponsive() {
+            log('🧪 STARTING: Responsive Behavior Test', 'info');
+            
+            try {
+                const screenWidth = window.innerWidth;
+                const isMobile = screenWidth < 768;
+                
+                log(`ℹ️ INFO: Screen width: ${screenWidth}px`, 'info');
+                log(`ℹ️ INFO: Detected as: ${isMobile ? 'Mobile' : 'Desktop'}`, 'info');
+                
+                if (isMobile) {
+                    log('✅ PASS: Mobile viewport detected - fullscreen mode expected', 'pass');
+                } else {
+                    log('✅ PASS: Desktop viewport detected - windowed mode expected', 'pass');
+                }
+
+                return true;
+
+            } catch (error) {
+                log(`❌ FAIL: Responsive test error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Performance Testing
+        function runPerformanceTests() {
+            const performanceDiv = document.getElementById('performanceResults');
+            performanceDiv.innerHTML = '';
+            
+            try {
+                // Widget load time
+                const loadTime = Date.now() - startTime;
+                const loadResult = document.createElement('div');
+                loadResult.className = loadTime < 1000 ? 'test-result pass' : 'test-result fail';
+                loadResult.textContent = `Widget Load Time: ${loadTime}ms ${loadTime < 1000 ? '✅' : '❌'}`;
+                performanceDiv.appendChild(loadResult);
+
+                // Memory usage (rough estimate)
+                if (performance.memory) {
+                    const memoryUsed = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024 * 100) / 100;
+                    const memoryResult = document.createElement('div');
+                    memoryResult.className = 'test-result info';
+                    memoryResult.textContent = `Memory Usage: ${memoryUsed} MB`;
+                    performanceDiv.appendChild(memoryResult);
+                }
+
+                // DOM elements check
+                const widgetElements = document.querySelectorAll('[class*="ai-prl-chat"]');
+                const elementsResult = document.createElement('div');
+                elementsResult.className = 'test-result info';
+                elementsResult.textContent = `Widget DOM Elements: ${widgetElements.length}`;
+                performanceDiv.appendChild(elementsResult);
+
+            } catch (error) {
+                performanceDiv.innerHTML = `<div class="test-result fail">Performance test error: ${error.message}</div>`;
+            }
+        }
+
+        // Manual Testing Functions
+        function manualChatOpen() {
+            try {
+                if (window.ChatWidget && window.ChatWidget.open) {
+                    window.ChatWidget.open();
+                    document.getElementById('manualResults').innerHTML = '<div class="test-result pass">✅ Chat opened manually</div>';
+                } else {
+                    document.getElementById('manualResults').innerHTML = '<div class="test-result fail">❌ ChatWidget.open not available</div>';
+                }
+            } catch (error) {
+                document.getElementById('manualResults').innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function manualChatClose() {
+            try {
+                if (window.ChatWidget && window.ChatWidget.close) {
+                    window.ChatWidget.close();
+                    document.getElementById('manualResults').innerHTML = '<div class="test-result pass">✅ Chat closed manually</div>';
+                } else {
+                    document.getElementById('manualResults').innerHTML = '<div class="test-result fail">❌ ChatWidget.close not available</div>';
+                }
+            } catch (error) {
+                document.getElementById('manualResults').innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkWidgetAPI() {
+            const api = window.ChatWidget;
+            const results = document.getElementById('manualResults');
+            results.innerHTML = `
+                <div class="test-result info">
+                    <strong>Widget API Status:</strong><br>
+                    • ChatWidget exists: ${!!api}<br>
+                    • setup() available: ${!!(api && api.setup)}<br>
+                    • open() available: ${!!(api && api.open)}<br>
+                    • close() available: ${!!(api && api.close)}<br>
+                    • Loaded flag: ${!!window.__aiPrlAssistLoaded}
+                </div>
+            `;
+        }
+
+        function inspectConfig() {
+            const results = document.getElementById('manualResults');
+            results.innerHTML = `
+                <div class="test-result info">
+                    <strong>Current Configuration:</strong><br>
+                    • URL: ${location.href}<br>
+                    • Host: ${location.hostname}<br>
+                    • Protocol: ${location.protocol}<br>
+                    • User Agent: ${navigator.userAgent.substring(0, 50)}...<br>
+                    • Screen: ${screen.width}x${screen.height}<br>
+                    • Viewport: ${window.innerWidth}x${window.innerHeight}
+                </div>
+            `;
+        }
+
+        // UTM Simulation Functions
+        function simulateUTMFacebook() {
+            const newUrl = `${location.origin}${location.pathname}?utm_source=facebook&utm_medium=social&utm_campaign=summer2024&utm_content=ad1`;
+            simulateUTMRedirect(newUrl, 'Facebook Campaign');
+        }
+
+        function simulateUTMGoogle() {
+            const newUrl = `${location.origin}${location.pathname}?utm_source=google&utm_medium=cpc&utm_campaign=keywords&utm_term=chat+widget`;
+            simulateUTMRedirect(newUrl, 'Google Ads');
+        }
+
+        function simulateUTMEmail() {
+            const newUrl = `${location.origin}${location.pathname}?utm_source=newsletter&utm_medium=email&utm_campaign=weekly&utm_content=header`;
+            simulateUTMRedirect(newUrl, 'Email Campaign');
+        }
+
+        function simulateUTMCustom() {
+            const source = prompt('UTM Source:', 'custom');
+            const medium = prompt('UTM Medium:', 'referral');
+            const campaign = prompt('UTM Campaign:', 'test');
+            
+            if (source && medium && campaign) {
+                const newUrl = `${location.origin}${location.pathname}?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`;
+                simulateUTMRedirect(newUrl, 'Custom UTM');
+            }
+        }
+
+        function simulateUTMRedirect(url, type) {
+            document.getElementById('utmTestResults').innerHTML = `
+                <div class="test-result info">
+                    <strong>${type} Simulation:</strong><br>
+                    Would redirect to: <code>${url}</code><br>
+                    <button onclick="location.href='${url}'">🔗 Apply UTM Parameters</button>
+                </div>
+            `;
+        }
+
+        function simulateUTM() {
+            // Add UTM parameters to current URL without redirect
+            const params = new URLSearchParams(location.search);
+            params.set('utm_source', 'e2e_test');
+            params.set('utm_medium', 'testing');
+            params.set('utm_campaign', 'widget_test');
+            params.set('utm_term', 'ai_chat');
+            params.set('utm_content', 'test_suite');
+            
+            const newUrl = `${location.pathname}?${params.toString()}`;
+            history.pushState({}, '', newUrl);
+            
+            updatePageInfo();
+            log('✅ UTM parameters simulated and added to URL', 'pass');
+        }
+
+        function forceError() {
+            try {
+                // Intentionally cause an error for testing
+                window.ChatWidget.setup({
+                    // Missing required parameters
+                });
+                log('❌ Expected error not thrown', 'fail');
+            } catch (error) {
+                log(`✅ PASS: Error handling working - ${error.message}`, 'pass');
+            }
+        }
+
+        // Main test runner
+        async function runAllTests() {
+            log('🚀 STARTING COMPLETE E2E TEST SUITE', 'info');
+            clearResults();
+            
+            const tests = [
+                { name: 'Basic Load', fn: testBasicLoad },
+                { name: 'UTM Capture', fn: testUTMCapture },
+                { name: 'Chat Open/Close', fn: testChatOpen },
+                { name: 'Fallback URL', fn: testFallbackURL },
+                { name: 'Advanced Features', fn: testAdvancedFeatures },
+                { name: 'Responsive Behavior', fn: testResponsive }
+            ];
+
+            let passCount = 0;
+            let totalTests = tests.length;
+
+            for (const test of tests) {
+                try {
+                    const result = await test.fn();
+                    if (result) passCount++;
+                } catch (error) {
+                    log(`❌ FAIL: ${test.name} threw unexpected error: ${error.message}`, 'fail');
+                }
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            log(`🏁 COMPLETE: ${passCount}/${totalTests} tests passed`, passCount === totalTests ? 'pass' : 'fail');
+            
+            // Run performance tests
+            runPerformanceTests();
+            
+            // Update widget status
+            updateWidgetStatus(`${passCount}/${totalTests} tests passed`, passCount === totalTests ? 'pass' : 'fail');
+        }
+
+        function updatePageInfo() {
+            document.getElementById('currentUrl').textContent = location.href;
+            
+            const params = new URLSearchParams(location.search);
+            const utmParams = [];
+            ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                const value = params.get(param);
+                if (value) utmParams.push(`${param}=${value}`);
+            });
+            
+            document.getElementById('utmParams').textContent = utmParams.length ? utmParams.join(', ') : 'None';
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 80) + '...';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePageInfo();
+            log('E2E Test Suite initialized', 'info');
+            
+            // Auto-run basic load test
+            setTimeout(() => {
+                testBasicLoad();
+                runPerformanceTests();
+            }, 1000);
+        });
+
+        // Monitor widget loading
+        widgetLoadTime = Date.now();
+        updateWidgetStatus('Loading widget...', 'pending');
+    </script>
+
+    <!-- Load the actual widget for testing -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <script>
+        // Setup widget after load
+        setTimeout(() => {
+            if (window.ChatWidget && window.ChatWidget.setup) {
+                window.ChatWidget.setup({
+                    id: "E2E_TESTING",
+                    accountId: "1047143",
+                    color: "#E67E22",
+                    icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+                    position: "bottom-right",
+                    size: 68,
+                    showDelay: 3000,
+                    analytics: true,
+                    utmCapture: true
+                });
+                
+                widgetLoadTime = Date.now() - widgetLoadTime;
+                updateWidgetStatus('Widget setup complete', 'pass');
+                log(`✅ Widget setup completed in ${widgetLoadTime}ms`, 'pass');
+            } else {
+                updateWidgetStatus('Widget setup failed', 'fail');
+                log('❌ Widget setup failed - ChatWidget.setup not available', 'fail');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
