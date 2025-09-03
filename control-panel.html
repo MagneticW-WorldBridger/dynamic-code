@@ -188,38 +188,18 @@
 
         <div id="deploy" class="tab-content">
             <div class="card">
-                <h3>📋 Código para Integrar (GoHighLevel/Webflow/WordPress/etc.)</h3>
+                <h3>📋 Código para Webflow (YA INSTALADO)</h3>
                 <div class="warning">
-                    <strong>⚠️ IMPORTANTE:</strong> Pega este snippet UNA sola vez en el footer del sitio del cliente.
+                    <strong>⚠️ IMPORTANTE:</strong> Este código ya está instalado en tu sitio de Webflow. NO lo cambies nunca más.
                 </div>
                 <div class="code-block" id="webflowCode">
-&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-ChatWidget.setup({
-  // Opción A: URL directa del chat (ignora id/accountId)
-  // chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k",
-
-  // Opción B: Identificadores (equivalente a tu competidor)
-  id: "O1T4KXJ9xZ",
-  accountId: "1047143",
-
-  // Apariencia y comportamiento
-  color: "#E67E22",
-  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
-  position: "br",          // br | bl
-  size: 68,
-  windowMode: true,
-  windowWidth: 420,
-  windowHeight: 650,
-  mobileFullscreen: true,
-  showBubbleAfterMs: 1000,
-  openAfterMs: 0
-
-  // Opción C: Config remota (multi-tenant)
-  // siteId: "webflow-windowed-001",
-  // configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
-});
+  window.ChatWidget = {
+    siteId: "webflow-windowed-001",
+    configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
+  };
 &lt;/script&gt;
+&lt;script async src="https://dynamiccode-ochre.vercel.app/chat-widget.js"&gt;&lt;/script&gt;
                 </div>
             </div>
 

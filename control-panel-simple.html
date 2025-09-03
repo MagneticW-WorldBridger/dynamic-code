@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PRL Assist - Simple Plugin Control Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #E67E22, #3498DB);
+            min-height: 100vh;
+            color: white;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 16px; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px; 
+        }
+        .card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 25px; 
+            border-radius: 16px; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: white; }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            border-radius: 8px; 
+            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #E67E22;
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+        }
+        .btn { 
+            background: #E67E22; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { 
+            background: #D35400;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .code-block { 
+            background: rgba(0,0,0,0.4); 
+            color: #E8F4F8; 
+            padding: 20px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .success { 
+            background: rgba(46, 204, 113, 0.2); 
+            border: 1px solid #2ecc71; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .warning { 
+            background: rgba(241, 196, 15, 0.2); 
+            border: 1px solid #f1c40f; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .tabs { display: flex; margin-bottom: 20px; }
+        .tab { 
+            padding: 12px 24px; 
+            background: rgba(255,255,255,0.1); 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 8px 8px 0 0; 
+            margin-right: 2px;
+            color: white;
+            font-weight: 500;
+        }
+        .tab.active { 
+            background: #E67E22; 
+            color: white; 
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .preview-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 68px;
+            height: 68px;
+            background: #E67E22;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: transform 0.2s ease;
+        }
+        .preview-widget:hover {
+            transform: scale(1.1);
+        }
+        .preview-widget img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+        
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI PRL Assist - Simple Plugin Control Panel</h1>
+            <p>Configure your chat widget with simple parameters - just like your competitor!</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('config')">⚙️ Configuration</button>
+            <button class="tab" onclick="showTab('code')">📋 Client Code</button>
+            <button class="tab" onclick="showTab('utm')">🎯 UTM Flow</button>
+        </div>
+
+        <div id="config" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h3>🎨 Widget Appearance</h3>
+                    <div class="form-group">
+                        <label>Chat ID</label>
+                        <input type="text" id="chatId" value="O1T4KXJ9xZ" placeholder="Your chat ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Account ID</label>
+                        <input type="text" id="accountId" value="1047143" placeholder="Your account ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Bubble Color</label>
+                        <input type="color" id="color" value="#E67E22">
+                    </div>
+                    <div class="form-group">
+                        <label>Icon URL</label>
+                        <input type="url" id="icon" value="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png">
+                    </div>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <select id="position">
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Size (px)</label>
+                        <input type="number" id="size" value="68" min="40" max="100">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🔥 Live Preview</h3>
+                    <p>Changes reflect instantly below:</p>
+                    <div id="livePreview" style="margin-top: 20px; text-align: center;">
+                        <div class="preview-widget" id="previewWidget">
+                            <img id="previewIcon" src="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png" alt="Chat">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <button class="btn" onclick="updatePreview()">🔄 Update Preview</button>
+                <button class="btn" onclick="testWidget()" style="margin-left: 10px;">🧪 Test Widget</button>
+            </div>
+        </div>
+
+        <div id="code" class="tab-content">
+            <div class="card">
+                <h3>📋 Client Code (Copy & Paste)</h3>
+                <div class="success">
+                    ✅ <strong>Simple like your competitor!</strong> Just two script tags.
+                </div>
+                <div class="code-block" id="clientCode">
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143", 
+  color: "#E67E22",
+  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+  position: "bottom-right",
+  size: 68
+});
+&lt;/script&gt;
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ GoHighLevel Instructions:</strong><br>
+                    1. Go to Settings → Tracking Code<br>
+                    2. Paste the code above in "Footer Tracking Code"<br>
+                    3. Save and publish<br>
+                    4. Widget appears on all pages automatically
+                </div>
+            </div>
+        </div>
+
+        <div id="utm" class="tab-content">
+            <div class="card">
+                <h3>🎯 UTM Parameter Flow - Complete End-to-End</h3>
+                
+                <h4>📥 1. UTM Capture (Automatic)</h4>
+                <p>When someone visits your client's site with UTM parameters:</p>
+                <div class="code-block">
+https://client-site.com/page?utm_source=facebook&utm_medium=cpc&utm_campaign=promo2024&utm_term=shoes&utm_content=ad1
+                </div>
+                
+                <h4>🔄 2. Parameter Processing (plugin.js)</h4>
+                <p>The widget automatically captures these parameters from the URL:</p>
+                <div class="code-block">
+const currentParams = new URLSearchParams(location.search);
+['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+  const value = currentParams.get(param);
+  if (value) url.searchParams.set(param, value);
+});
+                </div>
+                
+                <h4>📤 3. Parameter Forwarding</h4>
+                <p>When chat opens, ALL parameters are passed to your chat URL:</p>
+                <div class="code-block">
+https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client-site.com&page=https://client-site.com/page&utm_source=facebook&utm_medium=cpc&utm_campaign=promo2024&utm_term=shoes&utm_content=ad1
+                </div>
+                
+                <h4>💬 4. Chat System Access</h4>
+                <p>Your chat system receives ALL this data and can:</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li>✅ Track which campaign brought the visitor</li>
+                    <li>✅ Personalize responses based on source</li>
+                    <li>✅ Attribute conversions to specific ads</li>
+                    <li>✅ Build detailed analytics reports</li>
+                </ul>
+                
+                <h4>📊 5. Additional Context</h4>
+                <p>Plus automatic page context:</p>
+                <ul style="margin: 15px 0; padding-left: 20px;">
+                    <li><code>host</code> - Which domain (client-site.com)</li>
+                    <li><code>page</code> - Exact page URL</li>
+                    <li><code>ref</code> - Where they came from (if available)</li>
+                    <li><code>embed=1</code> - Identifies widget traffic</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updatePreview() {
+            const color = document.getElementById('color').value;
+            const icon = document.getElementById('icon').value;
+            const size = document.getElementById('size').value;
+            
+            const previewWidget = document.getElementById('previewWidget');
+            const previewIcon = document.getElementById('previewIcon');
+            
+            previewWidget.style.background = color;
+            previewWidget.style.width = size + 'px';
+            previewWidget.style.height = size + 'px';
+            previewIcon.src = icon;
+            
+            updateClientCode();
+        }
+
+        function updateClientCode() {
+            const id = document.getElementById('chatId').value;
+            const accountId = document.getElementById('accountId').value;
+            const color = document.getElementById('color').value;
+            const icon = document.getElementById('icon').value;
+            const position = document.getElementById('position').value;
+            const size = document.getElementById('size').value;
+            
+            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  id: "${id}",
+  accountId: "${accountId}", 
+  color: "${color}",
+  icon: "${icon}",
+  position: "${position}",
+  size: ${size}
+});
+&lt;/script&gt;`;
+            
+            document.getElementById('clientCode').innerHTML = code;
+        }
+
+        function testWidget() {
+            // Remove existing test widget
+            const existing = document.getElementById('testWidget');
+            if (existing) existing.remove();
+            
+            // Create test script
+            const script = document.createElement('script');
+            script.innerHTML = `
+                if (window.ChatWidget && window.ChatWidget.setup) {
+                    ChatWidget.setup({
+                        id: "${document.getElementById('chatId').value}",
+                        accountId: "${document.getElementById('accountId').value}",
+                        color: "${document.getElementById('color').value}",
+                        icon: "${document.getElementById('icon').value}",
+                        position: "${document.getElementById('position').value}",
+                        size: ${document.getElementById('size').value}
+                    });
+                }
+            `;
+            script.id = 'testWidget';
+            document.body.appendChild(script);
+            
+            alert('🧪 Test widget loaded! Check bottom-right corner.');
+        }
+
+        // Auto-update preview when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['color', 'icon', 'size', 'chatId', 'accountId', 'position'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+                document.getElementById(id).addEventListener('change', updatePreview);
+            });
+            
+            updatePreview();
+        });
+    </script>
+
+    <!-- Load the plugin for testing -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+</body>
+</html>
