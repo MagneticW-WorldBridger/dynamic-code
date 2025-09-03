@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .demo-controls { position: fixed; top: 0; left: 0; right: 0; background: #2d3748; color: white; padding: 15px; z-index: 999999; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .demo-controls input { padding: 8px 12px; border: none; border-radius: 6px; margin: 0 10px; width: 300px; }
+        .demo-controls button { background: #6f0302; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 0 5px; }
+        .demo-controls button:hover { background: #5a0201; }
+        .demo-frame { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; border: none; }
+        .demo-info { position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 8px; font-size: 12px; max-width: 300px; z-index: 999998; }
+        .utm-examples { margin-top: 10px; }
+        .utm-examples button { background: #4a5568; color: white; border: none; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 11px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="demo-controls">
+        <strong>🎯 Chat Widget Demo:</strong>
+        <input type="url" id="siteUrl" placeholder="https://ejemplo.com" value="https://woodstockoutlet.com">
+        <button onclick="loadSite()">🔄 Cargar Sitio</button>
+        <button onclick="testUTM()">🏷️ Test UTMs</button>
+        <button onclick="openControlPanel()">⚙️ Control Panel</button>
+    </div>
+
+    <div class="demo-info">
+        <div><strong>📊 Widget Status:</strong> <span id="widgetStatus">Cargando...</span></div>
+        <div><strong>🌐 Sitio:</strong> <span id="currentSite">-</span></div>
+        <div><strong>🏷️ UTMs Activos:</strong> <span id="activeUTMs">Ninguno</span></div>
+        
+        <div class="utm-examples">
+            <strong>Ejemplos UTM:</strong><br>
+            <button onclick="addUTM('utm_source=facebook&utm_campaign=promo2024')">Facebook Promo</button>
+            <button onclick="addUTM('utm_source=google&utm_medium=cpc&utm_campaign=furniture')">Google Ads</button>
+            <button onclick="addUTM('utm_source=email&utm_campaign=newsletter')">Email</button>
+            <button onclick="clearUTM()">Limpiar</button>
+        </div>
+
+        <div style="margin-top: 10px; font-size: 11px; opacity: 0.8;">
+            💡 El widget aparece automáticamente en el sitio cargado. Prueba diferentes UTMs para ver cómo se pasan al chat.
+        </div>
+    </div>
+
+    <iframe id="demoFrame" class="demo-frame" src="about:blank"></iframe>
+
+    <!-- Chat Widget (mismo código que en producción) -->
+    <script>
+        window.ChatWidget = {
+            siteId: "webflow-windowed-001",
+            configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
+        };
+    </script>
+    <script async src="https://dynamiccode-ochre.vercel.app/chat-widget.js"></script>
+
+    <script>
+        function loadSite() {
+            const url = document.getElementById('siteUrl').value;
+            if (!url) {
+                alert('Por favor ingresa una URL válida');
+                return;
+            }
+            
+            try {
+                const iframe = document.getElementById('demoFrame');
+                iframe.src = url;
+                document.getElementById('currentSite').textContent = new URL(url).hostname;
+                document.getElementById('widgetStatus').textContent = '✅ Activo';
+            } catch (e) {
+                alert('URL inválida: ' + e.message);
+            }
+        }
+
+        function testUTM() {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('utm_source', 'demo');
+            currentUrl.searchParams.set('utm_medium', 'test');
+            currentUrl.searchParams.set('utm_campaign', 'widget_demo');
+            window.location.href = currentUrl.toString();
+        }
+
+        function addUTM(utmString) {
+            const currentUrl = new URL(window.location);
+            const params = new URLSearchParams(utmString);
+            
+            // Clear existing UTMs
+            ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                currentUrl.searchParams.delete(param);
+            });
+            
+            // Add new UTMs
+            params.forEach((value, key) => {
+                currentUrl.searchParams.set(key, value);
+            });
+            
+            window.location.href = currentUrl.toString();
+        }
+
+        function clearUTM() {
+            const currentUrl = new URL(window.location);
+            ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                currentUrl.searchParams.delete(param);
+            });
+            window.location.href = currentUrl.toString();
+        }
+
+        function openControlPanel() {
+            window.open('/control-panel.html', '_blank');
+        }
+
+        // Update UTM display
+        function updateUTMDisplay() {
+            const params = new URLSearchParams(window.location.search);
+            const utms = [];
+            
+            ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                const value = params.get(param);
+                if (value) {
+                    utms.push(`${param}=${value}`);
+                }
+            });
+            
+            document.getElementById('activeUTMs').textContent = utms.length > 0 ? utms.join(', ') : 'Ninguno';
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            updateUTMDisplay();
+            
+            // Load default site
+            setTimeout(() => {
+                loadSite();
+            }, 1000);
+            
+            // Monitor widget status
+            setInterval(() => {
+                if (window.ChatWidget && window.ChatWidget.version) {
+                    document.getElementById('widgetStatus').textContent = '✅ Activo v' + window.ChatWidget.version;
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

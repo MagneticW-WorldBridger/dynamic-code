@@ -1,5 +1,6 @@
 {
-  "chatUrl": "https://app.aiprlassist.com/webchat/?p=1145545&ref=1746548719207",
+  "chatUrl": "https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k",
+  "fallbackUrl": "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
   "bubble": {
     "position": "br",
     "size": 68,
