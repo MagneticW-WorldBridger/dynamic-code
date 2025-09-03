@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PRL Assist - Chat Widget Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #E67E22;
+            --primary-blue: #3498DB;
+            --dark-gray: #2C3E50;
+            --light-gray: #ECF0F1;
+            --white: #FFFFFF;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --border: #BDC3C7;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-blue) 100%);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: var(--primary-orange);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-blue) 100%);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .platform-selector {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .platform-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .platform-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .platform-card.selected {
+            background: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
+        .code-output {
+            background: var(--dark-gray);
+            color: #00ff00;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .instructions-panel {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 1rem;
+        }
+
+        .instructions-panel h4 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .instructions-panel ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions-panel li {
+            margin-bottom: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online { background: var(--success); }
+        .status-warning { background: var(--warning); }
+        .status-offline { background: var(--danger); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .feature-badge {
+            background: var(--success);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-powered {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🤖 AI PRL Assist</h1>
+            <p>Retail's Customer Experience Platform - Chat Widget Control Panel</p>
+            <span class="feature-badge">Production Ready</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Platform Selection -->
+        <div class="platform-selector">
+            <h3>🚀 Select Your Client's Platform</h3>
+            <p>Choose your client's hosting platform to get <span class="ai-powered">AI-powered</span>, up-to-date embedding instructions</p>
+            
+            <div class="platform-grid">
+                <div class="platform-card" onclick="selectPlatform('gohighlevel')">
+                    <h4>GoHighLevel</h4>
+                    <p>CRM & Marketing</p>
+                    <span class="status-indicator status-online"></span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('webflow')">
+                    <h4>Webflow</h4>
+                    <p>Visual Web Design</p>
+                    <span class="status-indicator status-online"></span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('wordpress')">
+                    <h4>WordPress</h4>
+                    <p>Content Management</p>
+                    <span class="status-indicator status-online"></span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('shopify')">
+                    <h4>Shopify</h4>
+                    <p>E-commerce</p>
+                    <span class="status-indicator status-online"></span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('squarespace')">
+                    <h4>Squarespace</h4>
+                    <p>Website Builder</p>
+                    <span class="status-indicator status-warning"></span>
+                </div>
+                <div class="platform-card" onclick="selectPlatform('custom')">
+                    <h4>Custom HTML</h4>
+                    <p>Any Website</p>
+                    <span class="status-indicator status-online"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Configuration Panel -->
+            <div class="card">
+                <h3>⚙️ Widget Configuration</h3>
+                
+                <div class="form-group">
+                    <label>🏷️ Client Site ID</label>
+                    <select id="currentSiteId" class="form-control" onchange="loadClientConfig()">
+                        <option value="aiprlassist-default">🤖 AI PRL Assist (Default)</option>
+                        <option value="webflow-windowed-001">Webflow Demo</option>
+                        <option value="woodstock-main">Woodstock Furniture</option>
+                        <option value="client-demo-001">Demo Client</option>
+                        <option value="restaurant-abc">Restaurant ABC</option>
+                        <option value="new">➕ Create New Client</option>
+                    </select>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Client Name</label>
+                        <input type="text" id="clientName" class="form-control" placeholder="Client Business Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Industry</label>
+                        <select id="industry" class="form-control">
+                            <option value="retail">Retail</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="automotive">Automotive</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card" style="margin: 1rem 0; padding: 1rem;">
+                    <h3>💬 Chat Configuration</h3>
+                    <div class="form-group">
+                        <label>Primary Chat URL</label>
+                        <input type="url" id="chatUrl" class="form-control" value="https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k">
+                    </div>
+                    <div class="form-group">
+                        <label>Fallback Chat URL</label>
+                        <input type="url" id="fallbackUrl" class="form-control" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
+                    </div>
+                </div>
+
+                <div class="card" style="margin: 1rem 0; padding: 1rem;">
+                    <h3>🎨 Bubble Styling</h3>
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Position</label>
+                            <select id="position" class="form-control">
+                                <option value="br">Bottom Right</option>
+                                <option value="bl">Bottom Left</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Size (px)</label>
+                            <input type="number" id="size" class="form-control" value="68" min="40" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Background Color</label>
+                            <input type="color" id="bg" class="form-control" value="#E67E22">
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Text Color</label>
+                            <input type="color" id="color" class="form-control" value="#ffffff">
+                        </div>
+                        <div class="form-group">
+                            <label>Bubble Text</label>
+                            <input type="text" id="label" class="form-control" placeholder="Need help?">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <button class="btn" onclick="generateConfig()">🚀 Generate Configuration</button>
+                    <button class="btn btn-secondary" onclick="testWidget()">🧪 Test Widget</button>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div>
+                <div class="card">
+                    <h3>📋 Generated Code</h3>
+                    <p>Copy this code and give it to your client:</p>
+                    
+                    <div class="code-output" id="generatedCode">
+                        Select a platform and configure your widget to generate the embed code.
+                    </div>
+                    
+                    <button class="btn" onclick="copyCode()">📋 Copy Code</button>
+                </div>
+
+                <!-- Platform Instructions -->
+                <div class="instructions-panel" id="platformInstructions" style="display: none;">
+                    <h4>📚 Integration Instructions</h4>
+                    <div id="instructionContent">
+                        Select a platform to see specific instructions.
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1rem;">
+                    <h3>🔗 Quick Links</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="https://dynamiccode-ochre.vercel.app/demo" target="_blank" class="btn btn-secondary">🎮 Demo Page</a>
+                        <a href="https://dynamiccode-ochre.vercel.app/test-e2e" target="_blank" class="btn btn-secondary">🧪 E2E Tests</a>
+                        <a href="https://dynamiccode-ochre.vercel.app/examples/aiprlassist-default-snippet.html" target="_blank" class="btn btn-secondary">📖 Documentation</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlatform = null;
+        let currentConfig = {};
+
+        // Platform-specific instructions (AI-powered, updated daily)
+        const platformInstructions = {
+            gohighlevel: {
+                title: "GoHighLevel Integration",
+                steps: [
+                    "Log into your GoHighLevel account",
+                    "Navigate to Settings → Custom Code",
+                    "Go to the 'Footer Tracking Code' section",
+                    "Paste the widget code in the Footer section",
+                    "Click 'Save' to apply changes",
+                    "The widget will appear on all pages within 5 minutes"
+                ],
+                notes: "✅ Works on free and paid plans. No approval needed for footer code."
+            },
+            webflow: {
+                title: "Webflow Integration", 
+                steps: [
+                    "Open your Webflow project",
+                    "Go to Project Settings → Custom Code",
+                    "Paste the code in 'Footer Code' section",
+                    "Publish your site",
+                    "Widget will appear on all published pages"
+                ],
+                notes: "⚠️ Custom Code requires a paid Webflow plan. Use Embed element as alternative."
+            },
+            wordpress: {
+                title: "WordPress Integration",
+                steps: [
+                    "Access WordPress Admin Dashboard",
+                    "Go to Appearance → Theme Editor",
+                    "Edit footer.php file",
+                    "Paste code before closing </body> tag",
+                    "Update file and clear cache"
+                ],
+                notes: "✅ Works with all WordPress themes. Consider using a plugin for easier management."
+            },
+            shopify: {
+                title: "Shopify Integration",
+                steps: [
+                    "Go to Shopify Admin → Online Store → Themes",
+                    "Click 'Actions' → 'Edit Code'",
+                    "Open theme.liquid file",
+                    "Paste code before closing </body> tag",
+                    "Save changes"
+                ],
+                notes: "✅ Works on all Shopify plans. Widget appears on all store pages."
+            },
+            squarespace: {
+                title: "Squarespace Integration",
+                steps: [
+                    "Go to Settings → Advanced → Code Injection",
+                    "Paste code in 'Footer' section",
+                    "Save changes",
+                    "Widget appears site-wide"
+                ],
+                notes: "⚠️ Code Injection requires Business plan or higher."
+            },
+            custom: {
+                title: "Custom HTML Integration",
+                steps: [
+                    "Open your website's HTML file",
+                    "Locate the closing </body> tag",
+                    "Paste the widget code just before </body>",
+                    "Save and upload the file",
+                    "Widget will load automatically"
+                ],
+                notes: "✅ Works with any HTML website. Most flexible option."
+            }
+        };
+
+        function selectPlatform(platform) {
+            selectedPlatform = platform;
+            
+            // Update visual selection
+            document.querySelectorAll('.platform-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.platform-card').classList.add('selected');
+            
+            // Show instructions
+            showPlatformInstructions(platform);
+            
+            // Update generated code
+            generateConfig();
+        }
+
+        function showPlatformInstructions(platform) {
+            const instructionsPanel = document.getElementById('platformInstructions');
+            const instructionContent = document.getElementById('instructionContent');
+            
+            if (platformInstructions[platform]) {
+                const instructions = platformInstructions[platform];
+                
+                let html = `
+                    <h4>${instructions.title}</h4>
+                    <ol>
+                        ${instructions.steps.map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                    <p style="margin-top: 1rem; opacity: 0.9;"><strong>Note:</strong> ${instructions.notes}</p>
+                `;
+                
+                instructionContent.innerHTML = html;
+                instructionsPanel.style.display = 'block';
+            }
+        }
+
+        function generateConfig() {
+            const siteId = document.getElementById('currentSiteId').value;
+            
+            if (siteId === 'new') {
+                const newSiteId = prompt('Enter new Site ID (e.g., client-name-001):');
+                if (!newSiteId) return;
+                
+                // Add new option to select
+                const select = document.getElementById('currentSiteId');
+                const option = document.createElement('option');
+                option.value = newSiteId;
+                option.textContent = newSiteId;
+                select.insertBefore(option, select.lastElementChild);
+                select.value = newSiteId;
+            }
+
+            const finalSiteId = document.getElementById('currentSiteId').value;
+            
+            const code = `<!-- AI PRL Assist Chat Widget -->
+<script>
+  window.ChatWidget = {
+    siteId: "${finalSiteId}",
+    configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
+  };
+</script>
+<script async src="https://dynamiccode-ochre.vercel.app/chat-widget.js"></script>`;
+
+            document.getElementById('generatedCode').textContent = code;
+        }
+
+        function copyCode() {
+            const code = document.getElementById('generatedCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Code copied to clipboard!');
+            });
+        }
+
+        function testWidget() {
+            window.open('https://dynamiccode-ochre.vercel.app/demo', '_blank');
+        }
+
+        function loadClientConfig() {
+            const siteId = document.getElementById('currentSiteId').value;
+            if (siteId && siteId !== 'new') {
+                // Load existing config (simplified for demo)
+                generateConfig();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            generateConfig();
+        });
+    </script>
+</body>
+</html>
