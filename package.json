@@ -1,0 +1,18 @@
+{
+  "name": "dynamiccode",
+  "version": "1.0.0",
+  "description": "**Retail's Customer Experience Platform - Production Ready Chat Widget**",
+  "main": "chat-widget-fixed.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0"
+  }
+}

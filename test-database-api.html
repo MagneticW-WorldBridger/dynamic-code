@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗄️ Database API Tests - AI PRL Assist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #e7f3ff; color: #0c5460; border: 1px solid #b8daff; }
+        .pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        
+        .json-display { background: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        
+        .test-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 20px 0; }
+        
+        .endpoint-status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+        .status-ok { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-pending { background: #ffc107; }
+        
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { font-size: 12px; color: #6c757d; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="test-section">
+            <h1>🗄️ Database API Test Suite</h1>
+            <p><strong>AI PRL Assist Widget</strong> - Testing Real Database Integration</p>
+            
+            <div class="stats" id="statsContainer">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTests">0</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="passedTests">0</div>
+                    <div class="stat-label">Passed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="failedTests">0</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="responseTime">0ms</div>
+                    <div class="stat-label">Avg Response</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Test Controls -->
+        <section class="test-section">
+            <h2>🎮 Test Controls</h2>
+            <div class="test-controls">
+                <button onclick="runAllTests()">🚀 Run All Tests</button>
+                <button onclick="testHealthCheck()">❤️ Health Check</button>
+                <button onclick="testListConfigs()">📋 List Configs</button>
+                <button onclick="testLoadConfig()">📥 Load Config</button>
+                <button onclick="testSaveConfig()">💾 Save Config</button>
+                <button onclick="testCreateConfig()">➕ Create Config</button>
+                <button onclick="testDeleteConfig()">🗑️ Delete Config</button>
+                <button onclick="clearResults()">🧹 Clear Results</button>
+            </div>
+        </section>
+
+        <!-- Endpoint Status -->
+        <section class="test-section">
+            <h2>📡 Endpoint Status</h2>
+            <div id="endpointStatus">
+                <div><span class="endpoint-status status-pending"></span>/api/health - Health Check</div>
+                <div><span class="endpoint-status status-pending"></span>/api/configs - List Configurations</div>
+                <div><span class="endpoint-status status-pending"></span>/api/config/[siteId] - CRUD Operations</div>
+            </div>
+        </section>
+
+        <!-- Test Results -->
+        <section class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="testResults">
+                <div class="info">Ready to run database tests... Click "Run All Tests" to begin.</div>
+            </div>
+        </section>
+
+        <!-- Live Data -->
+        <section class="test-section">
+            <h2>🔍 Live Database Data</h2>
+            <button onclick="refreshData()">🔄 Refresh Data</button>
+            <div id="liveData" class="json-display">Click "Refresh Data" to load current database contents...</div>
+        </section>
+
+        <!-- Manual Testing -->
+        <section class="test-section">
+            <h2>🛠️ Manual Testing</h2>
+            <div class="test-controls">
+                <input type="text" id="testSiteId" placeholder="Enter siteId (e.g., test-123)" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin: 5px;">
+                <button onclick="manualLoadConfig()">📥 Load Config</button>
+                <button onclick="manualSaveConfig()">💾 Save Test Config</button>
+                <button onclick="manualDeleteConfig()" class="danger">🗑️ Delete Config</button>
+            </div>
+            <div id="manualResults"></div>
+        </section>
+    </div>
+
+    <script>
+        let testResults = [];
+        let stats = { total: 0, passed: 0, failed: 0, totalTime: 0 };
+        const API_BASE = window.location.origin;
+
+        // Utility functions
+        function log(message, type = 'info', data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = { message: `[${timestamp}] ${message}`, type, data };
+            testResults.push(result);
+            
+            const resultsDiv = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${result.message}${data ? '<br><small>' + JSON.stringify(data, null, 2) + '</small>' : ''}`;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            
+            console.log(`[DB API TEST] ${message}`, data || '');
+            
+            // Update stats
+            if (type === 'pass') stats.passed++;
+            if (type === 'fail') stats.failed++;
+            stats.total = stats.passed + stats.failed;
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalTests').textContent = stats.total;
+            document.getElementById('passedTests').textContent = stats.passed;
+            document.getElementById('failedTests').textContent = stats.failed;
+            document.getElementById('responseTime').textContent = 
+                stats.total > 0 ? Math.round(stats.totalTime / stats.total) + 'ms' : '0ms';
+        }
+
+        function updateEndpointStatus(endpoint, status) {
+            const statusElements = document.querySelectorAll('#endpointStatus .endpoint-status');
+            const endpointMap = {
+                'health': 0,
+                'configs': 1,
+                'config': 2
+            };
+            
+            const index = endpointMap[endpoint];
+            if (index !== undefined && statusElements[index]) {
+                statusElements[index].className = `endpoint-status status-${status}`;
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '<div class="info">Results cleared. Ready for new tests.</div>';
+            testResults = [];
+            stats = { total: 0, passed: 0, failed: 0, totalTime: 0 };
+            updateStats();
+        }
+
+        // API Test Functions
+        async function testHealthCheck() {
+            log('🧪 STARTING: Health Check Test', 'info');
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    updateEndpointStatus('health', 'error');
+                    log(`❌ FAIL: Health check failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    updateEndpointStatus('health', 'ok');
+                    log(`✅ PASS: Health check successful (${responseTime}ms)`, 'pass', data);
+                    return true;
+                } else {
+                    updateEndpointStatus('health', 'error');
+                    log('❌ FAIL: Health check returned unhealthy status', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                updateEndpointStatus('health', 'error');
+                log(`❌ FAIL: Health check error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testListConfigs() {
+            log('🧪 STARTING: List Configurations Test', 'info');
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/configs`);
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    updateEndpointStatus('configs', 'error');
+                    log(`❌ FAIL: List configs failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && Array.isArray(data.configs)) {
+                    updateEndpointStatus('configs', 'ok');
+                    log(`✅ PASS: Listed ${data.count} configurations (${responseTime}ms)`, 'pass', data);
+                    return true;
+                } else {
+                    updateEndpointStatus('configs', 'error');
+                    log('❌ FAIL: Invalid response format', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                updateEndpointStatus('configs', 'error');
+                log(`❌ FAIL: List configs error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testLoadConfig() {
+            log('🧪 STARTING: Load Configuration Test', 'info');
+            const startTime = Date.now();
+            const testSiteId = 'aiprlassist-default';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${testSiteId}`);
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    updateEndpointStatus('config', 'error');
+                    log(`❌ FAIL: Load config failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.config) {
+                    updateEndpointStatus('config', 'ok');
+                    log(`✅ PASS: Loaded config for ${testSiteId} (${responseTime}ms)`, 'pass', {
+                        siteId: data.siteId,
+                        clientName: data.clientName,
+                        hasConfig: !!data.config,
+                        configKeys: Object.keys(data.config || {})
+                    });
+                    return true;
+                } else {
+                    updateEndpointStatus('config', 'error');
+                    log('❌ FAIL: Invalid config response', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                updateEndpointStatus('config', 'error');
+                log(`❌ FAIL: Load config error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testSaveConfig() {
+            log('🧪 STARTING: Save Configuration Test', 'info');
+            const startTime = Date.now();
+            const testSiteId = `test-save-${Date.now()}`;
+            
+            const testConfig = {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=TEST123",
+                fallbackUrl: "https://app.aiprlassist.com/webchat/?p=1047143&ref=TEST456",
+                bubble: {
+                    position: "br",
+                    size: 68,
+                    bg: "#E67E22",
+                    color: "#ffffff",
+                    pulse: true
+                },
+                triggers: {
+                    showBubbleAfterMs: 2000,
+                    openAfterMs: 0
+                },
+                rules: {
+                    includePaths: ["*"],
+                    excludePaths: [],
+                    showOnMobile: true,
+                    showOnDesktop: true,
+                    appendUTM: true
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${testSiteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        config: testConfig,
+                        clientName: 'Test Client'
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    log(`❌ FAIL: Save config failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.saved) {
+                    log(`✅ PASS: Saved config for ${testSiteId} (${responseTime}ms)`, 'pass', {
+                        siteId: data.siteId,
+                        clientName: data.clientName,
+                        id: data.id
+                    });
+                    return true;
+                } else {
+                    log('❌ FAIL: Save config response invalid', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                log(`❌ FAIL: Save config error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testCreateConfig() {
+            log('🧪 STARTING: Create Configuration Test', 'info');
+            const startTime = Date.now();
+            const testSiteId = `test-create-${Date.now()}`;
+            
+            const testConfig = {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=CREATE123",
+                bubble: { position: "bl", size: 60, bg: "#3498DB" },
+                triggers: { showBubbleAfterMs: 1000 },
+                rules: { includePaths: ["*"], excludePaths: [] }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/configs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        siteId: testSiteId,
+                        clientName: 'Test Create Client',
+                        config: testConfig
+                    })
+                });
+                
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    log(`❌ FAIL: Create config failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.created) {
+                    log(`✅ PASS: Created config for ${testSiteId} (${responseTime}ms)`, 'pass', data);
+                    return true;
+                } else {
+                    log('❌ FAIL: Create config response invalid', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                log(`❌ FAIL: Create config error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        async function testDeleteConfig() {
+            log('🧪 STARTING: Delete Configuration Test', 'info');
+            
+            // First create a config to delete
+            const testSiteId = `test-delete-${Date.now()}`;
+            const testConfig = {
+                chatUrl: "https://test.com",
+                bubble: { position: "br", size: 50, bg: "#FF0000" },
+                triggers: { showBubbleAfterMs: 500 },
+                rules: { includePaths: ["*"], excludePaths: [] }
+            };
+            
+            try {
+                // Create the config
+                await fetch(`${API_BASE}/api/config/${testSiteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        config: testConfig,
+                        clientName: 'Test Delete Client'
+                    })
+                });
+                
+                // Now delete it
+                const startTime = Date.now();
+                const response = await fetch(`${API_BASE}/api/config/${testSiteId}`, {
+                    method: 'DELETE'
+                });
+                
+                const responseTime = Date.now() - startTime;
+                stats.totalTime += responseTime;
+                
+                if (!response.ok) {
+                    log(`❌ FAIL: Delete config failed with status ${response.status}`, 'fail');
+                    return false;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.deleted) {
+                    log(`✅ PASS: Deleted config for ${testSiteId} (${responseTime}ms)`, 'pass', data);
+                    return true;
+                } else {
+                    log('❌ FAIL: Delete config response invalid', 'fail', data);
+                    return false;
+                }
+                
+            } catch (error) {
+                log(`❌ FAIL: Delete config error: ${error.message}`, 'fail');
+                return false;
+            }
+        }
+
+        // Manual Testing Functions
+        async function manualLoadConfig() {
+            const siteId = document.getElementById('testSiteId').value.trim();
+            if (!siteId) {
+                document.getElementById('manualResults').innerHTML = '<div class="test-result fail">❌ Please enter a siteId</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${siteId}`);
+                const data = await response.json();
+                
+                document.getElementById('manualResults').innerHTML = `
+                    <div class="test-result ${response.ok ? 'pass' : 'fail'}">
+                        ${response.ok ? '✅ SUCCESS' : '❌ ERROR'}: ${response.status}
+                    </div>
+                    <div class="json-display">${JSON.stringify(data, null, 2)}</div>
+                `;
+            } catch (error) {
+                document.getElementById('manualResults').innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function manualSaveConfig() {
+            const siteId = document.getElementById('testSiteId').value.trim();
+            if (!siteId) {
+                document.getElementById('manualResults').innerHTML = '<div class="test-result fail">❌ Please enter a siteId</div>';
+                return;
+            }
+            
+            const testConfig = {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=MANUAL123",
+                fallbackUrl: "https://app.aiprlassist.com/webchat/?p=1047143&ref=MANUAL456",
+                bubble: {
+                    position: "br",
+                    size: 68,
+                    bg: "#E67E22",
+                    color: "#ffffff",
+                    pulse: true
+                },
+                triggers: {
+                    showBubbleAfterMs: 2000,
+                    openAfterMs: 0
+                },
+                rules: {
+                    includePaths: ["*"],
+                    excludePaths: [],
+                    showOnMobile: true,
+                    showOnDesktop: true,
+                    appendUTM: true
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${siteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        config: testConfig,
+                        clientName: `Manual Test Client (${siteId})`
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('manualResults').innerHTML = `
+                    <div class="test-result ${response.ok ? 'pass' : 'fail'}">
+                        ${response.ok ? '✅ SAVED' : '❌ ERROR'}: ${response.status}
+                    </div>
+                    <div class="json-display">${JSON.stringify(data, null, 2)}</div>
+                `;
+            } catch (error) {
+                document.getElementById('manualResults').innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function manualDeleteConfig() {
+            const siteId = document.getElementById('testSiteId').value.trim();
+            if (!siteId) {
+                document.getElementById('manualResults').innerHTML = '<div class="test-result fail">❌ Please enter a siteId</div>';
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete config for "${siteId}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/config/${siteId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('manualResults').innerHTML = `
+                    <div class="test-result ${response.ok ? 'pass' : 'fail'}">
+                        ${response.ok ? '✅ DELETED' : '❌ ERROR'}: ${response.status}
+                    </div>
+                    <div class="json-display">${JSON.stringify(data, null, 2)}</div>
+                `;
+            } catch (error) {
+                document.getElementById('manualResults').innerHTML = `<div class="test-result fail">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function refreshData() {
+            try {
+                const response = await fetch(`${API_BASE}/api/configs`);
+                const data = await response.json();
+                
+                document.getElementById('liveData').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('liveData').textContent = `Error loading data: ${error.message}`;
+            }
+        }
+
+        // Main test runner
+        async function runAllTests() {
+            log('🚀 STARTING COMPLETE DATABASE API TEST SUITE', 'info');
+            clearResults();
+            
+            const tests = [
+                { name: 'Health Check', fn: testHealthCheck },
+                { name: 'List Configs', fn: testListConfigs },
+                { name: 'Load Config', fn: testLoadConfig },
+                { name: 'Save Config', fn: testSaveConfig },
+                { name: 'Create Config', fn: testCreateConfig },
+                { name: 'Delete Config', fn: testDeleteConfig }
+            ];
+
+            let passCount = 0;
+            let totalTests = tests.length;
+
+            for (const test of tests) {
+                try {
+                    const result = await test.fn();
+                    if (result) passCount++;
+                } catch (error) {
+                    log(`❌ FAIL: ${test.name} threw unexpected error: ${error.message}`, 'fail');
+                }
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            log(`🏁 COMPLETE: ${passCount}/${totalTests} tests passed`, passCount === totalTests ? 'pass' : 'fail');
+            
+            // Refresh live data
+            refreshData();
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Database API Test Suite initialized', 'info');
+            
+            // Auto-run health check
+            setTimeout(() => {
+                testHealthCheck();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
