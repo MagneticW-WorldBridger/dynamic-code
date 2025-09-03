@@ -1,0 +1,45 @@
+{
+  "chatUrl": "https://app.aiprlassist.com/webchat/?p=1145545&ref=1746548719207",
+  "bubble": {
+    "position": "br",
+    "size": 60,
+    "bg": "#d4af37",
+    "color": "#ffffff",
+    "outline": "#ffffff",
+    "label": "¡Hola! ¿Te ayudo?",
+    "iconUrl": "",
+    "pulse": true
+  },
+  "teaser": {
+    "enabled": true,
+    "text": "¡Hola! Soy el asistente de Woodstock Furniture. ¿En qué puedo ayudarte hoy?",
+    "delayMs": 5000,
+    "autocloseMs": 10000
+  },
+  "triggers": {
+    "showBubbleAfterMs": 2000,
+    "openAfterMs": 0,
+    "triggerOnScrollPercent": 50,
+    "triggerOnExitIntent": true
+  },
+  "rules": {
+    "includePaths": ["*"],
+    "excludePaths": ["/admin*", "/checkout*"],
+    "showOnMobile": true,
+    "showOnDesktop": true,
+    "minWidth": 0,
+    "maxWidth": 99999,
+    "frequencyCapHours": 6,
+    "appendUTM": true
+  },
+  "overlay": {
+    "bg": "rgba(0,0,0,0.6)",
+    "closeOnEsc": true,
+    "windowMode": true,
+    "windowWidth": "420px",
+    "windowHeight": "650px"
+  },
+  "analytics": {
+    "console": true
+  }
+}
