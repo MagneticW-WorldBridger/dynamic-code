@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>AI PRL Assist - Widget Control Panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        :root {
+            --pico-primary: #E67E22;
+            --pico-primary-background: #E67E22;
+            --pico-primary-hover: #D35400;
+        }
+        
+        .widget-preview {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s ease;
+            box-shadow: var(--pico-box-shadow);
+        }
+        
+        .widget-preview:hover {
+            transform: scale(1.1);
+        }
+        
+        .widget-preview img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .code-output {
+            background: var(--pico-code-background-color);
+            border: 1px solid var(--pico-muted-border-color);
+            border-radius: var(--pico-border-radius);
+            padding: 1rem;
+            font-family: var(--pico-font-family-monospace);
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .utm-flow {
+            background: var(--pico-card-background-color);
+            border: 1px solid var(--pico-card-border-color);
+            border-radius: var(--pico-border-radius);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-active { background: #2ecc71; }
+        .status-inactive { background: #95a5a6; }
+        
+        nav ul li strong {
+            color: var(--pico-primary);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><strong>AI PRL Assist</strong></li>
+        </ul>
+        <ul>
+            <li><a href="#config">Configure</a></li>
+            <li><a href="#code">Deploy</a></li>
+            <li><a href="#utm">UTM Flow</a></li>
+            <li><a href="#advanced">Advanced</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <header>
+            <h1>Widget Control Panel</h1>
+            <p>Configure your chat widget with clean, minimal controls</p>
+        </header>
+
+        <!-- Configuration Section -->
+        <section id="config">
+            <h2>Configuration</h2>
+            
+            <div class="feature-grid">
+                <article>
+                    <header><h4>Essential Settings</h4></header>
+                    <div class="grid">
+                        <label>
+                            Chat ID
+                            <input type="text" id="chatId" value="O1T4KXJ9xZ" placeholder="Your chat ID">
+                        </label>
+                        <label>
+                            Account ID
+                            <input type="text" id="accountId" value="1047143" placeholder="Your account ID">
+                        </label>
+                    </div>
+                </article>
+
+                <article>
+                    <header><h4>Appearance</h4></header>
+                    <div class="grid">
+                        <label>
+                            Bubble Color
+                            <input type="color" id="color" value="#E67E22">
+                        </label>
+                        <label>
+                            Size (px)
+                            <input type="range" id="size" min="40" max="100" value="68">
+                            <small id="sizeValue">68px</small>
+                        </label>
+                    </div>
+                    <label>
+                        Icon URL
+                        <input type="url" id="icon" value="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png">
+                    </label>
+                    <fieldset>
+                        <legend>Position</legend>
+                        <label>
+                            <input type="radio" name="position" value="bottom-right" checked>
+                            Bottom Right
+                        </label>
+                        <label>
+                            <input type="radio" name="position" value="bottom-left">
+                            Bottom Left
+                        </label>
+                    </fieldset>
+                </article>
+
+                <article>
+                    <header><h4>Behavior</h4></header>
+                    <label>
+                        Show Delay (ms)
+                        <input type="number" id="showDelay" value="1000" min="0" max="10000" step="500">
+                    </label>
+                    <label>
+                        Auto-open Delay (ms, 0 = never)
+                        <input type="number" id="openDelay" value="0" min="0" max="30000" step="1000">
+                    </label>
+                    <label>
+                        <input type="checkbox" id="exitIntent" role="switch">
+                        Exit Intent Trigger
+                    </label>
+                    <label>
+                        <input type="checkbox" id="scrollTrigger" role="switch">
+                        Scroll Trigger (75%)
+                    </label>
+                </article>
+
+                <article>
+                    <header><h4>Chat Window</h4></header>
+                    <fieldset>
+                        <legend>Desktop Mode</legend>
+                        <label>
+                            <input type="radio" name="windowMode" value="windowed" checked>
+                            Windowed (420x650px)
+                        </label>
+                        <label>
+                            <input type="radio" name="windowMode" value="fullscreen">
+                            Full Screen
+                        </label>
+                    </fieldset>
+                    <details>
+                        <summary role="button" class="outline">Custom Window Size</summary>
+                        <div class="grid">
+                            <label>
+                                Width (px)
+                                <input type="number" id="windowWidth" value="420" min="300" max="800">
+                            </label>
+                            <label>
+                                Height (px)
+                                <input type="number" id="windowHeight" value="650" min="400" max="900">
+                            </label>
+                        </div>
+                    </details>
+                </article>
+
+                <article>
+                    <header><h4>Advanced Features</h4></header>
+                    <label>
+                        Fallback Chat URL
+                        <input type="url" id="fallbackUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
+                        <small>Used if primary URL fails</small>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="analytics" role="switch" checked>
+                        Console Analytics
+                    </label>
+                    <label>
+                        <input type="checkbox" id="utmCapture" role="switch" checked>
+                        UTM Parameter Capture
+                    </label>
+                </article>
+
+                <article>
+                    <header><h4>Live Preview</h4></header>
+                    <p>Widget preview appears in bottom-right corner</p>
+                    <div role="group">
+                        <button onclick="updatePreview()">Update Preview</button>
+                        <button onclick="testWidget()" class="secondary">Test Widget</button>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <span class="status-indicator status-active"></span>
+                        <small id="previewStatus">Preview Active</small>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Code Generation Section -->
+        <section id="code">
+            <h2>Deployment Code</h2>
+            
+            <article>
+                <header>
+                    <h4>Client Code</h4>
+                    <p>Copy this code to your client's website footer</p>
+                </header>
+                <div class="code-output" id="clientCode">
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143", 
+  color: "#E67E22",
+  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+  position: "bottom-right",
+  size: 68
+});
+&lt;/script&gt;
+                </div>
+                <button onclick="copyCode()" class="outline">Copy Code</button>
+            </article>
+
+            <details>
+                <summary role="button" class="secondary">Platform Instructions</summary>
+                <div class="feature-grid">
+                    <article>
+                        <header><h5>GoHighLevel</h5></header>
+                        <ol>
+                            <li>Go to Settings → Tracking Code</li>
+                            <li>Paste code in "Footer Tracking Code"</li>
+                            <li>Save and publish</li>
+                            <li>Widget appears on all pages</li>
+                        </ol>
+                    </article>
+                    <article>
+                        <header><h5>Webflow</h5></header>
+                        <ol>
+                            <li>Go to Project Settings → Custom Code</li>
+                            <li>Paste in "Footer Code" section</li>
+                            <li>Publish site</li>
+                            <li>Note: Requires paid plan</li>
+                        </ol>
+                    </article>
+                    <article>
+                        <header><h5>WordPress</h5></header>
+                        <ol>
+                            <li>Appearance → Theme Editor</li>
+                            <li>Edit footer.php</li>
+                            <li>Add before &lt;/body&gt;</li>
+                            <li>Save changes</li>
+                        </ol>
+                    </article>
+                    <article>
+                        <header><h5>Shopify</h5></header>
+                        <ol>
+                            <li>Online Store → Themes → Actions → Edit Code</li>
+                            <li>Edit theme.liquid</li>
+                            <li>Add before &lt;/body&gt;</li>
+                            <li>Save</li>
+                        </ol>
+                    </article>
+                </div>
+            </details>
+        </section>
+
+        <!-- UTM Flow Section -->
+        <section id="utm">
+            <h2>UTM Parameter Flow</h2>
+            
+            <div class="utm-flow">
+                <h4>📥 Step 1: Visitor Arrives</h4>
+                <code>https://client-site.com/page?utm_source=facebook&utm_campaign=promo2024</code>
+            </div>
+            
+            <div class="utm-flow">
+                <h4>🔄 Step 2: Widget Captures Parameters</h4>
+                <p>Automatically extracts: utm_source, utm_medium, utm_campaign, utm_term, utm_content</p>
+            </div>
+            
+            <div class="utm-flow">
+                <h4>📤 Step 3: Chat Opens With Full Context</h4>
+                <code>https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&utm_source=facebook&utm_campaign=promo2024&host=client-site.com&page=https://client-site.com/page&embed=1</code>
+            </div>
+            
+            <div class="utm-flow">
+                <h4>💬 Step 4: Your Chat System Receives</h4>
+                <ul>
+                    <li>All UTM parameters for campaign tracking</li>
+                    <li>Page context (host, full URL, referrer)</li>
+                    <li>embed=1 flag to identify widget traffic</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Advanced Section -->
+        <section id="advanced">
+            <h2>Advanced Configuration</h2>
+            
+            <details>
+                <summary role="button" class="outline">Widget API</summary>
+                <article>
+                    <h5>JavaScript API</h5>
+                    <div class="code-output">
+// Open chat programmatically
+ChatWidget.open();
+
+// Close chat
+ChatWidget.close();
+
+// Check if widget is ready
+console.log(window.ChatWidget);
+                    </div>
+                </article>
+            </details>
+
+            <details>
+                <summary role="button" class="outline">Custom Styling</summary>
+                <article>
+                    <h5>CSS Customization</h5>
+                    <div class="code-output">
+/* Override widget styles */
+.ai-prl-chat-bubble {
+  /* Custom bubble styles */
+}
+
+.ai-prl-chat-overlay {
+  /* Custom overlay styles */
+}
+                    </div>
+                </article>
+            </details>
+
+            <details>
+                <summary role="button" class="outline">Multiple Widgets</summary>
+                <article>
+                    <h5>Different Configurations per Page</h5>
+                    <div class="code-output">
+// Conditional setup based on page
+if (location.pathname.includes('/support/')) {
+  ChatWidget.setup({
+    id: "SUPPORT_ID",
+    accountId: "1047143",
+    color: "#3498DB"
+  });
+} else {
+  ChatWidget.setup({
+    id: "SALES_ID", 
+    accountId: "1047143",
+    color: "#E67E22"
+  });
+}
+                    </div>
+                </article>
+            </details>
+        </section>
+    </main>
+
+    <!-- Preview Widget -->
+    <div class="widget-preview" id="widgetPreview" onclick="testChatOpen()">
+        <img id="previewIcon" src="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png" alt="Chat">
+    </div>
+
+    <script>
+        // Update preview in real-time
+        function updatePreview() {
+            const color = document.getElementById('color').value;
+            const icon = document.getElementById('icon').value;
+            const size = document.getElementById('size').value;
+            const position = document.querySelector('input[name="position"]:checked').value;
+            
+            const preview = document.getElementById('widgetPreview');
+            const previewIcon = document.getElementById('previewIcon');
+            
+            preview.style.background = color;
+            preview.style.width = size + 'px';
+            preview.style.height = size + 'px';
+            preview.style.right = position.includes('right') ? '1rem' : 'auto';
+            preview.style.left = position.includes('left') ? '1rem' : 'auto';
+            previewIcon.src = icon;
+            
+            document.getElementById('sizeValue').textContent = size + 'px';
+            
+            updateClientCode();
+        }
+
+        function updateClientCode() {
+            const config = {
+                id: document.getElementById('chatId').value,
+                accountId: document.getElementById('accountId').value,
+                color: document.getElementById('color').value,
+                icon: document.getElementById('icon').value,
+                position: document.querySelector('input[name="position"]:checked').value,
+                size: parseInt(document.getElementById('size').value)
+            };
+            
+            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  id: "${config.id}",
+  accountId: "${config.accountId}", 
+  color: "${config.color}",
+  icon: "${config.icon}",
+  position: "${config.position}",
+  size: ${config.size}
+});
+&lt;/script&gt;`;
+            
+            document.getElementById('clientCode').innerHTML = code;
+        }
+
+        function copyCode() {
+            const codeElement = document.getElementById('clientCode');
+            const text = codeElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Code copied to clipboard!');
+            });
+        }
+
+        function testWidget() {
+            // Remove existing test widget
+            const existing = document.getElementById('testWidgetScript');
+            if (existing) existing.remove();
+            
+            // Create test script
+            const script = document.createElement('script');
+            script.id = 'testWidgetScript';
+            script.innerHTML = `
+                if (window.ChatWidget && window.ChatWidget.setup) {
+                    ChatWidget.setup({
+                        id: "${document.getElementById('chatId').value}",
+                        accountId: "${document.getElementById('accountId').value}",
+                        color: "${document.getElementById('color').value}",
+                        icon: "${document.getElementById('icon').value}",
+                        position: "${document.querySelector('input[name="position"]:checked').value}",
+                        size: ${document.getElementById('size').value}
+                    });
+                }
+            `;
+            document.body.appendChild(script);
+            
+            document.getElementById('previewStatus').textContent = 'Live Widget Active';
+        }
+
+        function testChatOpen() {
+            if (window.ChatWidget && window.ChatWidget.open) {
+                window.ChatWidget.open();
+            } else {
+                alert('💬 Chat widget would open here!\n\nClick "Test Widget" to load the actual widget.');
+            }
+        }
+
+        // Auto-update preview when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['color', 'icon', 'size', 'chatId', 'accountId'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updatePreview);
+                    element.addEventListener('change', updatePreview);
+                }
+            });
+            
+            // Position radio buttons
+            document.querySelectorAll('input[name="position"]').forEach(radio => {
+                radio.addEventListener('change', updatePreview);
+            });
+            
+            // Size slider
+            document.getElementById('size').addEventListener('input', function() {
+                document.getElementById('sizeValue').textContent = this.value + 'px';
+                updatePreview();
+            });
+            
+            updatePreview();
+        });
+    </script>
+
+    <!-- Load the plugin for testing -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+</body>
+</html>

@@ -5,16 +5,26 @@
   // Global namespace
   window.ChatWidget = window.ChatWidget || {};
 
-  // Setup function - called by client
-  window.ChatWidget.setup = (config) => {
-    const {
-      id,
-      accountId, 
-      color = "#E67E22",
-      icon = "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
-      position = "bottom-right",
-      size = 68
-    } = config;
+     // Setup function - called by client
+   window.ChatWidget.setup = (config) => {
+     const {
+       id,
+       accountId, 
+       color = "#E67E22",
+       icon = "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+       position = "bottom-right",
+       size = 68,
+       showDelay = 1000,
+       openDelay = 0,
+       exitIntent = false,
+       scrollTrigger = false,
+       windowMode = "windowed",
+       windowWidth = 420,
+       windowHeight = 650,
+       fallbackUrl = null,
+       analytics = true,
+       utmCapture = true
+     } = config;
 
     if (!id || !accountId) {
       console.error('[AI PRL Assist] Missing required parameters: id, accountId');
@@ -118,9 +128,9 @@
              }
            }
         </style>
-        <div class="ai-prl-chat-bubble" onclick="window.ChatWidget.open()">
-          <img src="${icon}" alt="Chat" />
-        </div>
+                 <div class="ai-prl-chat-bubble" onclick="window.ChatWidget.open()" style="display: none;">
+           <img src="${icon}" alt="Chat" />
+         </div>
                  <div class="ai-prl-chat-overlay" onclick="window.ChatWidget.close()">
            <iframe class="ai-prl-chat-iframe" src="about:blank"></iframe>
          </div>
@@ -137,20 +147,40 @@
        const overlay = widget.querySelector('.ai-prl-chat-overlay');
        const iframe = widget.querySelector('.ai-prl-chat-iframe');
        const closeBtn = widget.querySelector('.ai-prl-chat-close');
+       const bubble = widget.querySelector('.ai-prl-chat-bubble');
+
+       let chatOpened = false;
 
        // Public API
        window.ChatWidget.open = () => {
-         iframe.src = buildChatUrl();
-         overlay.style.display = window.innerWidth >= 768 ? 'flex' : 'block';
-         if (closeBtn) closeBtn.style.display = window.innerWidth >= 768 ? 'block' : 'none';
-         console.log('[AI PRL Assist] Chat opened');
+         let chatUrl = buildChatUrl();
+         
+         // Try fallback URL if primary fails
+         const tryOpen = (url) => {
+           iframe.src = url;
+           overlay.style.display = window.innerWidth >= 768 ? 'flex' : 'block';
+           if (closeBtn) closeBtn.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+           chatOpened = true;
+           
+           if (analytics) console.log('[AI PRL Assist] Chat opened with URL:', url);
+         };
+
+         iframe.addEventListener('error', () => {
+           if (fallbackUrl && !chatOpened) {
+             if (analytics) console.warn('[AI PRL Assist] Primary URL failed, trying fallback');
+             tryOpen(fallbackUrl);
+           }
+         }, { once: true });
+
+         tryOpen(chatUrl);
        };
 
        window.ChatWidget.close = () => {
          overlay.style.display = 'none';
          if (closeBtn) closeBtn.style.display = 'none';
          iframe.src = 'about:blank';
-         console.log('[AI PRL Assist] Chat closed');
+         chatOpened = false;
+         if (analytics) console.log('[AI PRL Assist] Chat closed');
        };
 
        // Event handlers
@@ -167,7 +197,44 @@
          if (e.key === 'Escape') window.ChatWidget.close();
        });
 
-       console.log('[AI PRL Assist] Widget ready');
+       // Show bubble after delay
+       setTimeout(() => {
+         bubble.style.display = 'flex';
+         if (analytics) console.log('[AI PRL Assist] Bubble shown');
+       }, showDelay);
+
+       // Auto-open after delay
+       if (openDelay > 0) {
+         setTimeout(() => {
+           window.ChatWidget.open();
+         }, openDelay);
+       }
+
+       // Exit intent trigger
+       if (exitIntent) {
+         document.addEventListener('mouseleave', (e) => {
+           if (e.clientY < 0) {
+             window.ChatWidget.open();
+           }
+         });
+       }
+
+       // Scroll trigger
+       if (scrollTrigger) {
+         let triggered = false;
+         window.addEventListener('scroll', () => {
+           if (triggered) return;
+           const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+           if (scrollPercent >= 75) {
+             window.ChatWidget.open();
+             triggered = true;
+           }
+         });
+       }
+
+       if (analytics) console.log('[AI PRL Assist] Widget ready with config:', {
+         id, accountId, color, size, position, showDelay, openDelay, exitIntent, scrollTrigger
+       });
      };
 
     // Wait for DOM
