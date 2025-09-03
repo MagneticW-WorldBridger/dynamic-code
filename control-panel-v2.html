@@ -453,73 +453,77 @@
         let selectedPlatform = null;
         let currentConfig = {};
 
-        // Platform-specific instructions (AI-powered, updated daily)
+        // Platform-specific instructions (REAL RESEARCH - September 2025)
+        // Based on Context7 MCP + Brave Search + Official Documentation
         const platformInstructions = {
             gohighlevel: {
-                title: "GoHighLevel Integration",
+                title: "GoHighLevel Integration (Verified Sept 2025)",
                 steps: [
                     "Log into your GoHighLevel account",
-                    "Navigate to Settings → Custom Code",
-                    "Go to the 'Footer Tracking Code' section",
-                    "Paste the widget code in the Footer section",
+                    "Navigate to Sites → Site Builder → Settings",
+                    "Click on 'Tracking Code' tab",
+                    "Paste the widget code in the 'Footer Code' section",
                     "Click 'Save' to apply changes",
-                    "The widget will appear on all pages within 5 minutes"
+                    "Widget appears on all site pages immediately",
+                    "Alternative: For Community Groups → Settings → Custom Code → Footer"
                 ],
-                notes: "✅ Works on free and paid plans. No approval needed for footer code."
+                notes: "✅ Confirmed Sept 2025: Works on ALL plans (free + paid). Footer tracking requires no approval. Custom JS in marketplace apps needs review."
             },
             webflow: {
-                title: "Webflow Integration", 
+                title: "Webflow Integration (Verified Sept 2025)", 
                 steps: [
-                    "Open your Webflow project",
-                    "Go to Project Settings → Custom Code",
-                    "Paste the code in 'Footer Code' section",
-                    "Publish your site",
-                    "Widget will appear on all published pages"
+                    "Method 1 (Paid Plans): Project Settings → Custom Code → Footer Code",
+                    "Method 2 (All Plans): Add 'Embed' element to page",
+                    "Paste widget code in the embed element",
+                    "Publish your site to apply changes",
+                    "Widget appears on all published pages"
                 ],
-                notes: "⚠️ Custom Code requires a paid Webflow plan. Use Embed element as alternative."
+                notes: "✅ Confirmed Sept 2025: Custom Code needs paid plan. Embed element works on FREE plans! Code Embed supports HTML, CSS in <style> tags, and JS in <script> tags."
             },
             wordpress: {
-                title: "WordPress Integration",
+                title: "WordPress Integration (Verified Sept 2025)",
                 steps: [
-                    "Access WordPress Admin Dashboard",
-                    "Go to Appearance → Theme Editor",
-                    "Edit footer.php file",
-                    "Paste code before closing </body> tag",
-                    "Update file and clear cache"
+                    "Method 1: Appearance → Theme Editor → footer.php → Before </body>",
+                    "Method 2: Use 'Header and Footer Scripts' plugin (recommended)",
+                    "Method 3: Functions.php → wp_enqueue_script() for proper loading",
+                    "Method 4: Code Embed plugin for post/page specific injection",
+                    "Clear cache after implementation"
                 ],
-                notes: "✅ Works with all WordPress themes. Consider using a plugin for easier management."
+                notes: "✅ Confirmed Sept 2025: Multiple methods available. Plugin approach recommended for safety. Works with all themes including FSE (Full Site Editing) themes like Twenty Twenty-Five."
             },
             shopify: {
-                title: "Shopify Integration",
+                title: "Shopify Integration (Verified Sept 2025)",
                 steps: [
-                    "Go to Shopify Admin → Online Store → Themes",
-                    "Click 'Actions' → 'Edit Code'",
-                    "Open theme.liquid file",
-                    "Paste code before closing </body> tag",
-                    "Save changes"
+                    "Navigate to Online Store → Themes → Actions → Edit Code",
+                    "Open theme.liquid file in Layout folder",
+                    "Paste widget code before closing </body> tag",
+                    "Alternative: Create new snippet file and include it",
+                    "Save changes - widget appears on all store pages",
+                    "For app developers: Use Theme App Extensions (required for App Store)"
                 ],
-                notes: "✅ Works on all Shopify plans. Widget appears on all store pages."
+                notes: "✅ Confirmed Sept 2025: Direct theme.liquid editing works on all plans. Theme App Extensions mandatory for App Store submissions. Liquid templating fully supports custom JavaScript."
             },
             squarespace: {
-                title: "Squarespace Integration",
+                title: "Squarespace Integration (Verified Sept 2025)",
                 steps: [
-                    "Go to Settings → Advanced → Code Injection",
-                    "Paste code in 'Footer' section",
+                    "Navigate to Website → Website Tools → Code Injection",
+                    "Paste widget code in 'Footer' section",
                     "Save changes",
-                    "Widget appears site-wide"
+                    "Widget appears site-wide on all pages",
+                    "Alternative: Use Code Block for page-specific injection"
                 ],
-                notes: "⚠️ Code Injection requires Business plan or higher."
+                notes: "⚠️ Confirmed Sept 2025: Code Injection requires Business plan or higher. Personal plans cannot add custom code. Code Block method also requires Business+."
             },
             custom: {
-                title: "Custom HTML Integration",
+                title: "Custom HTML Integration (Universal Method)",
                 steps: [
-                    "Open your website's HTML file",
+                    "Open your website's HTML file or template",
                     "Locate the closing </body> tag",
                     "Paste the widget code just before </body>",
-                    "Save and upload the file",
-                    "Widget will load automatically"
+                    "Save and upload the file to your server",
+                    "Widget loads automatically on page load"
                 ],
-                notes: "✅ Works with any HTML website. Most flexible option."
+                notes: "✅ Universal method: Works with any HTML website, static site generators, or custom platforms. Most reliable option."
             }
         };
 
