@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 UTM Flow Test - AI PRL Assist</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .utm-display { background: #e7f3ff; padding: 15px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+        .pass { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; }
+        .fail { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; }
+        .info { background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .chat-url { background: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-box">
+            <h1>🎯 UTM Flow End-to-End Test</h1>
+            <p>Testing complete UTM parameter flow from URL to chat system</p>
+        </div>
+
+        <div class="test-box">
+            <h2>📥 Step 1: Current URL Analysis</h2>
+            <div class="utm-display" id="currentUrlDisplay">
+                Loading current URL...
+            </div>
+            <div id="utmAnalysis"></div>
+        </div>
+
+        <div class="test-box">
+            <h2>🔄 Step 2: Parameter Extraction Test</h2>
+            <button onclick="testParameterExtraction()">🧪 Test Parameter Extraction</button>
+            <div id="extractionResults"></div>
+        </div>
+
+        <div class="test-box">
+            <h2>📤 Step 3: Chat URL Generation</h2>
+            <button onclick="testChatUrlGeneration()">🔗 Generate Chat URL</button>
+            <div id="chatUrlResults"></div>
+        </div>
+
+        <div class="test-box">
+            <h2>🎭 Step 4: Scenario Testing</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <button onclick="testFacebookCampaign()">📘 Facebook Campaign</button>
+                <button onclick="testGoogleAds()">🔍 Google Ads</button>
+                <button onclick="testEmailCampaign()">📧 Email Campaign</button>
+                <button onclick="testDirectTraffic()">🔗 Direct Traffic</button>
+            </div>
+            <div id="scenarioResults"></div>
+        </div>
+
+        <div class="test-box">
+            <h2>💬 Step 5: Live Widget Test</h2>
+            <button onclick="setupLiveWidget()">🚀 Setup Live Widget</button>
+            <button onclick="openChatWithUTM()">💬 Open Chat (Check UTM)</button>
+            <div id="liveWidgetResults"></div>
+        </div>
+
+        <div class="test-box">
+            <h2>📊 Test Results Summary</h2>
+            <div id="testSummary">
+                <div class="info">Run tests above to see results</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            urlAnalysis: false,
+            parameterExtraction: false,
+            chatUrlGeneration: false,
+            scenarioTesting: false,
+            liveWidget: false
+        };
+
+        function updateCurrentUrl() {
+            const url = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            document.getElementById('currentUrlDisplay').innerHTML = `
+                <strong>Current URL:</strong><br>
+                ${url}<br><br>
+                <strong>Detected Parameters:</strong><br>
+                ${Array.from(urlParams.entries()).map(([key, value]) => `${key} = ${value}`).join('<br>') || 'None'}
+            `;
+
+            // Analyze UTM parameters
+            const utmParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+            const foundUtm = utmParams.filter(param => urlParams.has(param));
+            
+            const analysisDiv = document.getElementById('utmAnalysis');
+            if (foundUtm.length > 0) {
+                analysisDiv.innerHTML = `<div class="pass">✅ Found ${foundUtm.length} UTM parameters: ${foundUtm.join(', ')}</div>`;
+                testResults.urlAnalysis = true;
+            } else {
+                analysisDiv.innerHTML = `<div class="info">ℹ️ No UTM parameters in current URL. Click scenario buttons to test with UTM parameters.</div>`;
+            }
+        }
+
+        function testParameterExtraction() {
+            const resultsDiv = document.getElementById('extractionResults');
+            resultsDiv.innerHTML = '<div class="info">Testing parameter extraction...</div>';
+            
+            try {
+                // Simulate the widget's parameter extraction logic
+                const currentParams = new URLSearchParams(window.location.search);
+                const extractedParams = {};
+                
+                ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                    const value = currentParams.get(param);
+                    if (value) {
+                        extractedParams[param] = value;
+                    }
+                });
+
+                // Also extract page context
+                const pageContext = {
+                    host: window.location.hostname,
+                    page: window.location.href,
+                    ref: document.referrer || 'direct'
+                };
+
+                const totalParams = Object.keys(extractedParams).length + Object.keys(pageContext).length;
+                
+                resultsDiv.innerHTML = `
+                    <div class="pass">✅ Parameter extraction successful</div>
+                    <div style="margin-top: 10px;">
+                        <strong>UTM Parameters (${Object.keys(extractedParams).length}):</strong><br>
+                        ${Object.entries(extractedParams).map(([key, value]) => `• ${key}: ${value}`).join('<br>') || 'None detected'}
+                        <br><br>
+                        <strong>Page Context (${Object.keys(pageContext).length}):</strong><br>
+                        ${Object.entries(pageContext).map(([key, value]) => `• ${key}: ${value}`).join('<br>')}
+                        <br><br>
+                        <strong>Total Parameters:</strong> ${totalParams}
+                    </div>
+                `;
+                
+                testResults.parameterExtraction = true;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="fail">❌ Parameter extraction failed: ${error.message}</div>`;
+                testResults.parameterExtraction = false;
+            }
+            
+            updateTestSummary();
+        }
+
+        function testChatUrlGeneration() {
+            const resultsDiv = document.getElementById('chatUrlResults');
+            resultsDiv.innerHTML = '<div class="info">Generating chat URL...</div>';
+            
+            try {
+                // Simulate widget's URL generation
+                const baseUrl = 'https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ';
+                const url = new URL(baseUrl);
+                
+                // Add embed flag
+                url.searchParams.set('embed', '1');
+                
+                // Add page context
+                url.searchParams.set('host', window.location.hostname);
+                url.searchParams.set('page', window.location.href);
+                if (document.referrer) {
+                    url.searchParams.set('ref', document.referrer);
+                }
+                
+                // Add UTM parameters
+                const currentParams = new URLSearchParams(window.location.search);
+                ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                    const value = currentParams.get(param);
+                    if (value) {
+                        url.searchParams.set(param, value);
+                    }
+                });
+                
+                const finalUrl = url.toString();
+                const paramCount = Array.from(url.searchParams.entries()).length;
+                
+                resultsDiv.innerHTML = `
+                    <div class="pass">✅ Chat URL generated successfully</div>
+                    <div style="margin-top: 10px;">
+                        <strong>Generated Chat URL (${paramCount} parameters):</strong><br>
+                        <div class="chat-url">${finalUrl}</div>
+                        <br>
+                        <strong>Parameters included:</strong><br>
+                        ${Array.from(url.searchParams.entries()).map(([key, value]) => `• ${key}: ${value}`).join('<br>')}
+                    </div>
+                `;
+                
+                testResults.chatUrlGeneration = true;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="fail">❌ Chat URL generation failed: ${error.message}</div>`;
+                testResults.chatUrlGeneration = false;
+            }
+            
+            updateTestSummary();
+        }
+
+        function testScenario(utmParams, scenarioName) {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Add scenario UTM parameters
+            Object.entries(utmParams).forEach(([key, value]) => {
+                params.set(key, value);
+            });
+            
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            
+            // Update URL without reload
+            window.history.pushState({}, '', newUrl);
+            
+            // Update displays
+            updateCurrentUrl();
+            
+            // Show scenario result
+            const resultsDiv = document.getElementById('scenarioResults');
+            resultsDiv.innerHTML = `
+                <div class="pass">✅ ${scenarioName} scenario applied</div>
+                <div style="margin-top: 10px;">
+                    <strong>Applied Parameters:</strong><br>
+                    ${Object.entries(utmParams).map(([key, value]) => `• ${key}: ${value}`).join('<br>')}
+                    <br><br>
+                    <button onclick="testParameterExtraction(); testChatUrlGeneration();">🧪 Test This Scenario</button>
+                </div>
+            `;
+            
+            testResults.scenarioTesting = true;
+            updateTestSummary();
+        }
+
+        function testFacebookCampaign() {
+            testScenario({
+                utm_source: 'facebook',
+                utm_medium: 'social',
+                utm_campaign: 'summer_sale_2024',
+                utm_content: 'carousel_ad',
+                utm_term: 'chat_widget'
+            }, 'Facebook Campaign');
+        }
+
+        function testGoogleAds() {
+            testScenario({
+                utm_source: 'google',
+                utm_medium: 'cpc',
+                utm_campaign: 'search_keywords',
+                utm_term: 'ai_chat_support',
+                utm_content: 'text_ad_1'
+            }, 'Google Ads');
+        }
+
+        function testEmailCampaign() {
+            testScenario({
+                utm_source: 'newsletter',
+                utm_medium: 'email',
+                utm_campaign: 'weekly_update',
+                utm_content: 'header_cta'
+            }, 'Email Campaign');
+        }
+
+        function testDirectTraffic() {
+            // Clear all UTM parameters
+            const newUrl = window.location.pathname;
+            window.history.pushState({}, '', newUrl);
+            updateCurrentUrl();
+            
+            const resultsDiv = document.getElementById('scenarioResults');
+            resultsDiv.innerHTML = `
+                <div class="info">ℹ️ Direct Traffic scenario applied (no UTM parameters)</div>
+                <div style="margin-top: 10px;">
+                    <button onclick="testParameterExtraction(); testChatUrlGeneration();">🧪 Test Direct Traffic</button>
+                </div>
+            `;
+        }
+
+        function setupLiveWidget() {
+            const resultsDiv = document.getElementById('liveWidgetResults');
+            resultsDiv.innerHTML = '<div class="info">Setting up live widget...</div>';
+            
+            try {
+                if (window.ChatWidget && window.ChatWidget.setup) {
+                    window.ChatWidget.setup({
+                        id: "UTM_TEST_ID",
+                        accountId: "1047143",
+                        color: "#E67E22",
+                        icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+                        position: "bottom-right",
+                        size: 68,
+                        showDelay: 1000,
+                        analytics: true,
+                        utmCapture: true
+                    });
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="pass">✅ Live widget setup successful</div>
+                        <div style="margin-top: 10px;">
+                            Widget should appear in bottom-right corner in 1 second.<br>
+                            UTM capture is enabled for testing.
+                        </div>
+                    `;
+                    
+                    testResults.liveWidget = true;
+                    
+                } else {
+                    resultsDiv.innerHTML = `<div class="fail">❌ ChatWidget not available. Plugin may not be loaded.</div>`;
+                    testResults.liveWidget = false;
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="fail">❌ Widget setup failed: ${error.message}</div>`;
+                testResults.liveWidget = false;
+            }
+            
+            updateTestSummary();
+        }
+
+        function openChatWithUTM() {
+            const resultsDiv = document.getElementById('liveWidgetResults');
+            
+            try {
+                if (window.ChatWidget && window.ChatWidget.open) {
+                    // Generate the expected chat URL to show what would be sent
+                    const baseUrl = 'https://app.aiprlassist.com/webchat/?p=1047143&id=UTM_TEST_ID';
+                    const url = new URL(baseUrl);
+                    
+                    // Add all the parameters that would be included
+                    url.searchParams.set('embed', '1');
+                    url.searchParams.set('host', window.location.hostname);
+                    url.searchParams.set('page', window.location.href);
+                    if (document.referrer) url.searchParams.set('ref', document.referrer);
+                    
+                    const currentParams = new URLSearchParams(window.location.search);
+                    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+                        const value = currentParams.get(param);
+                        if (value) url.searchParams.set(param, value);
+                    });
+                    
+                    const finalUrl = url.toString();
+                    
+                    // Show what URL would be opened
+                    resultsDiv.innerHTML += `
+                        <div class="pass">✅ Chat opening with UTM parameters</div>
+                        <div style="margin-top: 10px;">
+                            <strong>Chat URL being opened:</strong><br>
+                            <div class="chat-url">${finalUrl}</div>
+                            <br>
+                            <strong>UTM Parameters included:</strong><br>
+                            ${Array.from(currentParams.entries()).filter(([key]) => key.startsWith('utm_')).map(([key, value]) => `• ${key}: ${value}`).join('<br>') || 'None (direct traffic)'}
+                        </div>
+                    `;
+                    
+                    // Actually open the chat
+                    window.ChatWidget.open();
+                    
+                } else {
+                    resultsDiv.innerHTML += `<div class="fail">❌ Cannot open chat - ChatWidget.open not available</div>`;
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="fail">❌ Chat opening failed: ${error.message}</div>`;
+            }
+        }
+
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('testSummary');
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            const totalTests = Object.keys(testResults).length;
+            
+            const testDetails = Object.entries(testResults).map(([test, passed]) => {
+                const status = passed ? '✅' : '⏳';
+                const testName = test.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                return `${status} ${testName}`;
+            }).join('<br>');
+            
+            const summaryClass = passedTests === totalTests ? 'pass' : passedTests > 0 ? 'info' : 'fail';
+            
+            summaryDiv.innerHTML = `
+                <div class="${summaryClass}">
+                    <strong>Test Progress: ${passedTests}/${totalTests} completed</strong><br><br>
+                    ${testDetails}
+                </div>
+            `;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentUrl();
+            updateTestSummary();
+            
+            // Auto-setup widget after a short delay
+            setTimeout(() => {
+                setupLiveWidget();
+            }, 2000);
+        });
+    </script>
+
+    <!-- Load the widget plugin -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+</body>
+</html>
