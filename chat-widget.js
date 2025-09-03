@@ -255,9 +255,30 @@
     if (state.open) return;
     state.open = true;
     const { overlay, iframe } = state.els;
-    iframe.src = appendParams(cfg.chatUrl, cfg);
+    
+    // Try primary URL first
+    const primaryUrl = appendParams(cfg.chatUrl, cfg);
+    iframe.src = primaryUrl;
     overlay.style.display = 'block';
+    
+    // Analytics tracking
     if (cfg.analytics.console) console.log('[ChatWidget] open');
+    if (cfg.analytics.trackOpens) {
+      trackEvent('chat_opened', {
+        siteId: cfg.siteId,
+        url: primaryUrl,
+        timestamp: Date.now(),
+        utms: getUTMParams()
+      });
+    }
+    
+    // Fallback logic if primary fails
+    if (cfg.fallbackUrl) {
+      iframe.addEventListener('error', () => {
+        console.log('[ChatWidget] Primary URL failed, trying fallback...');
+        iframe.src = appendParams(cfg.fallbackUrl, cfg);
+      }, { once: true });
+    }
   };
 
   const closeChat = () => {
@@ -305,6 +326,38 @@
     }
     console.log('[ChatWidget] shouldShow: ALLOWED');
     return true;
+  };
+
+  const getUTMParams = () => {
+    const params = new URLSearchParams(location.search);
+    const utms = {};
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k => {
+      const v = params.get(k);
+      if (v) utms[k] = v;
+    });
+    return utms;
+  };
+
+  const trackEvent = (eventName, data) => {
+    try {
+      // Send to console for debugging
+      console.log(`[ChatWidget Analytics] ${eventName}:`, data);
+      
+      // You can add external analytics here (Google Analytics, etc.)
+      if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, data);
+      }
+      
+      // Store locally for dashboard
+      const events = JSON.parse(localStorage.getItem('chatWidgetEvents') || '[]');
+      events.push({ event: eventName, data, timestamp: Date.now() });
+      
+      // Keep only last 100 events
+      if (events.length > 100) events.splice(0, events.length - 100);
+      localStorage.setItem('chatWidgetEvents', JSON.stringify(events));
+    } catch (e) {
+      console.warn('[ChatWidget] Analytics error:', e);
+    }
   };
 
   const schedule = (cfg) => {

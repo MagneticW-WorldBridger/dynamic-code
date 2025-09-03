@@ -33,6 +33,22 @@
         <div class="header">
             <h1>🎛️ Chat Widget Control Panel</h1>
             <p>Controla todos los aspectos de tu widget sin tocar código en el sitio del cliente.</p>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label>🏷️ Site ID del Cliente</label>
+                <select id="currentSiteId" onchange="loadClientConfig()">
+                    <option value="webflow-windowed-001">Webflow Demo (webflow-windowed-001)</option>
+                    <option value="woodstock-main">Woodstock Furniture (woodstock-main)</option>
+                    <option value="client-demo-001">Cliente Demo (client-demo-001)</option>
+                    <option value="restaurant-abc">Restaurante ABC (restaurant-abc)</option>
+                    <option value="new">➕ Crear Nuevo Cliente</option>
+                </select>
+            </div>
+            
+            <div id="newClientForm" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <input type="text" id="newSiteId" placeholder="nuevo-cliente-001" style="width: 200px; margin-right: 10px;">
+                <button class="btn" onclick="createNewClient()">Crear</button>
+            </div>
         </div>
 
         <div class="tabs">
@@ -280,11 +296,66 @@
             alert('✅ Configuración generada! Copia el JSON y actualiza el archivo webflow-windowed-001.json en Vercel.');
         }
 
+        function loadClientConfig() {
+            const siteId = document.getElementById('currentSiteId').value;
+            
+            if (siteId === 'new') {
+                document.getElementById('newClientForm').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('newClientForm').style.display = 'none';
+            }
+            
+            // Update deploy code
+            updateDeployCode(siteId);
+            
+            // Here you could fetch the actual config from the server
+            // For now, we'll use defaults
+            console.log('Loading config for:', siteId);
+        }
+
+        function createNewClient() {
+            const newSiteId = document.getElementById('newSiteId').value.trim();
+            if (!newSiteId) {
+                alert('Por favor ingresa un Site ID válido');
+                return;
+            }
+            
+            // Add to dropdown
+            const select = document.getElementById('currentSiteId');
+            const option = document.createElement('option');
+            option.value = newSiteId;
+            option.textContent = `Nuevo Cliente (${newSiteId})`;
+            select.insertBefore(option, select.lastElementChild);
+            
+            // Select the new client
+            select.value = newSiteId;
+            document.getElementById('newClientForm').style.display = 'none';
+            
+            updateDeployCode(newSiteId);
+            alert(`✅ Cliente "${newSiteId}" creado. Genera la configuración y copia el código de deploy.`);
+        }
+
+        function updateDeployCode(siteId) {
+            const deployCode = `&lt;script&gt;
+  window.ChatWidget = {
+    siteId: "${siteId}",
+    configUrl: "https://dynamiccode-ochre.vercel.app/configs/{{siteId}}.json"
+  };
+&lt;/script&gt;
+&lt;script async src="https://dynamiccode-ochre.vercel.app/chat-widget.js"&gt;&lt;/script&gt;`;
+            
+            document.getElementById('webflowCode').innerHTML = deployCode;
+        }
+
         // Load current values
         window.addEventListener('load', function() {
             // Set default values from current config
             document.getElementById('label').value = "¿Necesitas ayuda?";
             document.getElementById('teaserText').value = "¡Hola! ¿Te ayudo con algo?";
+            
+            // Load initial client config
+            loadClientConfig();
         });
     </script>
 </body>

@@ -1,0 +1,48 @@
+{
+  "chatUrl": "https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k",
+  "fallbackUrl": "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
+  "bubble": {
+    "position": "br",
+    "size": 64,
+    "bg": "#2563eb",
+    "color": "#ffffff",
+    "outline": "#ffffff",
+    "label": "¿Te ayudamos?",
+    "iconUrl": "",
+    "pulse": true
+  },
+  "teaser": {
+    "enabled": true,
+    "text": "¡Hola! ¿En qué podemos ayudarte hoy?",
+    "delayMs": 3000,
+    "autocloseMs": 8000
+  },
+  "triggers": {
+    "showBubbleAfterMs": 1500,
+    "openAfterMs": 0,
+    "triggerOnScrollPercent": 30,
+    "triggerOnExitIntent": false
+  },
+  "rules": {
+    "includePaths": ["*"],
+    "excludePaths": ["/admin*"],
+    "showOnMobile": true,
+    "showOnDesktop": true,
+    "minWidth": 0,
+    "maxWidth": 99999,
+    "frequencyCapHours": 12,
+    "appendUTM": true
+  },
+  "overlay": {
+    "bg": "rgba(0,0,0,0.5)",
+    "closeOnEsc": true,
+    "windowMode": true,
+    "windowWidth": "400px",
+    "windowHeight": "600px"
+  },
+  "analytics": {
+    "console": true,
+    "trackOpens": true,
+    "trackUTMs": true
+  }
+}

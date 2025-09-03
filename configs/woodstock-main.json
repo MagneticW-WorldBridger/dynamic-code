@@ -1,0 +1,48 @@
+{
+  "chatUrl": "https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k",
+  "fallbackUrl": "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
+  "bubble": {
+    "position": "br",
+    "size": 68,
+    "bg": "#8B4513",
+    "color": "#ffffff",
+    "outline": "#ffffff",
+    "label": "¿Necesitas ayuda con muebles?",
+    "iconUrl": "",
+    "pulse": true
+  },
+  "teaser": {
+    "enabled": true,
+    "text": "¡Hola! Soy el asistente de Woodstock Furniture. ¿Te ayudo a encontrar el mueble perfecto?",
+    "delayMs": 4000,
+    "autocloseMs": 12000
+  },
+  "triggers": {
+    "showBubbleAfterMs": 2000,
+    "openAfterMs": 0,
+    "triggerOnScrollPercent": 40,
+    "triggerOnExitIntent": true
+  },
+  "rules": {
+    "includePaths": ["*"],
+    "excludePaths": ["/checkout*", "/admin*", "/cart*"],
+    "showOnMobile": true,
+    "showOnDesktop": true,
+    "minWidth": 0,
+    "maxWidth": 99999,
+    "frequencyCapHours": 8,
+    "appendUTM": true
+  },
+  "overlay": {
+    "bg": "rgba(0,0,0,0.6)",
+    "closeOnEsc": true,
+    "windowMode": true,
+    "windowWidth": "450px",
+    "windowHeight": "700px"
+  },
+  "analytics": {
+    "console": true,
+    "trackOpens": true,
+    "trackUTMs": true
+  }
+}
