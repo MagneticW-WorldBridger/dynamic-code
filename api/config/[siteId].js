@@ -1,6 +1,7 @@
 import { createPool } from '@vercel/postgres';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS for widget loading
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,6 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Create connection pool with explicit connection string
     const pool = createPool({
       connectionString: process.env.POSTGRES_URL
     });

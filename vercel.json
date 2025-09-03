@@ -1,19 +1,35 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/chat-widget.js",
-      "headers": {
-        "Cache-Control": "public, max-age=0, s-maxage=300"
-      }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/*.js": {
+      "runtime": "@vercel/node",
+      "memory": 1024,
+      "maxDuration": 15
     },
+    "api/**/*.js": {
+      "runtime": "@vercel/node", 
+      "memory": 1024,
+      "maxDuration": 15
+    }
+  },
+  "regions": ["iad1"],
+  "headers": [
     {
-      "src": "/configs/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=0, s-maxage=60"
-      }
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods", 
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
   ]
 }
-
-
