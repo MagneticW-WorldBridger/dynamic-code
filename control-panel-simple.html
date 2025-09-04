@@ -195,8 +195,9 @@
             </div>
 
             <div class="card">
+                <button class="btn" onclick="saveToDatabase()" style="background: #28a745; font-size: 18px; padding: 15px 30px;">💾 SAVE TO DATABASE</button>
                 <button class="btn" onclick="updatePreview()">🔄 Update Preview</button>
-                <button class="btn" onclick="testWidget()" style="margin-left: 10px;">🧪 Test Widget</button>
+                <button class="btn" onclick="testWidget()">🧪 Test Widget</button>
             </div>
         </div>
 
@@ -302,23 +303,74 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
             updateClientCode();
         }
 
-        function updateClientCode() {
-            const id = document.getElementById('chatId').value;
-            const accountId = document.getElementById('accountId').value;
-            const color = document.getElementById('color').value;
-            const icon = document.getElementById('icon').value;
-            const position = document.getElementById('position').value;
-            const size = document.getElementById('size').value;
+        async function saveToDatabase() {
+            const siteId = "aiprlassist-default"; // Use default for now
+            const config = {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=" + document.getElementById('chatId').value,
+                fallbackUrl: "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
+                bubble: {
+                    position: document.getElementById('position').value === 'bottom-left' ? 'bl' : 'br',
+                    size: parseInt(document.getElementById('size').value),
+                    bg: document.getElementById('color').value,
+                    color: "#ffffff",
+                    iconUrl: document.getElementById('icon').value,
+                    pulse: true,
+                    zIndex: 2147483000
+                },
+                triggers: {
+                    showBubbleAfterMs: 3000,
+                    openAfterMs: 0,
+                    triggerOnScrollPercent: 0,
+                    triggerOnExitIntent: false
+                },
+                rules: {
+                    includePaths: ["*"],
+                    excludePaths: [],
+                    showOnMobile: true,
+                    showOnDesktop: true,
+                    appendUTM: true
+                },
+                overlay: {
+                    bg: "rgba(0,0,0,0.45)",
+                    closeOnEsc: true,
+                    windowMode: true,
+                    windowWidth: "420px",
+                    windowHeight: "650px"
+                },
+                analytics: {
+                    console: true
+                }
+            };
             
-            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+            try {
+                const response = await fetch('/api/save-config-real', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        siteId: siteId,
+                        clientName: "AI PRL Assist (Default)",
+                        config: config
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    alert('✅ SAVED TO DATABASE!\n\nConfiguration updated in Postgres.');
+                    updateClientCode();
+                } else {
+                    alert(`❌ SAVE FAILED: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`❌ ERROR: ${error.message}`);
+            }
+        }
+
+        function updateClientCode() {
+            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
-  id: "${id}",
-  accountId: "${accountId}", 
-  color: "${color}",
-  icon: "${icon}",
-  position: "${position}",
-  size: ${size}
+  siteId: "aiprlassist-default"
 });
 &lt;/script&gt;`;
             
