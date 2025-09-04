@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎛️ REAL Control Panel - AI PRL Assist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f5f5f5; 
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .panel { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px 0; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #333; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 8px; 
+            font-size: 14px;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #E67E22; 
+        }
+        button { 
+            background: #E67E22; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { 
+            background: #D35400; 
+            transform: translateY(-2px);
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #5a6268;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .info { 
+            background: #e7f3ff; 
+            color: #0c5460; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .code-block { 
+            background: #2d3748; 
+            color: #e2e8f0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .preview-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 68px;
+            height: 68px;
+            background: #E67E22;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .preview-widget:hover {
+            transform: scale(1.1);
+        }
+        .preview-widget img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+        }
+        .status-bar {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .status-bar.error {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+            🎛️ AI PRL Assist Control Panel - Ready to Configure
+        </div>
+
+        <!-- Step 1: Client Selection -->
+        <div class="panel">
+            <h2>📋 Step 1: Select or Create Client</h2>
+            
+            <div class="grid">
+                <div>
+                    <h3>Existing Clients</h3>
+                    <select id="existingClients" onchange="loadSelectedClient()">
+                        <option value="">Select existing client...</option>
+                        <option value="aiprlassist-default">AI PRL Assist (Default)</option>
+                        <option value="ghl-test-001">GoHighLevel Test</option>
+                        <option value="webflow-001">Webflow Client</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <h3>Create New Client</h3>
+                    <input type="text" id="newSiteId" placeholder="Enter new site ID (e.g., client-123)">
+                    <input type="text" id="newClientName" placeholder="Client display name">
+                    <button onclick="createNewClient()">➕ Create Client</button>
+                </div>
+            </div>
+            
+            <div id="clientStatus"></div>
+        </div>
+
+        <!-- Step 2: Configuration -->
+        <div class="panel" id="configPanel" style="display: none;">
+            <h2>⚙️ Step 2: Configure Widget</h2>
+            
+            <div class="grid">
+                <div>
+                    <h3>Chat Settings</h3>
+                    <div class="form-group">
+                        <label>Chat URL</label>
+                        <input type="url" id="chatUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k">
+                    </div>
+                    <div class="form-group">
+                        <label>Fallback URL</label>
+                        <input type="url" id="fallbackUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Bubble Appearance</h3>
+                    <div class="form-group">
+                        <label>Bubble Color</label>
+                        <input type="color" id="bubbleColor" value="#E67E22">
+                    </div>
+                    <div class="form-group">
+                        <label>Size (pixels)</label>
+                        <input type="range" id="bubbleSize" min="40" max="100" value="68" oninput="updateSizeLabel()">
+                        <small id="sizeLabel">68px</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon URL</label>
+                        <input type="url" id="iconUrl" value="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png">
+                    </div>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <select id="position">
+                            <option value="br">Bottom Right</option>
+                            <option value="bl">Bottom Left</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <h3>Timing & Behavior</h3>
+                    <div class="form-group">
+                        <label>Show Bubble After (milliseconds)</label>
+                        <input type="number" id="showDelay" value="3000" min="0" max="10000" step="500">
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-open After (milliseconds, 0 = never)</label>
+                        <input type="number" id="openDelay" value="0" min="0" max="30000" step="1000">
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Advanced Settings</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="exitIntent"> Exit Intent Trigger
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Scroll Trigger (%)</label>
+                        <input type="range" id="scrollTrigger" min="0" max="95" value="0" oninput="updateScrollLabel()">
+                        <small id="scrollLabel">Disabled</small>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="saveConfiguration()">💾 SAVE CONFIGURATION</button>
+                <button onclick="previewWidget()" class="secondary">👁️ Preview</button>
+                <button onclick="generateCode()" class="secondary">📋 Get Code</button>
+            </div>
+            
+            <div id="saveStatus"></div>
+        </div>
+
+        <!-- Step 3: Deploy Code -->
+        <div class="panel" id="deployPanel" style="display: none;">
+            <h2>🚀 Step 3: Copy Client Code</h2>
+            
+            <div class="success">
+                <strong>✅ Configuration Saved!</strong> Use this code on your client's website:
+            </div>
+            
+            <div class="code-block" id="clientCode">
+                Loading code...
+            </div>
+            
+            <button onclick="copyCode()">📋 Copy Code to Clipboard</button>
+            
+            <div class="info">
+                <strong>📋 Instructions:</strong><br>
+                1. Copy the code above<br>
+                2. Paste it in your client's website footer<br>
+                3. The widget will load with your saved configuration<br>
+                4. Any future changes you make here will update automatically!
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Widget -->
+    <div class="preview-widget" id="previewWidget" onclick="testPreviewWidget()">
+        <img id="previewIcon" src="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png" alt="Chat">
+    </div>
+
+    <script>
+        let currentSiteId = null;
+
+        // Load selected client configuration
+        async function loadSelectedClient() {
+            const siteId = document.getElementById('existingClients').value;
+            if (!siteId) return;
+            
+            currentSiteId = siteId;
+            updateStatus(`Loading configuration for ${siteId}...`, 'info');
+            
+            try {
+                // Load config from our working API
+                const response = await fetch(`/api/config-simple?siteId=${siteId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Populate form with loaded config
+                    populateForm(data.config);
+                    showConfigPanel();
+                    updateStatus(`✅ Loaded configuration for ${data.clientName}`, 'success');
+                } else {
+                    updateStatus(`❌ Failed to load configuration: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Error loading configuration: ${error.message}`, 'error');
+            }
+        }
+
+        // Create new client
+        function createNewClient() {
+            const siteId = document.getElementById('newSiteId').value.trim();
+            const clientName = document.getElementById('newClientName').value.trim();
+            
+            if (!siteId) {
+                alert('Please enter a Site ID');
+                return;
+            }
+            
+            if (!/^[a-z0-9-]+$/.test(siteId)) {
+                alert('Site ID must contain only lowercase letters, numbers, and hyphens');
+                return;
+            }
+            
+            currentSiteId = siteId;
+            
+            // Add to existing clients dropdown
+            const select = document.getElementById('existingClients');
+            const option = document.createElement('option');
+            option.value = siteId;
+            option.textContent = clientName || siteId;
+            option.selected = true;
+            select.appendChild(option);
+            
+            // Clear inputs
+            document.getElementById('newSiteId').value = '';
+            document.getElementById('newClientName').value = '';
+            
+            // Show config panel with defaults
+            setDefaultConfig();
+            showConfigPanel();
+            updateStatus(`✅ New client "${siteId}" created. Configure and save.`, 'success');
+        }
+
+        // Populate form with config data
+        function populateForm(config) {
+            document.getElementById('chatUrl').value = config.chatUrl || '';
+            document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
+            document.getElementById('bubbleColor').value = config.bubble?.bg || '#E67E22';
+            document.getElementById('bubbleSize').value = config.bubble?.size || 68;
+            document.getElementById('iconUrl').value = config.bubble?.iconUrl || '';
+            document.getElementById('position').value = config.bubble?.position || 'br';
+            document.getElementById('showDelay').value = config.triggers?.showBubbleAfterMs || 3000;
+            document.getElementById('openDelay').value = config.triggers?.openAfterMs || 0;
+            document.getElementById('exitIntent').checked = config.triggers?.triggerOnExitIntent || false;
+            document.getElementById('scrollTrigger').value = config.triggers?.triggerOnScrollPercent || 0;
+            
+            updateSizeLabel();
+            updateScrollLabel();
+            updatePreview();
+        }
+
+        // Set default configuration for new clients
+        function setDefaultConfig() {
+            document.getElementById('chatUrl').value = 'https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k';
+            document.getElementById('fallbackUrl').value = 'https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403';
+            document.getElementById('bubbleColor').value = '#E67E22';
+            document.getElementById('bubbleSize').value = 68;
+            document.getElementById('iconUrl').value = 'https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png';
+            document.getElementById('position').value = 'br';
+            document.getElementById('showDelay').value = 3000;
+            document.getElementById('openDelay').value = 0;
+            document.getElementById('exitIntent').checked = false;
+            document.getElementById('scrollTrigger').value = 0;
+            
+            updateSizeLabel();
+            updateScrollLabel();
+            updatePreview();
+        }
+
+        // Show configuration panel
+        function showConfigPanel() {
+            document.getElementById('configPanel').style.display = 'block';
+        }
+
+        // Save configuration to database
+        async function saveConfiguration() {
+            if (!currentSiteId) {
+                alert('Please select or create a client first');
+                return;
+            }
+            
+            updateStatus('💾 Saving configuration...', 'info');
+            
+            const config = {
+                chatUrl: document.getElementById('chatUrl').value,
+                fallbackUrl: document.getElementById('fallbackUrl').value,
+                bubble: {
+                    position: document.getElementById('position').value,
+                    size: parseInt(document.getElementById('bubbleSize').value),
+                    bg: document.getElementById('bubbleColor').value,
+                    color: "#ffffff",
+                    iconUrl: document.getElementById('iconUrl').value,
+                    pulse: true,
+                    zIndex: 2147483000
+                },
+                triggers: {
+                    showBubbleAfterMs: parseInt(document.getElementById('showDelay').value),
+                    openAfterMs: parseInt(document.getElementById('openDelay').value),
+                    triggerOnScrollPercent: parseInt(document.getElementById('scrollTrigger').value),
+                    triggerOnExitIntent: document.getElementById('exitIntent').checked
+                },
+                rules: {
+                    includePaths: ["*"],
+                    excludePaths: [],
+                    showOnMobile: true,
+                    showOnDesktop: true,
+                    appendUTM: true
+                },
+                overlay: {
+                    bg: "rgba(0,0,0,0.45)",
+                    closeOnEsc: true,
+                    windowMode: true,
+                    windowWidth: "420px",
+                    windowHeight: "650px"
+                },
+                analytics: {
+                    console: true
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/save-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        siteId: currentSiteId,
+                        clientName: document.getElementById('existingClients').selectedOptions[0]?.text || `Client ${currentSiteId}`,
+                        config: config
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    updateStatus('✅ Configuration saved successfully!', 'success');
+                    generateDeployCode();
+                    showDeployPanel();
+                } else {
+                    updateStatus(`❌ Save failed: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                updateStatus(`❌ Save error: ${error.message}`, 'error');
+            }
+        }
+
+        // Generate deployment code
+        function generateDeployCode() {
+            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  siteId: "${currentSiteId}"
+});
+&lt;/script&gt;`;
+            
+            document.getElementById('clientCode').innerHTML = code;
+        }
+
+        // Show deploy panel
+        function showDeployPanel() {
+            document.getElementById('deployPanel').style.display = 'block';
+            document.getElementById('deployPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Copy code to clipboard
+        function copyCode() {
+            const codeElement = document.getElementById('clientCode');
+            const text = codeElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Code copied to clipboard!\n\nPaste this in your client\'s website footer.');
+            });
+        }
+
+        // Preview widget
+        function previewWidget() {
+            updatePreview();
+            updateStatus('👁️ Preview updated in bottom-right corner', 'info');
+        }
+
+        // Update preview widget
+        function updatePreview() {
+            const color = document.getElementById('bubbleColor').value;
+            const icon = document.getElementById('iconUrl').value;
+            const size = document.getElementById('bubbleSize').value;
+            
+            const preview = document.getElementById('previewWidget');
+            const previewIcon = document.getElementById('previewIcon');
+            
+            preview.style.background = color;
+            preview.style.width = size + 'px';
+            preview.style.height = size + 'px';
+            previewIcon.src = icon;
+        }
+
+        // Update labels
+        function updateSizeLabel() {
+            const size = document.getElementById('bubbleSize').value;
+            document.getElementById('sizeLabel').textContent = size + 'px';
+            updatePreview();
+        }
+
+        function updateScrollLabel() {
+            const scroll = document.getElementById('scrollTrigger').value;
+            document.getElementById('scrollLabel').textContent = scroll == 0 ? 'Disabled' : scroll + '%';
+        }
+
+        // Update status bar
+        function updateStatus(message, type = 'info') {
+            const statusBar = document.getElementById('statusBar');
+            statusBar.textContent = message;
+            statusBar.className = type === 'error' ? 'status-bar error' : 'status-bar';
+            
+            console.log(`[Control Panel] ${message}`);
+        }
+
+        // Test preview widget
+        function testPreviewWidget() {
+            alert('💬 This is the preview widget!\n\nAfter saving configuration, the real widget will work like this.');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePreview();
+            updateStatus('🎛️ Control Panel ready. Select or create a client to begin.', 'info');
+        });
+    </script>
+</body>
+</html>
