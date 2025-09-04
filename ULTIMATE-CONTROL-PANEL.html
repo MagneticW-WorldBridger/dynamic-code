@@ -446,62 +446,93 @@ Select a client and configure the widget to generate deployment code...
 
         // Load client configuration
         async function loadClient() {
+            console.log('📥 [Control Panel] Loading client configuration...');
+            
             const siteId = document.getElementById('clientSelect').value;
-            if (!siteId) return;
+            console.log('📥 [Control Panel] Selected siteId:', siteId);
+            
+            if (!siteId) {
+                console.warn('⚠️ [Control Panel] No siteId selected, aborting load');
+                return;
+            }
             
             currentSiteId = siteId;
             updateClientStatus('🔄 Loading configuration...', 'info');
             
             try {
+                console.log('🔄 [Control Panel] Making API call to:', `/api/config-simple?siteId=${siteId}`);
+                
                 const response = await fetch(`/api/config-simple?siteId=${siteId}`);
+                console.log('📡 [Control Panel] API response status:', response.status);
+                
                 const data = await response.json();
+                console.log('📡 [Control Panel] API response data:', data);
                 
                 if (response.ok && data.success) {
+                    console.log('✅ [Control Panel] Configuration loaded successfully');
                     currentConfig = data.config;
                     populateForm(data.config);
                     updateClientStatus(`✅ Loaded: ${data.clientName}`, 'success');
                     generateDeployCode();
+                    console.log('✅ [Control Panel] Form populated and deploy code generated');
                 } else {
+                    console.error('❌ [Control Panel] API returned error:', data);
                     updateClientStatus(`❌ Failed to load: ${data.error}`, 'error');
                 }
             } catch (error) {
+                console.error('❌ [Control Panel] Load client error:', error);
                 updateClientStatus(`❌ Error: ${error.message}`, 'error');
             }
         }
 
         // Create new client
         function createClient() {
+            console.log('🆕 [Control Panel] Creating new client...');
+            
             const siteId = document.getElementById('newSiteId').value.trim();
             const clientName = document.getElementById('newClientName').value.trim();
             
+            console.log('🆕 [Control Panel] Site ID:', siteId);
+            console.log('🆕 [Control Panel] Client Name:', clientName);
+            
             if (!siteId) {
+                console.error('❌ [Control Panel] No Site ID provided');
                 alert('Please enter a Site ID');
                 return;
             }
             
             if (!/^[a-z0-9-]+$/.test(siteId)) {
+                console.error('❌ [Control Panel] Invalid Site ID format:', siteId);
                 alert('Site ID must contain only lowercase letters, numbers, and hyphens');
                 return;
             }
             
+            console.log('✅ [Control Panel] Site ID validation passed');
             currentSiteId = siteId;
             
             // Add to dropdown
+            console.log('🔄 [Control Panel] Adding to client dropdown...');
             const select = document.getElementById('clientSelect');
             const option = document.createElement('option');
             option.value = siteId;
             option.textContent = clientName || siteId;
             option.selected = true;
             select.appendChild(option);
+            console.log('✅ [Control Panel] Added to dropdown');
             
             // Set default config
+            console.log('🔄 [Control Panel] Setting default configuration...');
             setDefaultConfig();
+            console.log('✅ [Control Panel] Default configuration set');
+            
             updateClientStatus(`✅ New client "${siteId}" created`, 'success');
             generateDeployCode();
             
             // Clear inputs
             document.getElementById('newSiteId').value = '';
             document.getElementById('newClientName').value = '';
+            
+            console.log('🎉 [Control Panel] Client creation complete!');
         }
 
         // Populate form with configuration
@@ -562,38 +593,53 @@ Select a client and configure the widget to generate deployment code...
 
         // Save configuration
         async function saveConfiguration() {
+            console.log('💾 [Control Panel] Starting save configuration...');
+            
             if (!currentSiteId) {
+                console.error('❌ [Control Panel] No currentSiteId set');
                 alert('Please select or create a client first');
                 return;
             }
             
+            console.log('💾 [Control Panel] Current siteId:', currentSiteId);
             updateClientStatus('💾 Saving configuration...', 'info');
             
+            console.log('🔧 [Control Panel] Building configuration object...');
             const config = buildConfigObject();
+            console.log('🔧 [Control Panel] Configuration object built:', config);
             
             try {
+                const payload = {
+                    siteId: currentSiteId,
+                    clientName: document.getElementById('clientSelect').selectedOptions[0]?.text || currentSiteId,
+                    config: config
+                };
+                
+                console.log('📡 [Control Panel] Sending to API:', payload);
+                
                 const response = await fetch('/api/save-config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        siteId: currentSiteId,
-                        clientName: document.getElementById('clientSelect').selectedOptions[0]?.text || currentSiteId,
-                        config: config
-                    })
+                    body: JSON.stringify(payload)
                 });
                 
+                console.log('📡 [Control Panel] Save API response status:', response.status);
                 const result = await response.json();
+                console.log('📡 [Control Panel] Save API response data:', result);
                 
                 if (response.ok && result.success) {
+                    console.log('✅ [Control Panel] Configuration saved successfully!');
                     currentConfig = config;
                     updateClientStatus('✅ Configuration saved successfully!', 'success');
                     generateDeployCode();
                     document.getElementById('deploySuccess').style.display = 'block';
                 } else {
+                    console.error('❌ [Control Panel] Save failed:', result);
                     updateClientStatus(`❌ Save failed: ${result.error}`, 'error');
                 }
                 
             } catch (error) {
+                console.error('❌ [Control Panel] Save error:', error);
                 updateClientStatus(`❌ Save error: ${error.message}`, 'error');
             }
         }
@@ -933,12 +979,17 @@ ChatWidget.setup({
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎛️ [Control Panel] Page loaded, initializing...');
+            
             updateCurrentUTMs();
             updatePreview();
             updateLabels();
             
+            console.log('🎛️ [Control Panel] Basic initialization complete');
+            
             // Auto-load default client
             setTimeout(() => {
+                console.log('🎛️ [Control Panel] Auto-loading default client...');
                 document.getElementById('clientSelect').value = 'aiprlassist-default';
                 loadClient();
             }, 1000);
