@@ -143,6 +143,19 @@
       const bubbleConfig = finalConfig.bubble;
       const overlayConfig = finalConfig.overlay;
       
+      // Generate smart message based on context
+      let smartMessage = bubbleConfig.label || "👋 Hi! How can I help?";
+      
+      if (window.SmartBubble) {
+        const context = window.SmartBubble.collectAllContext();
+        smartMessage = window.SmartBubble.generateSmartMessage(context);
+        
+        if (finalConfig.analytics.console) {
+          console.log('[AI PRL Assist] Smart context collected:', context);
+          console.log('[AI PRL Assist] Generated smart message:', smartMessage);
+        }
+      }
+      
       bubble.innerHTML = `
         <style>
           .ai-prl-chat-bubble {
@@ -185,23 +198,49 @@
             height: 100%;
             border: none;
           }
-          .ai-prl-chat-close {
-            position: fixed;
-            ${bubbleConfig.position === 'bl' ? 'left: 20px' : 'right: 20px'};
-            bottom: ${parseInt(overlayConfig.windowHeight) + 40}px;
-            background: #fff;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font: 700 12px/1 system-ui, -apple-system, Segoe UI, Roboto;
-            cursor: pointer;
-            z-index: ${bubbleConfig.zIndex || 2147483647};
-            display: none;
-          }
+                     .ai-prl-chat-close {
+             position: fixed;
+             ${bubbleConfig.position === 'bl' ? 'left: 20px' : 'right: 20px'};
+             bottom: ${parseInt(overlayConfig.windowHeight) + 40}px;
+             background: #fff;
+             border: 2px solid #e9ecef;
+             border-radius: 10px;
+             padding: 8px 12px;
+             font: 700 12px/1 system-ui, -apple-system, Segoe UI, Roboto;
+             cursor: pointer;
+             z-index: ${bubbleConfig.zIndex || 2147483647};
+             display: none;
+           }
+           .ai-prl-smart-message {
+             position: fixed;
+             ${bubbleConfig.position === 'bl' ? 'left: 20px' : 'right: 20px'};
+             bottom: ${bubbleConfig.size + 30}px;
+             background: white;
+             color: #2c3e50;
+             border: 2px solid ${bubbleConfig.bg};
+             border-radius: 12px;
+             padding: 12px 16px;
+             font: 600 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto;
+             cursor: pointer;
+             z-index: ${bubbleConfig.zIndex || 2147483647};
+             max-width: 280px;
+             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+             animation: ai-prl-bounce 0.5s ease-out;
+             display: none;
+           }
+           .ai-prl-smart-message:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+           }
           @keyframes ai-prl-pulse {
             0% { box-shadow: 0 0 0 0 ${bubbleConfig.bg}66; }
             70% { box-shadow: 0 0 0 10px ${bubbleConfig.bg}00; }
             100% { box-shadow: 0 0 0 0 ${bubbleConfig.bg}00; }
+          }
+          @keyframes ai-prl-bounce {
+            0% { opacity: 0; transform: translateY(20px) scale(0.8); }
+            50% { opacity: 1; transform: translateY(-5px) scale(1.05); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
           }
           @media (min-width: 768px) {
             .ai-prl-chat-overlay {
@@ -222,8 +261,11 @@
             }
           }
         </style>
-        <div class="ai-prl-chat-bubble" onclick="window.ChatWidget.open()">
+        <div class="ai-prl-chat-bubble" onclick="window.ChatWidget.open()" title="${smartMessage}">
           <img src="${bubbleConfig.iconUrl}" alt="Chat" />
+        </div>
+        <div class="ai-prl-smart-message" onclick="window.ChatWidget.open()">
+          ${smartMessage}
         </div>
         <div class="ai-prl-chat-overlay" onclick="window.ChatWidget.close()">
           <iframe class="ai-prl-chat-iframe" src="about:blank"></iframe>
@@ -305,6 +347,17 @@
         if (finalConfig.analytics.console) {
           console.log('[AI PRL Assist] Bubble shown');
         }
+        
+        // Show smart message 2 seconds after bubble
+        setTimeout(() => {
+          const smartMessageEl = widget.querySelector('.ai-prl-smart-message');
+          if (smartMessageEl) {
+            smartMessageEl.style.display = 'block';
+            if (finalConfig.analytics.console) {
+              console.log('[AI PRL Assist] Smart message shown:', smartMessageEl.textContent);
+            }
+          }
+        }, 2000);
       }, finalConfig.triggers.showBubbleAfterMs);
 
       // Auto-open after delay

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Smart Bubble Messages Test - AI PRL Assist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f5f5f5; 
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .test-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .scenario-btn {
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px;
+            font-size: 14px;
+        }
+        .scenario-btn:hover { background: #0056b3; }
+        .scenario-btn.facebook { background: #1877f2; }
+        .scenario-btn.google { background: #4285f4; }
+        .scenario-btn.email { background: #ea4335; }
+        .scenario-btn.promo { background: #ff6b35; }
+        
+        .current-context {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .message-preview {
+            background: linear-gradient(135deg, #E67E22, #D35400);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-weight: 600;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .context-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #b8daff;
+            margin: 10px 0;
+        }
+        
+        .utm-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="test-section">
+            <h1>🧠 Smart Bubble Messages Test</h1>
+            <p><strong>Testing dynamic messages based on UTM parameters and page context</strong></p>
+        </header>
+
+        <!-- Current Context Display -->
+        <section class="test-section">
+            <h2>📊 Current Page Context</h2>
+            <div class="current-context" id="currentContext">
+                Loading current context...
+            </div>
+            <button onclick="refreshContext()" class="scenario-btn">🔄 Refresh Context</button>
+        </section>
+
+        <!-- Message Preview -->
+        <section class="test-section">
+            <h2>💬 Generated Smart Message</h2>
+            <div class="message-preview" id="messagePreview">
+                👋 Hi there! How can I help you today?
+            </div>
+        </section>
+
+        <!-- UTM Scenarios -->
+        <section class="test-section">
+            <h2>🎯 Test UTM Scenarios</h2>
+            <p>Click scenarios to see how bubble message changes:</p>
+            
+            <div class="test-grid">
+                <button onclick="testFacebookPromo()" class="scenario-btn facebook">📘 Facebook Promo</button>
+                <button onclick="testGoogleSearch()" class="scenario-btn google">🔍 Google Search</button>
+                <button onclick="testEmailCampaign()" class="scenario-btn email">📧 Email Campaign</button>
+                <button onclick="testDirectTraffic()" class="scenario-btn">🔗 Direct Traffic</button>
+                <button onclick="testProductPage()" class="scenario-btn promo">🛍️ Product Page</button>
+                <button onclick="testPricingPage()" class="scenario-btn promo">💰 Pricing Page</button>
+                <button onclick="testReturningVisitor()" class="scenario-btn">🔄 Returning Visitor</button>
+                <button onclick="testLongBrowsing()" class="scenario-btn">⏰ Long Browsing</button>
+            </div>
+        </section>
+
+        <!-- Live Widget Test -->
+        <section class="test-section">
+            <h2>🎈 Live Widget Test</h2>
+            <p>Test the actual widget with smart messages:</p>
+            <button onclick="loadSmartWidget()" class="scenario-btn" style="background: #28a745;">🚀 Load Smart Widget</button>
+            <button onclick="clearWidget()" class="scenario-btn" style="background: #dc3545;">🗑️ Clear Widget</button>
+            <div id="widgetStatus"></div>
+        </section>
+
+        <!-- UTM Data Display -->
+        <section class="test-section">
+            <h2>📋 Full Context Data</h2>
+            <div class="utm-display" id="fullContext">
+                Click "Refresh Context" to see all collected data...
+            </div>
+        </section>
+    </div>
+
+    <!-- Load Smart Bubble Engine -->
+    <script src="https://dynamiccode-ochre.vercel.app/smart-bubble-engine.js"></script>
+
+    <script>
+        let currentContext = null;
+
+        // Refresh context and message
+        function refreshContext() {
+            if (window.SmartBubble) {
+                currentContext = window.SmartBubble.collectAllContext();
+                const smartMessage = window.SmartBubble.generateSmartMessage(currentContext);
+                
+                updateContextDisplay();
+                updateMessagePreview(smartMessage);
+                updateFullContextDisplay();
+            } else {
+                document.getElementById('currentContext').textContent = 'SmartBubble engine not loaded';
+            }
+        }
+
+        function updateContextDisplay() {
+            const contextEl = document.getElementById('currentContext');
+            contextEl.innerHTML = `
+URL: ${currentContext.page.url}<br>
+UTM Source: ${currentContext.utm.source || 'None'}<br>
+UTM Campaign: ${currentContext.utm.campaign || 'None'}<br>
+Page Type: ${getPageType()}<br>
+Device: ${currentContext.session.deviceType}<br>
+Time on Site: ${Math.round(currentContext.session.timeOnSite / 1000)}s<br>
+Returning Visitor: ${currentContext.session.isReturning}
+            `;
+        }
+
+        function updateMessagePreview(message) {
+            document.getElementById('messagePreview').textContent = message;
+        }
+
+        function updateFullContextDisplay() {
+            document.getElementById('fullContext').textContent = JSON.stringify(currentContext, null, 2);
+        }
+
+        function getPageType() {
+            const path = window.location.pathname.toLowerCase();
+            if (path.includes('product')) return 'Product Page';
+            if (path.includes('pricing')) return 'Pricing Page';
+            if (path.includes('contact')) return 'Contact Page';
+            if (path.includes('about')) return 'About Page';
+            return 'General Page';
+        }
+
+        // UTM Scenario Tests
+        function testFacebookPromo() {
+            const newURL = window.location.pathname + '?utm_source=facebook&utm_medium=social&utm_campaign=promo2024&utm_content=carousel_ad';
+            window.history.pushState({}, '', newURL);
+            refreshContext();
+        }
+
+        function testGoogleSearch() {
+            const newURL = window.location.pathname + '?utm_source=google&utm_medium=cpc&utm_campaign=search_ads&utm_term=ai_chat_widget&gclid=test123';
+            window.history.pushState({}, '', newURL);
+            refreshContext();
+        }
+
+        function testEmailCampaign() {
+            const newURL = window.location.pathname + '?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_update&utm_content=header_cta';
+            window.history.pushState({}, '', newURL);
+            refreshContext();
+        }
+
+        function testDirectTraffic() {
+            const newURL = window.location.pathname;
+            window.history.pushState({}, '', newURL);
+            refreshContext();
+        }
+
+        function testProductPage() {
+            const newURL = window.location.pathname + '?utm_source=google&utm_campaign=product_ads&product_id=widget_pro&category=software';
+            window.history.pushState({}, '', newURL);
+            
+            // Simulate product page elements
+            if (!document.querySelector('.product')) {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.style.display = 'none';
+                document.body.appendChild(productDiv);
+            }
+            
+            refreshContext();
+        }
+
+        function testPricingPage() {
+            const newURL = window.location.pathname.replace(/\/[^\/]*$/, '/pricing') + '?utm_source=email&utm_campaign=pricing_promo';
+            window.history.pushState({}, '', newURL);
+            
+            // Simulate pricing page elements
+            if (!document.querySelector('.pricing')) {
+                const pricingDiv = document.createElement('div');
+                pricingDiv.className = 'pricing';
+                pricingDiv.style.display = 'none';
+                document.body.appendChild(pricingDiv);
+            }
+            
+            refreshContext();
+        }
+
+        function testReturningVisitor() {
+            localStorage.setItem('hasVisited', 'true');
+            refreshContext();
+        }
+
+        function testLongBrowsing() {
+            sessionStorage.setItem('siteStartTime', Date.now() - 120000); // 2 minutes ago
+            refreshContext();
+        }
+
+        // Widget Testing
+        function loadSmartWidget() {
+            // Remove existing widget
+            clearWidget();
+            
+            // Load smart bubble engine first
+            const engineScript = document.createElement('script');
+            engineScript.src = 'https://dynamiccode-ochre.vercel.app/smart-bubble-engine.js';
+            engineScript.onload = () => {
+                // Then load the smart widget
+                const widgetScript = document.createElement('script');
+                widgetScript.src = 'https://dynamiccode-ochre.vercel.app/chat-widget-db.js';
+                widgetScript.id = 'smartWidget';
+                widgetScript.onload = () => {
+                    if (window.ChatWidget && window.ChatWidget.setup) {
+                        window.ChatWidget.setup({
+                            siteId: "aiprlassist-default",
+                            analytics: true
+                        });
+                        
+                        document.getElementById('widgetStatus').innerHTML = `
+                            <div style="color: #28a745; margin: 10px 0;">✅ Smart widget loaded!</div>
+                            <div>Check bottom-right corner for bubble + smart message</div>
+                        `;
+                    }
+                };
+                document.head.appendChild(widgetScript);
+            };
+            document.head.appendChild(engineScript);
+        }
+
+        function clearWidget() {
+            const existing = document.getElementById('smartWidget');
+            if (existing) existing.remove();
+            
+            const bubbles = document.querySelectorAll('[class*="ai-prl-chat"]');
+            bubbles.forEach(el => el.remove());
+            
+            document.getElementById('widgetStatus').innerHTML = '<div style="color: #6c757d;">Widget cleared</div>';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for SmartBubble to load
+            setTimeout(() => {
+                refreshContext();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
