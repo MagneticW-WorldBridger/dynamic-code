@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎛️ PRODUCTION Control Panel - AI PRL Assist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f8f9fa; 
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: linear-gradient(135deg, #E67E22, #D35400);
+            color: white;
+            padding: 30px; 
+            border-radius: 12px; 
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .panel { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin: 20px 0; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #2c3e50; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 8px; 
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: #E67E22; 
+            box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.1);
+        }
+        .btn { 
+            background: #E67E22; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.2s;
+        }
+        .btn:hover { 
+            background: #D35400; 
+            transform: translateY(-2px);
+        }
+        .btn.secondary { background: #6c757d; }
+        .btn.secondary:hover { background: #5a6268; }
+        .btn.success { background: #28a745; }
+        .btn.success:hover { background: #218838; }
+        .btn.danger { background: #dc3545; }
+        .btn.danger:hover { background: #c82333; }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+        }
+        .grid-2 { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .warning { 
+            background: #fff3cd; 
+            color: #856404; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .info { 
+            background: #e7f3ff; 
+            color: #0c5460; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0;
+            border: 1px solid #b8daff;
+        }
+        .code-block { 
+            background: #2d3748; 
+            color: #e2e8f0; 
+            padding: 20px; 
+            border-radius: 8px; 
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace; 
+            font-size: 13px; 
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-connected { background: #28a745; }
+        .status-disconnected { background: #dc3545; }
+        .status-pending { background: #ffc107; }
+        
+        .preview-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 68px;
+            height: 68px;
+            background: #E67E22;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .preview-widget:hover { transform: scale(1.1); }
+        .preview-widget img { width: 70%; height: 70%; object-fit: contain; }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: #6c757d;
+        }
+        .tab.active {
+            color: #E67E22;
+            border-bottom-color: #E67E22;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .utm-settings {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .webhook-flow {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #b8daff;
+            margin: 15px 0;
+        }
+        
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="save-indicator" id="saveIndicator">💾 Saving to Database...</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎛️ AI PRL ASSIST - PRODUCTION CONTROL PANEL</h1>
+            <p>Complete widget configuration with real database persistence</p>
+            <div style="margin-top: 15px;">
+                <span class="status-indicator status-pending" id="dbStatus"></span>
+                <span id="dbStatusText">Connecting to database...</span>
+            </div>
+        </div>
+
+        <!-- Client Management -->
+        <div class="panel">
+            <h2>👥 Client Management</h2>
+            <div class="grid-2">
+                <div>
+                    <label>Select Existing Client</label>
+                    <select id="existingClients" onchange="loadClient()">
+                        <option value="">Choose client...</option>
+                    </select>
+                    <button class="btn secondary" onclick="refreshClients()">🔄 Refresh List</button>
+                </div>
+                <div>
+                    <label>Create New Client</label>
+                    <input type="text" id="newSiteId" placeholder="client-name-001">
+                    <input type="text" id="newClientName" placeholder="Client Display Name">
+                    <button class="btn" onclick="createClient()">➕ Create Client</button>
+                </div>
+            </div>
+            <div id="clientStatus"></div>
+        </div>
+
+        <!-- Configuration Tabs -->
+        <div class="panel" id="configPanel" style="display: none;">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('basic')">🎨 Basic Settings</button>
+                <button class="tab" onclick="showTab('behavior')">⚡ Behavior</button>
+                <button class="tab" onclick="showTab('utm')">🎯 UTM Settings</button>
+                <button class="tab" onclick="showTab('webhooks')">🔗 Webhooks</button>
+                <button class="tab" onclick="showTab('advanced')">⚙️ Advanced</button>
+            </div>
+
+            <!-- Basic Settings Tab -->
+            <div id="basic" class="tab-content active">
+                <h3>🎨 Basic Widget Settings</h3>
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label>Primary Chat URL</label>
+                            <input type="url" id="chatUrl" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fallback Chat URL</label>
+                            <input type="url" id="fallbackUrl">
+                        </div>
+                        <div class="form-group">
+                            <label>Bubble Color</label>
+                            <input type="color" id="bubbleColor" value="#E67E22">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Bubble Size (px)</label>
+                            <input type="range" id="bubbleSize" min="40" max="120" value="68" oninput="updatePreview()">
+                            <small id="sizeDisplay">68px</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Icon URL</label>
+                            <input type="url" id="iconUrl">
+                        </div>
+                        <div class="form-group">
+                            <label>Position</label>
+                            <select id="position">
+                                <option value="br">Bottom Right</option>
+                                <option value="bl">Bottom Left</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Behavior Tab -->
+            <div id="behavior" class="tab-content">
+                <h3>⚡ Widget Behavior</h3>
+                <div class="grid">
+                    <div>
+                        <div class="form-group">
+                            <label>Show Bubble After (ms)</label>
+                            <input type="number" id="showDelay" value="3000" min="0" max="30000" step="500">
+                        </div>
+                        <div class="form-group">
+                            <label>Auto-open After (ms, 0 = never)</label>
+                            <input type="number" id="openDelay" value="0" min="0" max="60000" step="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Frequency Cap (hours)</label>
+                            <input type="number" id="frequencyCap" value="24" min="0" max="168">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="exitIntent"> Exit Intent Trigger
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Scroll Trigger (%)</label>
+                            <input type="range" id="scrollTrigger" min="0" max="95" value="0" oninput="updateScrollDisplay()">
+                            <small id="scrollDisplay">Disabled</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="showOnMobile" checked> Show on Mobile
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="showOnDesktop" checked> Show on Desktop
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UTM Settings Tab -->
+            <div id="utm" class="tab-content">
+                <h3>🎯 UTM Parameter Configuration</h3>
+                
+                <div class="utm-settings">
+                    <h4>📥 UTM Capture Settings</h4>
+                    <div class="grid">
+                        <div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureUTMSource" checked> Capture utm_source
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureUTMMedium" checked> Capture utm_medium
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureUTMCampaign" checked> Capture utm_campaign
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureUTMTerm" checked> Capture utm_term
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureUTMContent" checked> Capture utm_content
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="captureCustomParams" checked> Capture Custom Parameters
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4>📤 UTM Forwarding Settings</h4>
+                    <div class="form-group">
+                        <label>Custom UTM Parameters (comma-separated)</label>
+                        <input type="text" id="customUTMParams" placeholder="utm_custom1, utm_custom2, gclid, fbclid">
+                        <small>Additional parameters to capture and forward</small>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="appendPageContext" checked> Include Page Context (host, page, referrer)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="appendTimestamp" checked> Include Timestamp
+                        </label>
+                    </div>
+                </div>
+
+                <div class="info">
+                    <strong>📊 UTM Flow Example:</strong><br>
+                    Visitor arrives: <code>client-site.com?utm_source=facebook&utm_campaign=promo</code><br>
+                    Widget captures: All selected UTM parameters<br>
+                    Chat opens with: <code>your-chat-url?utm_source=facebook&utm_campaign=promo&host=client-site.com&embed=1</code>
+                </div>
+            </div>
+
+            <!-- Webhooks Tab -->
+            <div id="webhooks" class="tab-content">
+                <h3>🔗 Webhook Configuration</h3>
+                
+                <div class="webhook-flow">
+                    <h4>📡 Chat System Communication</h4>
+                    <p>Configure how the widget communicates with your chat system:</p>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <h4>🚀 Outgoing Webhooks (Widget → Chat)</h4>
+                        <div class="form-group">
+                            <label>Chat Open Webhook URL</label>
+                            <input type="url" id="chatOpenWebhook" placeholder="https://your-api.com/webhooks/chat-open">
+                            <small>Called when chat opens with UTM data</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Chat Close Webhook URL</label>
+                            <input type="url" id="chatCloseWebhook" placeholder="https://your-api.com/webhooks/chat-close">
+                            <small>Called when chat closes with session data</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Lead Capture Webhook URL</label>
+                            <input type="url" id="leadWebhook" placeholder="https://your-api.com/webhooks/lead-capture">
+                            <small>Called when visitor provides contact info</small>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>📥 Incoming Webhooks (Chat → Widget)</h4>
+                        <div class="form-group">
+                            <label>Widget Control Webhook Secret</label>
+                            <input type="text" id="webhookSecret" placeholder="your-secret-key">
+                            <small>Secret for authenticating incoming webhook commands</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="enableWidgetControl"> Enable Widget Control
+                            </label>
+                            <small>Allow chat system to control widget (open/close/update)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="enableNotifications"> Enable Notifications
+                            </label>
+                            <small>Show notifications from chat system</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>🔒 Security:</strong> Webhook URLs should use HTTPS and include authentication tokens or secrets for security.
+                </div>
+            </div>
+
+            <!-- Advanced Tab -->
+            <div id="advanced" class="tab-content">
+                <h3>⚙️ Advanced Configuration</h3>
+                
+                <div class="grid">
+                    <div>
+                        <h4>🎭 Display Rules</h4>
+                        <div class="form-group">
+                            <label>Include Paths (one per line)</label>
+                            <textarea id="includePaths" rows="4" placeholder="/home&#10;/products/*&#10;/contact">/*</textarea>
+                            <small>Pages where widget should appear (* = all)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Exclude Paths (one per line)</label>
+                            <textarea id="excludePaths" rows="4" placeholder="/admin/*&#10;/checkout&#10;/login"></textarea>
+                            <small>Pages where widget should NOT appear</small>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>📱 Window Settings</h4>
+                        <div class="form-group">
+                            <label>Desktop Mode</label>
+                            <select id="windowMode">
+                                <option value="true">Windowed (420x650px)</option>
+                                <option value="false">Full Screen</option>
+                            </select>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>Window Width (px)</label>
+                                <input type="number" id="windowWidth" value="420" min="300" max="800">
+                            </div>
+                            <div class="form-group">
+                                <label>Window Height (px)</label>
+                                <input type="number" id="windowHeight" value="650" min="400" max="900">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="closeOnEscape" checked> Close on Escape Key
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="enableAnalytics" checked> Console Analytics
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div style="text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
+                <button class="btn success" onclick="saveConfiguration()" style="font-size: 18px; padding: 15px 40px;">
+                    💾 SAVE TO DATABASE
+                </button>
+                <button class="btn secondary" onclick="previewConfiguration()">👁️ Preview</button>
+                <button class="btn secondary" onclick="testConfiguration()">🧪 Test Widget</button>
+            </div>
+            
+            <div id="saveStatus"></div>
+        </div>
+
+        <!-- Deploy Code -->
+        <div class="panel" id="deployPanel" style="display: none;">
+            <h2>🚀 Deployment Code</h2>
+            
+            <div class="success">
+                <strong>✅ Configuration Saved to Database!</strong>
+            </div>
+            
+            <div class="code-block" id="deployCode">
+                Loading deployment code...
+            </div>
+            
+            <button class="btn" onclick="copyDeployCode()">📋 Copy Code</button>
+            <button class="btn secondary" onclick="openControlPanel()">🎛️ Back to Settings</button>
+            
+            <div class="info">
+                <strong>📋 Deployment Instructions:</strong><br>
+                1. Copy the code above<br>
+                2. Paste in client's website footer (GoHighLevel: Settings → Tracking Code)<br>
+                3. Widget loads configuration from database automatically<br>
+                4. Any changes you make here update the widget immediately!
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Widget -->
+    <div class="preview-widget" id="previewWidget" onclick="testPreview()">
+        <img id="previewIcon" src="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png" alt="Chat">
+    </div>
+
+    <script>
+        let currentSiteId = null;
+        let currentConfig = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkDatabaseConnection();
+            setupEventListeners();
+            updatePreview();
+        });
+
+        // Database connection check
+        async function checkDatabaseConnection() {
+            try {
+                const response = await fetch('/api/load-config?siteId=aiprlassist-default');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('dbStatus').className = 'status-indicator status-connected';
+                    document.getElementById('dbStatusText').textContent = 'Database Connected';
+                    refreshClients();
+                } else {
+                    document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
+                    document.getElementById('dbStatusText').textContent = 'Database Error';
+                }
+            } catch (error) {
+                document.getElementById('dbStatus').className = 'status-indicator status-disconnected';
+                document.getElementById('dbStatusText').textContent = 'Connection Failed';
+                console.error('Database connection failed:', error);
+            }
+        }
+
+        // Load client configuration
+        async function loadClient() {
+            const siteId = document.getElementById('existingClients').value;
+            if (!siteId) return;
+            
+            currentSiteId = siteId;
+            showStatus('Loading configuration...', 'info');
+            
+            try {
+                const response = await fetch(`/api/load-config?siteId=${siteId}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    currentConfig = data.config;
+                    populateForm(data.config);
+                    showConfigPanel();
+                    showStatus(`✅ Loaded: ${data.clientName}`, 'success');
+                } else {
+                    showStatus(`❌ Load failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Load error: ${error.message}`, 'error');
+            }
+        }
+
+        // Save configuration to database
+        async function saveConfiguration() {
+            if (!currentSiteId) {
+                alert('Please select or create a client first');
+                return;
+            }
+            
+            const config = buildConfigFromForm();
+            
+            showSaveIndicator();
+            showStatus('💾 Saving to database...', 'info');
+            
+            try {
+                const response = await fetch('/api/save-config-real', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        siteId: currentSiteId,
+                        clientName: document.getElementById('existingClients').selectedOptions[0]?.text || `Client ${currentSiteId}`,
+                        config: config
+                    })
+                });
+                
+                const result = await response.json();
+                
+                hideSaveIndicator();
+                
+                if (response.ok && result.success) {
+                    currentConfig = config;
+                    showStatus('✅ Configuration saved to database!', 'success');
+                    generateDeployCode();
+                    showDeployPanel();
+                } else {
+                    showStatus(`❌ Save failed: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                hideSaveIndicator();
+                showStatus(`❌ Save error: ${error.message}`, 'error');
+            }
+        }
+
+        // Build config object from form
+        function buildConfigFromForm() {
+            const includePaths = document.getElementById('includePaths').value
+                .split('\n')
+                .map(p => p.trim())
+                .filter(p => p);
+                
+            const excludePaths = document.getElementById('excludePaths').value
+                .split('\n')
+                .map(p => p.trim())
+                .filter(p => p);
+                
+            const customUTMParams = document.getElementById('customUTMParams').value
+                .split(',')
+                .map(p => p.trim())
+                .filter(p => p);
+
+            return {
+                chatUrl: document.getElementById('chatUrl').value,
+                fallbackUrl: document.getElementById('fallbackUrl').value,
+                bubble: {
+                    position: document.getElementById('position').value,
+                    size: parseInt(document.getElementById('bubbleSize').value),
+                    bg: document.getElementById('bubbleColor').value,
+                    color: "#ffffff",
+                    iconUrl: document.getElementById('iconUrl').value,
+                    pulse: true,
+                    zIndex: 2147483000
+                },
+                triggers: {
+                    showBubbleAfterMs: parseInt(document.getElementById('showDelay').value),
+                    openAfterMs: parseInt(document.getElementById('openDelay').value),
+                    triggerOnScrollPercent: parseInt(document.getElementById('scrollTrigger').value),
+                    triggerOnExitIntent: document.getElementById('exitIntent').checked
+                },
+                rules: {
+                    includePaths: includePaths.length ? includePaths : ["*"],
+                    excludePaths: excludePaths,
+                    showOnMobile: document.getElementById('showOnMobile').checked,
+                    showOnDesktop: document.getElementById('showOnDesktop').checked,
+                    frequencyCapHours: parseInt(document.getElementById('frequencyCap').value),
+                    appendUTM: true
+                },
+                utm: {
+                    captureSource: document.getElementById('captureUTMSource').checked,
+                    captureMedium: document.getElementById('captureUTMMedium').checked,
+                    captureCampaign: document.getElementById('captureUTMCampaign').checked,
+                    captureTerm: document.getElementById('captureUTMTerm').checked,
+                    captureContent: document.getElementById('captureUTMContent').checked,
+                    captureCustom: document.getElementById('captureCustomParams').checked,
+                    customParams: customUTMParams,
+                    appendPageContext: document.getElementById('appendPageContext').checked,
+                    appendTimestamp: document.getElementById('appendTimestamp').checked
+                },
+                webhooks: {
+                    chatOpen: document.getElementById('chatOpenWebhook').value,
+                    chatClose: document.getElementById('chatCloseWebhook').value,
+                    leadCapture: document.getElementById('leadWebhook').value,
+                    secret: document.getElementById('webhookSecret').value,
+                    enableWidgetControl: document.getElementById('enableWidgetControl').checked,
+                    enableNotifications: document.getElementById('enableNotifications').checked
+                },
+                overlay: {
+                    bg: "rgba(0,0,0,0.45)",
+                    closeOnEsc: document.getElementById('closeOnEscape').checked,
+                    windowMode: document.getElementById('windowMode').value === 'true',
+                    windowWidth: document.getElementById('windowWidth').value + "px",
+                    windowHeight: document.getElementById('windowHeight').value + "px"
+                },
+                analytics: {
+                    console: document.getElementById('enableAnalytics').checked
+                }
+            };
+        }
+
+        // Populate form with loaded config
+        function populateForm(config) {
+            document.getElementById('chatUrl').value = config.chatUrl || '';
+            document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
+            document.getElementById('bubbleColor').value = config.bubble?.bg || '#E67E22';
+            document.getElementById('bubbleSize').value = config.bubble?.size || 68;
+            document.getElementById('iconUrl').value = config.bubble?.iconUrl || '';
+            document.getElementById('position').value = config.bubble?.position || 'br';
+            document.getElementById('showDelay').value = config.triggers?.showBubbleAfterMs || 3000;
+            document.getElementById('openDelay').value = config.triggers?.openAfterMs || 0;
+            document.getElementById('frequencyCap').value = config.rules?.frequencyCapHours || 24;
+            document.getElementById('exitIntent').checked = config.triggers?.triggerOnExitIntent || false;
+            document.getElementById('scrollTrigger').value = config.triggers?.triggerOnScrollPercent || 0;
+            document.getElementById('showOnMobile').checked = config.rules?.showOnMobile !== false;
+            document.getElementById('showOnDesktop').checked = config.rules?.showOnDesktop !== false;
+            
+            // UTM settings
+            document.getElementById('captureUTMSource').checked = config.utm?.captureSource !== false;
+            document.getElementById('captureUTMMedium').checked = config.utm?.captureMedium !== false;
+            document.getElementById('captureUTMCampaign').checked = config.utm?.captureCampaign !== false;
+            document.getElementById('captureUTMTerm').checked = config.utm?.captureTerm !== false;
+            document.getElementById('captureUTMContent').checked = config.utm?.captureContent !== false;
+            document.getElementById('captureCustomParams').checked = config.utm?.captureCustom !== false;
+            document.getElementById('customUTMParams').value = config.utm?.customParams?.join(', ') || '';
+            document.getElementById('appendPageContext').checked = config.utm?.appendPageContext !== false;
+            document.getElementById('appendTimestamp').checked = config.utm?.appendTimestamp !== false;
+            
+            // Webhook settings
+            document.getElementById('chatOpenWebhook').value = config.webhooks?.chatOpen || '';
+            document.getElementById('chatCloseWebhook').value = config.webhooks?.chatClose || '';
+            document.getElementById('leadWebhook').value = config.webhooks?.leadCapture || '';
+            document.getElementById('webhookSecret').value = config.webhooks?.secret || '';
+            document.getElementById('enableWidgetControl').checked = config.webhooks?.enableWidgetControl || false;
+            document.getElementById('enableNotifications').checked = config.webhooks?.enableNotifications || false;
+            
+            // Advanced settings
+            document.getElementById('includePaths').value = config.rules?.includePaths?.join('\n') || '*';
+            document.getElementById('excludePaths').value = config.rules?.excludePaths?.join('\n') || '';
+            document.getElementById('windowMode').value = config.overlay?.windowMode !== false ? 'true' : 'false';
+            document.getElementById('windowWidth').value = parseInt(config.overlay?.windowWidth) || 420;
+            document.getElementById('windowHeight').value = parseInt(config.overlay?.windowHeight) || 650;
+            document.getElementById('closeOnEscape').checked = config.overlay?.closeOnEsc !== false;
+            document.getElementById('enableAnalytics').checked = config.analytics?.console !== false;
+            
+            updatePreview();
+            updateScrollDisplay();
+        }
+
+        // Create new client
+        function createClient() {
+            const siteId = document.getElementById('newSiteId').value.trim();
+            const clientName = document.getElementById('newClientName').value.trim();
+            
+            if (!siteId) {
+                alert('Please enter a Site ID');
+                return;
+            }
+            
+            if (!/^[a-z0-9-]+$/.test(siteId)) {
+                alert('Site ID must contain only lowercase letters, numbers, and hyphens');
+                return;
+            }
+            
+            currentSiteId = siteId;
+            
+            // Add to dropdown
+            const select = document.getElementById('existingClients');
+            const option = document.createElement('option');
+            option.value = siteId;
+            option.textContent = clientName || siteId;
+            option.selected = true;
+            select.appendChild(option);
+            
+            // Clear inputs
+            document.getElementById('newSiteId').value = '';
+            document.getElementById('newClientName').value = '';
+            
+            // Set defaults and show config
+            setDefaultValues();
+            showConfigPanel();
+            showStatus(`✅ New client "${siteId}" ready for configuration`, 'success');
+        }
+
+        // Set default values
+        function setDefaultValues() {
+            document.getElementById('chatUrl').value = 'https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k';
+            document.getElementById('fallbackUrl').value = 'https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403';
+            document.getElementById('bubbleColor').value = '#E67E22';
+            document.getElementById('bubbleSize').value = 68;
+            document.getElementById('iconUrl').value = 'https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png';
+            document.getElementById('position').value = 'br';
+            document.getElementById('showDelay').value = 3000;
+            document.getElementById('openDelay').value = 0;
+            document.getElementById('scrollTrigger').value = 0;
+            document.getElementById('includePaths').value = '*';
+            document.getElementById('excludePaths').value = '';
+            
+            updatePreview();
+            updateScrollDisplay();
+        }
+
+        // Generate deployment code
+        function generateDeployCode() {
+            const code = `&lt;!-- AI PRL Assist Widget (Database-Powered) --&gt;
+&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  siteId: "${currentSiteId}"
+});
+&lt;/script&gt;
+&lt;!-- End AI PRL Assist Widget --&gt;`;
+            
+            document.getElementById('deployCode').innerHTML = code;
+        }
+
+        // Tab management
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Panel management
+        function showConfigPanel() {
+            document.getElementById('configPanel').style.display = 'block';
+            document.getElementById('deployPanel').style.display = 'none';
+        }
+
+        function showDeployPanel() {
+            document.getElementById('configPanel').style.display = 'none';
+            document.getElementById('deployPanel').style.display = 'block';
+            document.getElementById('deployPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openControlPanel() {
+            showConfigPanel();
+        }
+
+        // Status management
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('saveStatus');
+            statusDiv.className = type;
+            statusDiv.textContent = message;
+            
+            console.log(`[Control Panel] ${message}`);
+        }
+
+        function showSaveIndicator() {
+            document.getElementById('saveIndicator').style.display = 'block';
+        }
+
+        function hideSaveIndicator() {
+            document.getElementById('saveIndicator').style.display = 'none';
+        }
+
+        // Preview management
+        function updatePreview() {
+            const color = document.getElementById('bubbleColor').value;
+            const icon = document.getElementById('iconUrl').value;
+            const size = document.getElementById('bubbleSize').value;
+            
+            const preview = document.getElementById('previewWidget');
+            const previewIcon = document.getElementById('previewIcon');
+            
+            preview.style.background = color;
+            preview.style.width = size + 'px';
+            preview.style.height = size + 'px';
+            previewIcon.src = icon || 'https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png';
+            
+            document.getElementById('sizeDisplay').textContent = size + 'px';
+        }
+
+        function updateScrollDisplay() {
+            const scroll = document.getElementById('scrollTrigger').value;
+            document.getElementById('scrollDisplay').textContent = scroll == 0 ? 'Disabled' : scroll + '%';
+        }
+
+        // Utility functions
+        function copyDeployCode() {
+            const codeElement = document.getElementById('deployCode');
+            const text = codeElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Deployment code copied to clipboard!\n\nPaste this in your client\'s website footer.');
+            });
+        }
+
+        function testPreview() {
+            alert('💬 This is the preview widget!\n\nAfter saving, the real widget will behave exactly like this.');
+        }
+
+        function refreshClients() {
+            // TODO: Load from database API when available
+            const select = document.getElementById('existingClients');
+            select.innerHTML = `
+                <option value="">Choose client...</option>
+                <option value="aiprlassist-default">AI PRL Assist (Default)</option>
+            `;
+        }
+
+        function setupEventListeners() {
+            // Auto-update preview when inputs change
+            ['bubbleColor', 'iconUrl', 'bubbleSize'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+            });
+            
+            document.getElementById('scrollTrigger').addEventListener('input', updateScrollDisplay);
+        }
+
+        function previewConfiguration() {
+            updatePreview();
+            showStatus('👁️ Preview updated - see bottom-right corner', 'info');
+        }
+
+        function testConfiguration() {
+            if (!currentSiteId) {
+                alert('Please select or create a client first');
+                return;
+            }
+            
+            // Load test widget
+            const script = document.createElement('script');
+            script.src = 'https://dynamiccode-ochre.vercel.app/chat-widget-db.js';
+            script.onload = () => {
+                if (window.ChatWidget && window.ChatWidget.setup) {
+                    window.ChatWidget.setup({
+                        siteId: currentSiteId,
+                        analytics: true
+                    });
+                    showStatus('🧪 Test widget loaded with database config', 'success');
+                }
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>

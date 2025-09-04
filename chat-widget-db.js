@@ -66,15 +66,18 @@
 
     // Fallback to inline config if database load failed
     if (!finalConfig) {
-      console.warn(`[AI PRL Assist] Database config failed for siteId: ${siteId}, using fallback config`);
-      
-      // Use a working fallback config
+      if (!id || !accountId) {
+        console.error('[AI PRL Assist] Missing required parameters: siteId (for database) or id+accountId (for inline)');
+        return;
+      }
+
+      // Build inline config
       finalConfig = {
-        chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=xaLiCGQ3VYp6mQF2k",
-        fallbackUrl: "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
+        chatUrl: `https://app.aiprlassist.com/webchat/?p=${accountId}&id=${id}`,
+        fallbackUrl: fallbackUrl,
         bubble: {
-          position: "br",
-          size: 68,
+          position: position === "bottom-left" ? "bl" : "br",
+          size: size,
           bg: color,
           color: "#ffffff",
           iconUrl: icon,
@@ -97,17 +100,17 @@
         overlay: {
           bg: "rgba(0,0,0,0.45)",
           closeOnEsc: true,
-          windowMode: true,
-          windowWidth: "420px",
-          windowHeight: "650px"
+          windowMode: windowMode === "windowed",
+          windowWidth: windowWidth + "px",
+          windowHeight: windowHeight + "px"
         },
         analytics: {
           console: analytics
         }
       };
-      
+
       if (analytics) {
-        console.log(`[AI PRL Assist] Using fallback config for siteId: ${siteId}`, finalConfig);
+        console.log(`[AI PRL Assist] Using inline config (database load ${siteId ? 'failed' : 'not attempted'})`, finalConfig);
       }
     }
 
