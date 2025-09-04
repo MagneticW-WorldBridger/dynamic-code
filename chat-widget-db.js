@@ -35,7 +35,7 @@
       // Load from database API
       try {
         const baseUrl = apiBase || window.location.origin;
-        const response = await fetch(`${baseUrl}/api/config/${siteId}`, {
+        const response = await fetch(`${baseUrl}/api/load-config?siteId=${siteId}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json'
