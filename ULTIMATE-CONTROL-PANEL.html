@@ -69,6 +69,7 @@
                         <option value="">Choose existing client...</option>
                         <option value="aiprlassist-default">AI PRL Assist (Default)</option>
                     </select>
+                    <button onclick="refreshClientList()" style="width: 100%; margin-top: 5px;" class="secondary">🔄 Refresh List</button>
                     <button onclick="loadClient()" style="width: 100%; margin-top: 10px;">📥 Load Configuration</button>
                 </div>
                 
@@ -408,6 +409,7 @@ Select a client and configure the widget to generate deployment code...
     <script>
         let currentSiteId = null;
         let currentConfig = {};
+        let savedClients = JSON.parse(localStorage.getItem('aiPrlAssist_clients') || '["aiprlassist-default"]');
         let featureStates = {
             exitIntent: false,
             mobileFullscreen: true,
@@ -510,7 +512,7 @@ Select a client and configure the widget to generate deployment code...
             console.log('✅ [Control Panel] Site ID validation passed');
             currentSiteId = siteId;
             
-            // Add to dropdown
+            // Add to dropdown and save to localStorage
             console.log('🔄 [Control Panel] Adding to client dropdown...');
             const select = document.getElementById('clientSelect');
             const option = document.createElement('option');
@@ -518,6 +520,13 @@ Select a client and configure the widget to generate deployment code...
             option.textContent = clientName || siteId;
             option.selected = true;
             select.appendChild(option);
+            
+            // Save to localStorage for persistence
+            if (!savedClients.includes(siteId)) {
+                savedClients.push(siteId);
+                localStorage.setItem('aiPrlAssist_clients', JSON.stringify(savedClients));
+                console.log('💾 [Control Panel] Client saved to localStorage:', savedClients);
+            }
             console.log('✅ [Control Panel] Added to dropdown');
             
             // Set default config
@@ -987,6 +996,10 @@ ChatWidget.setup({
             
             console.log('🎛️ [Control Panel] Basic initialization complete');
             
+            // Load saved clients first
+            console.log('🔄 [Control Panel] Loading saved clients from localStorage...');
+            refreshClientList();
+            
             // Auto-load default client
             setTimeout(() => {
                 console.log('🎛️ [Control Panel] Auto-loading default client...');
@@ -994,6 +1007,36 @@ ChatWidget.setup({
                 loadClient();
             }, 1000);
         });
+
+        // Refresh client list from localStorage
+        function refreshClientList() {
+            console.log('🔄 [Control Panel] Refreshing client list...');
+            
+            const select = document.getElementById('clientSelect');
+            const currentValue = select.value;
+            
+            // Clear existing options except the first one
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Add saved clients
+            savedClients.forEach(siteId => {
+                if (siteId !== 'aiprlassist-default') { // Skip default, it's already there
+                    const option = document.createElement('option');
+                    option.value = siteId;
+                    option.textContent = `Client ${siteId}`;
+                    select.appendChild(option);
+                }
+            });
+            
+            // Restore selection if it still exists
+            if (currentValue && savedClients.includes(currentValue)) {
+                select.value = currentValue;
+            }
+            
+            console.log('✅ [Control Panel] Client list refreshed. Available clients:', savedClients);
+        }
 
         // Global save function (accessible from anywhere)
         window.saveConfig = saveConfiguration;
