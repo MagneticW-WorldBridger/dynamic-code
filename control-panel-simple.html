@@ -402,15 +402,48 @@ ChatWidget.setup({
             alert('🧪 Test widget loaded! Check bottom-right corner.');
         }
 
+        // Load configuration from database on page load
+        async function loadFromDatabase() {
+            try {
+                const response = await fetch('/api/load-config?siteId=aiprlassist-default');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const config = data.config;
+                    
+                    // Populate form with database data
+                    document.getElementById('chatId').value = config.chatUrl?.match(/id=([^&]+)/)?.[1] || 'xaLiCGQ3VYp6mQF2k';
+                    document.getElementById('accountId').value = config.chatUrl?.match(/p=([^&]+)/)?.[1] || '1047143';
+                    document.getElementById('color').value = config.bubble?.bg || '#E67E22';
+                    document.getElementById('icon').value = config.bubble?.iconUrl || '';
+                    document.getElementById('position').value = config.bubble?.position === 'bl' ? 'bottom-left' : 'bottom-right';
+                    document.getElementById('size').value = config.bubble?.size || 68;
+                    
+                    updatePreview();
+                    updateClientCode();
+                    
+                    console.log('✅ Loaded config from database:', data);
+                } else {
+                    console.error('Failed to load config:', data);
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+            }
+        }
+
         // Auto-update preview when inputs change
         document.addEventListener('DOMContentLoaded', function() {
             const inputs = ['color', 'icon', 'size', 'chatId', 'accountId', 'position'];
             inputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', updatePreview);
-                document.getElementById(id).addEventListener('change', updatePreview);
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', updatePreview);
+                    element.addEventListener('change', updatePreview);
+                }
             });
             
-            updatePreview();
+            // Load from database on startup
+            loadFromDatabase();
         });
     </script>
 
