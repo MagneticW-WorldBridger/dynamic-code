@@ -1,7 +1,7 @@
-import { createPool } from '@vercel/postgres';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -12,15 +12,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
-    // Create connection pool with explicit connection string
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
 
     if (req.method === 'GET') {
       // List all configurations
-      const result = await pool.sql`
+      const result = await pool.query(`
         SELECT 
           id,
           site_id, 
@@ -31,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           (config->'bubble'->>'bg') as bubble_color
         FROM widget_configs 
         ORDER BY updated_at DESC
-      `;
+      `);
 
       return res.status(200).json({
         success: true,
@@ -67,9 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // Check if siteId already exists
-      const existing = await pool.sql`
-        SELECT site_id FROM widget_configs WHERE site_id = ${siteId}
-      `;
+      const existing = await pool.query(
+        'SELECT site_id FROM widget_configs WHERE site_id = $1',
+        [siteId]
+      );
 
       if (existing.rows.length > 0) {
         return res.status(409).json({ 
@@ -79,11 +81,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      const result = await pool.sql`
-        INSERT INTO widget_configs (site_id, client_name, config)
-        VALUES (${siteId}, ${clientName || `Client ${siteId}`}, ${JSON.stringify(config)})
-        RETURNING id, created_at, updated_at
-      `;
+      const result = await pool.query(
+        'INSERT INTO widget_configs (site_id, client_name, config) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at',
+        [siteId, clientName || `Client ${siteId}`, JSON.stringify(config)]
+      );
 
       return res.status(201).json({
         success: true,
@@ -109,5 +110,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       code: 'DATABASE_ERROR',
       message: error.message
     });
+  } finally {
+    await pool.end();
   }
 }
