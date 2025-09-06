@@ -343,6 +343,18 @@
                         <label>Fallback URL (if main chat fails)</label>
                         <input type="url" id="fallbackUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Webhook Configuration:</label>
+                        <input type="url" id="webhookUrl" placeholder="https://your-webhook.com/endpoint">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="webhookChatOpened"> Chat Opened
+                            <input type="checkbox" id="webhookChatClosed"> Chat Closed
+                            <input type="checkbox" id="webhookTeaserShown"> Teaser Shown
+                            <input type="checkbox" id="webhookTeaserAutoclosed"> Teaser Auto-closed
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label>
                             <input type="checkbox" id="noOverlay"> No Dark Overlay (transparent background)
@@ -563,7 +575,14 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
                     console: true,
                     trackOpens: document.getElementById('trackOpens').checked
                 },
-                noOverlay: document.getElementById('noOverlay').checked
+                noOverlay: document.getElementById('noOverlay').checked,
+                webhookUrl: document.getElementById('webhookUrl').value,
+                webhookEvents: [
+                    document.getElementById('webhookChatOpened').checked ? 'chat_opened' : null,
+                    document.getElementById('webhookChatClosed').checked ? 'chat_closed' : null,
+                    document.getElementById('webhookTeaserShown').checked ? 'teaser_shown' : null,
+                    document.getElementById('webhookTeaserAutoclosed').checked ? 'teaser_autoclosed' : null
+                ].filter(Boolean)
             };
             
             try {
@@ -903,6 +922,14 @@ ChatWidget.setup({
             setValue('teaserAutoclose', config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs));
             setValue('webhookUrl', config.webhookUrl);
             
+            // Webhook events
+            if (config.webhookEvents) {
+                setChecked('webhookChatOpened', config.webhookEvents.includes('chat_opened'));
+                setChecked('webhookChatClosed', config.webhookEvents.includes('chat_closed'));
+                setChecked('webhookTeaserShown', config.webhookEvents.includes('teaser_shown'));
+                setChecked('webhookTeaserAutoclosed', config.webhookEvents.includes('teaser_autoclosed'));
+            }
+            
             // Extract chatId and accountId from chatUrl
             if (config.chatUrl) {
                 const chatIdMatch = config.chatUrl.match(/id=([^&]+)/);
@@ -1135,7 +1162,14 @@ ChatWidget.setup({
                     console: true,
                     trackOpens: document.getElementById('trackOpens').checked
                 },
-                noOverlay: document.getElementById('noOverlay').checked
+                noOverlay: document.getElementById('noOverlay').checked,
+                webhookUrl: document.getElementById('webhookUrl').value,
+                webhookEvents: [
+                    document.getElementById('webhookChatOpened').checked ? 'chat_opened' : null,
+                    document.getElementById('webhookChatClosed').checked ? 'chat_closed' : null,
+                    document.getElementById('webhookTeaserShown').checked ? 'teaser_shown' : null,
+                    document.getElementById('webhookTeaserAutoclosed').checked ? 'teaser_autoclosed' : null
+                ].filter(Boolean)
             };
         }
 
@@ -1147,7 +1181,8 @@ ChatWidget.setup({
                 'teaserEnabled', 'teaserText', 'teaserDelay', 'teaserAutoclose',
                 'minWidth', 'maxWidth', 'frequencyCap', 'trackOpens',
                 'includePaths', 'excludePaths', 'showOnMobile', 'showOnDesktop', 'appendUTM',
-                'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl', 'noOverlay'
+                'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl', 'noOverlay',
+                'webhookUrl', 'webhookChatOpened', 'webhookChatClosed', 'webhookTeaserShown', 'webhookTeaserAutoclosed'
             ];
             inputs.forEach(id => {
                 const element = document.getElementById(id);
