@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Remote Config 1 - Orange with Overlay</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            line-height: 1.6;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 20px 0;
+        }
+        .success { 
+            background: rgba(46, 204, 113, 0.2); 
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .warning {
+            background: rgba(241, 196, 15, 0.2);
+            border: 1px solid #f1c40f;
+            color: #f1c40f;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .code {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 15px 0;
+        }
+        h1 { color: #fff; }
+        h2 { color: #f8f9fa; }
+        .config-details {
+            background: rgba(230, 126, 34, 0.2);
+            border: 1px solid #E67E22;
+            color: #E67E22;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧪 Test Remote Config 1 - Orange with Overlay</h1>
+        
+        <div class="success">
+            <strong>✅ CONFIGURACIÓN REMOTA CARGADA!</strong><br>
+            Esta configuración tiene overlay oscuro y burbuja naranja.
+        </div>
+
+        <div class="config-details">
+            <h3>🎯 Configuración Aplicada:</h3>
+            <ul>
+                <li><strong>Color:</strong> #E67E22 (Naranja)</li>
+                <li><strong>Posición:</strong> bottom-right</li>
+                <li><strong>Tamaño:</strong> 68px</li>
+                <li><strong>Delay:</strong> 3000ms</li>
+                <li><strong>Overlay:</strong> SÍ (fondo oscuro)</li>
+                <li><strong>Exit Intent:</strong> NO</li>
+                <li><strong>Scroll Trigger:</strong> NO</li>
+                <li><strong>UTM Capture:</strong> SÍ</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Código del Cliente:</h2>
+        <div class="code">
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  siteId: "test-config-1", // Remote config!
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143"
+});
+&lt;/script&gt;
+        </div>
+
+        <div class="warning">
+            <strong>🎯 PRUEBA ESTO:</strong><br>
+            1. Deberías ver burbuja NARANJA en bottom-right<br>
+            2. Al hacer click, overlay OSCURO aparece<br>
+            3. Chat se abre en ventana de 420x650px<br>
+            4. ¡Configuración viene de la base de datos!
+        </div>
+
+        <h2>📊 Estado del Widget:</h2>
+        <div id="widgetStatus">Cargando...</div>
+    </div>
+
+    <script>
+        // Check widget status
+        setTimeout(() => {
+            if (window.ChatWidget && window.__aiPrlAssistLoaded) {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div class="success">✅ Widget cargado! Deberías ver burbuja naranja con overlay oscuro.</div>';
+            } else {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; padding: 15px; border-radius: 8px;">❌ Widget falló al cargar</div>';
+            }
+        }, 4000);
+    </script>
+
+    <!-- AI PRL Assist Chat Widget (REMOTE CONFIG 1) -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <script>
+        ChatWidget.setup({
+            siteId: "test-config-1", // Remote config will override everything!
+            id: "O1T4KXJ9xZ",
+            accountId: "1047143"
+        });
+    </script>
+</body>
+</html>
