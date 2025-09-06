@@ -677,16 +677,16 @@ ChatWidget.setup({
             
             // Bubble settings
             if (config.bubble) {
-                document.getElementById('bubbleColor').value = config.bubble.bg || '#E67E22';
-                document.getElementById('bubbleSize').value = config.bubble.size || 68;
-                document.getElementById('bubblePosition').value = config.bubble.position || 'bottom-right';
-                document.getElementById('bubbleIcon').value = config.bubble.icon || '';
+                document.getElementById('color').value = config.bubble.bg || '#E67E22';
+                document.getElementById('size').value = config.bubble.size || 68;
+                document.getElementById('position').value = config.bubble.position || 'bottom-right';
+                document.getElementById('icon').value = config.bubble.icon || '';
             }
             
             // Trigger settings
             if (config.triggers) {
-                document.getElementById('showDelay').value = config.triggers.showBubbleAfterMs || 3000;
-                document.getElementById('openDelay').value = config.triggers.openAfterMs || 0;
+                document.getElementById('showBubbleAfterMs').value = config.triggers.showBubbleAfterMs || 3000;
+                document.getElementById('openAfterMs').value = config.triggers.openAfterMs || 0;
                 document.getElementById('exitIntent').checked = config.triggers.exitIntent || false;
                 document.getElementById('scrollTrigger').value = config.triggers.scrollTrigger || 0;
             }
@@ -694,9 +694,9 @@ ChatWidget.setup({
             // Overlay settings
             if (config.overlay) {
                 document.getElementById('overlayBg').value = config.overlay.bg || 'rgba(0,0,0,0.5)';
-                document.getElementById('windowMode').checked = config.overlay.windowMode || false;
-                document.getElementById('windowWidth').value = config.overlay.windowWidth || '420px';
-                document.getElementById('windowHeight').value = config.overlay.windowHeight || '650px';
+                document.getElementById('windowMode').value = config.overlay.windowMode ? 'windowed' : 'fullscreen';
+                document.getElementById('windowWidth').value = parseInt(config.overlay.windowWidth) || 420;
+                document.getElementById('windowHeight').value = parseInt(config.overlay.windowHeight) || 650;
             }
             
             // Rules
@@ -708,7 +708,6 @@ ChatWidget.setup({
             
             // Analytics
             if (config.analytics) {
-                document.getElementById('consoleLogs').checked = config.analytics.console || false;
                 document.getElementById('trackOpens').checked = config.analytics.trackOpens || false;
             }
             
