@@ -253,6 +253,48 @@
                 </div>
 
                 <div class="card">
+                    <h3>💬 Teaser Messages</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="teaserEnabled" checked> Enable Teaser Messages
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Teaser Text</label>
+                        <input type="text" id="teaserText" value="👋 Hi! I'm here to help with your retail experience. Got questions?" placeholder="Teaser message text">
+                    </div>
+                    <div class="form-group">
+                        <label>Show Teaser After (ms)</label>
+                        <input type="number" id="teaserDelay" value="5000" min="1000" max="30000">
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-close Teaser After (ms)</label>
+                        <input type="number" id="teaserAutoclose" value="15000" min="5000" max="60000">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎛️ Advanced Rules</h3>
+                    <div class="form-group">
+                        <label>Min Screen Width (px)</label>
+                        <input type="number" id="minWidth" value="0" min="0" max="2000">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Screen Width (px)</label>
+                        <input type="number" id="maxWidth" value="99999" min="320" max="99999">
+                    </div>
+                    <div class="form-group">
+                        <label>Frequency Cap (hours) - 0 = no limit</label>
+                        <input type="number" id="frequencyCap" value="24" min="0" max="168">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="trackOpens" checked> Track Chat Opens
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
                     <h3>🖼️ Chat Window</h3>
                     <div class="form-group">
                         <label>Window Mode</label>
@@ -309,10 +351,18 @@
                     ✅ <strong>Simple and powerful!</strong> Just two script tags.
                 </div>
                 <div class="code-block" id="clientCode">
-&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
-  siteId: "aiprlassist-default"
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143", 
+  color: "#E67E22",
+  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+  position: "bottom-right",
+  size: 68,
+  showDelay: 1000,
+  exitIntent: false,
+  scrollTrigger: false
 });
 &lt;/script&gt;
                 </div>
@@ -431,6 +481,12 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
                     pulse: document.getElementById('pulse').checked,
                     zIndex: parseInt(document.getElementById('zIndex').value)
                 },
+                teaser: {
+                    enabled: document.getElementById('teaserEnabled').checked,
+                    text: document.getElementById('teaserText').value,
+                    delayMs: parseInt(document.getElementById('teaserDelay').value),
+                    autocloseMs: parseInt(document.getElementById('teaserAutoclose').value)
+                },
                 triggers: {
                     showBubbleAfterMs: parseInt(document.getElementById('showBubbleAfterMs').value),
                     openAfterMs: parseInt(document.getElementById('openAfterMs').value),
@@ -442,6 +498,9 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
                     excludePaths: document.getElementById('excludePaths').value.split('\n').filter(p => p.trim()),
                     showOnMobile: document.getElementById('showOnMobile').checked,
                     showOnDesktop: document.getElementById('showOnDesktop').checked,
+                    minWidth: parseInt(document.getElementById('minWidth').value),
+                    maxWidth: parseInt(document.getElementById('maxWidth').value),
+                    frequencyCapHours: parseInt(document.getElementById('frequencyCap').value),
                     appendUTM: document.getElementById('appendUTM').checked
                 },
                 overlay: {
@@ -452,7 +511,8 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
                     windowHeight: document.getElementById('windowHeight').value + "px"
                 },
                 analytics: {
-                    console: true
+                    console: true,
+                    trackOpens: document.getElementById('trackOpens').checked
                 }
             };
             
@@ -481,10 +541,25 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         function updateClientCode() {
-            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
+            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
-  siteId: "aiprlassist-default"
+  id: "${document.getElementById('chatId').value}",
+  accountId: "${document.getElementById('accountId').value}", 
+  color: "${document.getElementById('color').value}",
+  icon: "${document.getElementById('icon').value}",
+  position: "${document.getElementById('position').value}",
+  size: ${document.getElementById('size').value},
+  showDelay: ${document.getElementById('showBubbleAfterMs').value},
+  openDelay: ${document.getElementById('openAfterMs').value},
+  exitIntent: ${document.getElementById('exitIntent').checked},
+  scrollTrigger: ${document.getElementById('scrollTrigger').value > 0 ? document.getElementById('scrollTrigger').value : 'false'},
+  windowMode: "${document.getElementById('windowMode').value}",
+  windowWidth: ${document.getElementById('windowWidth').value},
+  windowHeight: ${document.getElementById('windowHeight').value},
+  fallbackUrl: "${document.getElementById('fallbackUrl').value}",
+  analytics: true,
+  utmCapture: true
 });
 &lt;/script&gt;`;
             
@@ -546,6 +621,18 @@ ChatWidget.setup({
                     document.getElementById('scrollTrigger').value = config.triggers?.triggerOnScrollPercent || 0;
                     document.getElementById('exitIntent').checked = config.triggers?.triggerOnExitIntent || false;
                     
+                    // Teaser
+                    document.getElementById('teaserEnabled').checked = config.teaser?.enabled !== false;
+                    document.getElementById('teaserText').value = config.teaser?.text || '👋 Hi! Need help?';
+                    document.getElementById('teaserDelay').value = config.teaser?.delayMs || 5000;
+                    document.getElementById('teaserAutoclose').value = config.teaser?.autocloseMs || 15000;
+                    
+                    // Advanced Rules
+                    document.getElementById('minWidth').value = config.rules?.minWidth || 0;
+                    document.getElementById('maxWidth').value = config.rules?.maxWidth || 99999;
+                    document.getElementById('frequencyCap').value = config.rules?.frequencyCapHours || 24;
+                    document.getElementById('trackOpens').checked = config.analytics?.trackOpens !== false;
+                    
                     // Rules
                     document.getElementById('includePaths').value = (config.rules?.includePaths || ['*']).join('\n');
                     document.getElementById('excludePaths').value = (config.rules?.excludePaths || []).join('\n');
@@ -578,6 +665,8 @@ ChatWidget.setup({
             const inputs = [
                 'color', 'textColor', 'outlineColor', 'icon', 'bubbleLabel', 'position', 'size', 'zIndex', 'pulse',
                 'chatId', 'accountId', 'showBubbleAfterMs', 'openAfterMs', 'scrollTrigger', 'exitIntent',
+                'teaserEnabled', 'teaserText', 'teaserDelay', 'teaserAutoclose',
+                'minWidth', 'maxWidth', 'frequencyCap', 'trackOpens',
                 'includePaths', 'excludePaths', 'showOnMobile', 'showOnDesktop', 'appendUTM',
                 'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl'
             ];
@@ -595,6 +684,6 @@ ChatWidget.setup({
     </script>
 
     <!-- Load the widget for testing -->
-    <script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"></script>
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
 </body>
 </html>
