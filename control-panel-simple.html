@@ -324,6 +324,11 @@
                         <label>Fallback URL (if main chat fails)</label>
                         <input type="url" id="fallbackUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
                     </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="noOverlay"> No Dark Overlay (transparent background)
+                        </label>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -351,21 +356,20 @@
                     ✅ <strong>Simple and powerful!</strong> Just two script tags.
                 </div>
                 <div class="code-block" id="clientCode">
-&lt;!-- AI PRL Assist Chat Widget (Working Version) --&gt;
+&lt;!-- AI PRL Assist Chat Widget (Remote Config Enabled) --&gt;
 &lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
+  siteId: "aiprlassist-default", // Remote config enabled!
   id: "O1T4KXJ9xZ",
   accountId: "1047143",
   color: "#E67E22",
-  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
   position: "bottom-right",
   size: 68,
   showDelay: 3000,
-  exitIntent: false,
-  scrollTrigger: false,
   utmCapture: true,
-  analytics: true
+  analytics: true,
+  noOverlay: false
 });
 &lt;/script&gt;
                 </div>
@@ -528,7 +532,8 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
                 analytics: {
                     console: true,
                     trackOpens: document.getElementById('trackOpens').checked
-                }
+                },
+                noOverlay: document.getElementById('noOverlay').checked
             };
             
             try {
@@ -556,10 +561,13 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         function updateClientCode() {
-            const code = `&lt;!-- AI PRL Assist Chat Widget (Working Version) --&gt;
+            const siteId = "aiprlassist-default"; // TODO: Make this dynamic per client
+            
+            const code = `&lt;!-- AI PRL Assist Chat Widget (Remote Config Enabled) --&gt;
 &lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
+  siteId: "${siteId}", // Remote config enabled!
   id: "${document.getElementById('chatId').value}",
   accountId: "${document.getElementById('accountId').value}",
   color: "${document.getElementById('color').value}",
@@ -575,7 +583,8 @@ ChatWidget.setup({
   windowHeight: ${document.getElementById('windowHeight').value},
   fallbackUrl: "${document.getElementById('fallbackUrl').value}",
   analytics: ${document.getElementById('trackOpens').checked},
-  utmCapture: ${document.getElementById('appendUTM').checked}
+  utmCapture: ${document.getElementById('appendUTM').checked},
+  noOverlay: ${document.getElementById('noOverlay').checked}
 });
 &lt;/script&gt;`;
             
@@ -663,6 +672,7 @@ ChatWidget.setup({
                     document.getElementById('overlayBg').value = config.overlay?.bg || 'rgba(0,0,0,0.45)';
                     document.getElementById('closeOnEsc').checked = config.overlay?.closeOnEsc !== false;
                     document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
+                    document.getElementById('noOverlay').checked = config.noOverlay || false;
                     
                     updatePreview();
                     updateClientCode();
@@ -684,7 +694,7 @@ ChatWidget.setup({
                 'teaserEnabled', 'teaserText', 'teaserDelay', 'teaserAutoclose',
                 'minWidth', 'maxWidth', 'frequencyCap', 'trackOpens',
                 'includePaths', 'excludePaths', 'showOnMobile', 'showOnDesktop', 'appendUTM',
-                'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl'
+                'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl', 'noOverlay'
             ];
             inputs.forEach(id => {
                 const element = document.getElementById(id);

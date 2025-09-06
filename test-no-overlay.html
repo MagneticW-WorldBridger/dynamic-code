@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test NO OVERLAY Widget</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            line-height: 1.6;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 20px 0;
+        }
+        .success { 
+            background: rgba(46, 204, 113, 0.2); 
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .warning {
+            background: rgba(241, 196, 15, 0.2);
+            border: 1px solid #f1c40f;
+            color: #f1c40f;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .code {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 15px 0;
+        }
+        h1 { color: #fff; }
+        h2 { color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧪 NO OVERLAY Test - REMOTE CONFIG!</h1>
+        
+        <div class="success">
+            <strong>✅ TESTING REMOTE CONFIG SYSTEM!</strong><br>
+            Este widget NO tiene overlay oscuro - fondo transparente.<br>
+            ¡Se puede cambiar remotamente sin tocar el código del cliente!
+        </div>
+
+        <h2>🎯 Código del Cliente (NUNCA CAMBIA):</h2>
+        <div class="code">
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  siteId: "test-no-overlay", // Solo esto identifica al cliente
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143"
+});
+&lt;/script&gt;
+        </div>
+
+        <div class="warning">
+            <strong>🚀 REMOTE CONFIG MAGIC:</strong><br>
+            • Cliente pone el código UNA VEZ<br>
+            • TÚ cambias la config desde el control panel<br>
+            • Widget se actualiza automáticamente<br>
+            • NO MÁS overlay si no quieres!
+        </div>
+
+        <h2>🔧 Lo que puedes cambiar remotamente:</h2>
+        <ul>
+            <li>✅ Color de la burbuja</li>
+            <li>✅ Tamaño y posición</li>
+            <li>✅ <strong>NO OVERLAY (transparent background)</strong></li>
+            <li>✅ Delays y triggers</li>
+            <li>✅ UTM capture on/off</li>
+            <li>✅ Window size</li>
+            <li>✅ ¡Todo sin tocar el código del cliente!</li>
+        </ul>
+
+        <h2>📊 Estado del Widget:</h2>
+        <div id="widgetStatus">Cargando...</div>
+
+        <div class="warning">
+            <strong>🎯 PRUEBA ESTO:</strong><br>
+            1. Ve que el chat NO tiene overlay oscuro<br>
+            2. Cambia la config en el control panel<br>
+            3. Recarga esta página<br>
+            4. ¡Los cambios se aplican automáticamente!
+        </div>
+    </div>
+
+    <script>
+        // Check widget status
+        setTimeout(() => {
+            if (window.ChatWidget && window.__aiPrlAssistLoaded) {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div class="success">✅ Widget cargado! Deberías ver burbuja verde sin overlay oscuro.</div>';
+            } else {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div style="background: rgba(231, 76, 60, 0.2); color: #e74c3c; padding: 15px; border-radius: 8px;">❌ Widget falló al cargar</div>';
+            }
+        }, 4000);
+    </script>
+
+    <!-- AI PRL Assist Chat Widget (REMOTE CONFIG TEST) -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <script>
+        ChatWidget.setup({
+            siteId: "test-no-overlay", // Remote config will override everything!
+            id: "O1T4KXJ9xZ",
+            accountId: "1047143",
+            // Local fallbacks (will be overridden by remote config)
+            color: "#28a745", // Green
+            noOverlay: true,   // No dark overlay!
+            showDelay: 2000,
+            analytics: true
+        });
+    </script>
+</body>
+</html>
