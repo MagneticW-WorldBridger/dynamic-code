@@ -504,7 +504,18 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         async function saveToDatabase() {
+            console.log('🔴 DEBUG: saveToDatabase() called');
+            
             const siteId = document.getElementById('siteId').value || "aiprlassist-default";
+            console.log('🔴 DEBUG: siteId to save:', siteId);
+            
+            // Visual feedback - make save button red while saving
+            const saveBtn = document.querySelector('button[onclick="saveToDatabase()"]');
+            if (saveBtn) {
+                saveBtn.style.backgroundColor = '#ff5722';
+                saveBtn.innerHTML = '💾 Saving...';
+            }
+            
             const config = {
                 chatUrl: "https://app.aiprlassist.com/webchat/?p=" + document.getElementById('accountId').value + "&id=" + document.getElementById('chatId').value,
                 fallbackUrl: document.getElementById('fallbackUrl').value,
@@ -556,25 +567,76 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
             };
             
             try {
+                console.log('🔴 DEBUG: About to send config to API:', config);
+                
                 const response = await fetch('/api/save-config-real', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         siteId: siteId,
-                        clientName: "AI PRL Assist (Default)",
+                        clientName: document.getElementById('clientName').value || "AI PRL Assist (Default)",
                         config: config
                     })
                 });
                 
+                console.log('🔴 DEBUG: Response status:', response.status);
                 const result = await response.json();
+                console.log('🔴 DEBUG: Response data:', result);
                 
                 if (response.ok && result.success) {
-                    alert('✅ SAVED TO DATABASE!\n\nConfiguration updated in Postgres.');
+                    console.log('✅ SAVED TO DATABASE SUCCESSFULLY!');
+                    
+                    // Visual feedback - make save button green on success
+                    if (saveBtn) {
+                        saveBtn.style.backgroundColor = '#4caf50';
+                        saveBtn.innerHTML = '✅ SAVED!';
+                        setTimeout(() => {
+                            saveBtn.style.backgroundColor = '#28a745';
+                            saveBtn.innerHTML = '💾 Save to Database';
+                        }, 2000);
+                    }
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.innerHTML = '✅ SAVED TO DATABASE!<br>Configuration updated in Postgres.';
+                    successDiv.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #4caf50;
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        z-index: 10000;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    `;
+                    document.body.appendChild(successDiv);
+                    setTimeout(() => {
+                        document.body.removeChild(successDiv);
+                    }, 3000);
+                    
                     updateClientCode();
                 } else {
+                    console.error('❌ SAVE FAILED:', result.error);
+                    
+                    // Visual feedback - make save button red on error
+                    if (saveBtn) {
+                        saveBtn.style.backgroundColor = '#f44336';
+                        saveBtn.innerHTML = '❌ SAVE FAILED';
+                    }
+                    
                     alert(`❌ SAVE FAILED: ${result.error}`);
                 }
             } catch (error) {
+                console.error('❌ ERROR SAVING:', error);
+                
+                // Visual feedback - make save button red on error
+                if (saveBtn) {
+                    saveBtn.style.backgroundColor = '#f44336';
+                    saveBtn.innerHTML = '❌ ERROR';
+                }
+                
                 alert(`❌ ERROR: ${error.message}`);
             }
         }
@@ -856,71 +918,28 @@ ChatWidget.setup({
 
         // Load configuration from database on page load
         async function loadFromDatabase() {
+            console.log('🔴 DEBUG: loadFromDatabase() called - loading aiprlassist-default');
+            
             try {
                 const response = await fetch('/api/load-config?siteId=aiprlassist-default');
+                console.log('🔴 DEBUG: Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('🔴 DEBUG: Response data:', data);
                 
                 if (response.ok && data.success) {
                     const config = data.config;
+                    console.log('🔴 DEBUG: About to call populateFormWithConfig with aiprlassist-default');
                     
-                    // Basic settings
-                    document.getElementById('chatId').value = config.chatUrl?.match(/id=([^&]+)/)?.[1] || 'O1T4KXJ9xZ';
-                    document.getElementById('accountId').value = config.chatUrl?.match(/p=([^&]+)/)?.[1] || '1047143';
+                    // Use the same function as loadSelectedClient
+                    populateFormWithConfig(config);
                     
-                    // Appearance
-                    document.getElementById('color').value = config.bubble?.bg || '#E67E22';
-                    document.getElementById('textColor').value = config.bubble?.color || '#ffffff';
-                    document.getElementById('outlineColor').value = config.bubble?.outline || '#3498DB';
-                    document.getElementById('icon').value = config.bubble?.iconUrl || '';
-                    document.getElementById('bubbleLabel').value = config.bubble?.label || 'Hi! Need help?';
-                    document.getElementById('position').value = config.bubble?.position === 'bl' ? 'bottom-left' : 'bottom-right';
-                    document.getElementById('size').value = config.bubble?.size || 68;
-                    document.getElementById('zIndex').value = config.bubble?.zIndex || 2147483000;
-                    document.getElementById('pulse').checked = config.bubble?.pulse !== false;
-                    
-                    // Triggers
-                    document.getElementById('showBubbleAfterMs').value = config.triggers?.showBubbleAfterMs || 3000;
-                    document.getElementById('openAfterMs').value = config.triggers?.openAfterMs || 0;
-                    document.getElementById('scrollTrigger').value = config.triggers?.triggerOnScrollPercent || 0;
-                    document.getElementById('exitIntent').checked = config.triggers?.triggerOnExitIntent || false;
-                    
-                    // Teaser
-                    document.getElementById('teaserEnabled').checked = config.teaser?.enabled !== false;
-                    document.getElementById('teaserText').value = config.teaser?.text || '👋 Hi! Need help?';
-                    document.getElementById('teaserDelay').value = config.teaser?.delayMs || 5000;
-                    document.getElementById('teaserAutoclose').value = config.teaser?.autocloseMs || 15000;
-                    
-                    // Advanced Rules
-                    document.getElementById('minWidth').value = config.rules?.minWidth || 0;
-                    document.getElementById('maxWidth').value = config.rules?.maxWidth || 99999;
-                    document.getElementById('frequencyCap').value = config.rules?.frequencyCapHours || 24;
-                    document.getElementById('trackOpens').checked = config.analytics?.trackOpens !== false;
-                    
-                    // Rules
-                    document.getElementById('includePaths').value = (config.rules?.includePaths || ['*']).join('\n');
-                    document.getElementById('excludePaths').value = (config.rules?.excludePaths || []).join('\n');
-                    document.getElementById('showOnMobile').checked = config.rules?.showOnMobile !== false;
-                    document.getElementById('showOnDesktop').checked = config.rules?.showOnDesktop !== false;
-                    document.getElementById('appendUTM').checked = config.rules?.appendUTM !== false;
-                    
-                    // Overlay
-                    document.getElementById('windowMode').value = config.overlay?.windowMode === false ? 'fullscreen' : 'windowed';
-                    document.getElementById('windowWidth').value = parseInt(config.overlay?.windowWidth) || 420;
-                    document.getElementById('windowHeight').value = parseInt(config.overlay?.windowHeight) || 650;
-                    document.getElementById('overlayBg').value = config.overlay?.bg || 'rgba(0,0,0,0.45)';
-                    document.getElementById('closeOnEsc').checked = config.overlay?.closeOnEsc !== false;
-                    document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
-                    document.getElementById('noOverlay').checked = config.noOverlay || false;
-                    
-                    updatePreview();
-                    updateClientCode();
-                    
-                    console.log('✅ Loaded config from database:', data);
+                    console.log('✅ Loaded default config from database:', data);
                 } else {
-                    console.error('Failed to load config:', data);
+                    console.error('❌ Failed to load default config:', data);
                 }
             } catch (error) {
-                console.error('Error loading config:', error);
+                console.error('❌ Error loading default config:', error);
             }
         }
 
