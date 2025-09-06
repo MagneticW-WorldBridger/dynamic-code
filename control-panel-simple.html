@@ -669,59 +669,69 @@ ChatWidget.setup({
 
         // Populate form with loaded configuration
         function populateFormWithConfig(config) {
+            // Helper function to safely set element value
+            const setValue = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.value = value || '';
+            };
+            
+            const setChecked = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.checked = value || false;
+            };
+            
             // Basic settings
-            document.getElementById('siteId').value = config.siteId || '';
-            document.getElementById('clientName').value = config.clientName || '';
-            document.getElementById('chatUrl').value = config.chatUrl || '';
-            document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
+            setValue('siteId', config.siteId);
+            setValue('clientName', config.clientName);
+            setValue('fallbackUrl', config.fallbackUrl);
             
             // Bubble settings
             if (config.bubble) {
-                document.getElementById('color').value = config.bubble.bg || '#E67E22';
-                document.getElementById('size').value = config.bubble.size || 68;
+                setValue('color', config.bubble.bg);
+                setValue('size', config.bubble.size);
                 // Handle different position formats
                 let position = config.bubble.position || 'bottom-right';
                 if (position === 'br') position = 'bottom-right';
                 if (position === 'bl') position = 'bottom-left';
-                document.getElementById('position').value = position;
-                document.getElementById('icon').value = config.bubble.icon || config.bubble.iconUrl || '';
+                setValue('position', position);
+                setValue('icon', config.bubble.icon || config.bubble.iconUrl);
             }
             
             // Trigger settings
             if (config.triggers) {
-                document.getElementById('showBubbleAfterMs').value = config.triggers.showBubbleAfterMs || 3000;
-                document.getElementById('openAfterMs').value = config.triggers.openAfterMs || 0;
-                document.getElementById('exitIntent').checked = config.triggers.exitIntent || config.triggers.triggerOnExitIntent || false;
-                document.getElementById('scrollTrigger').value = config.triggers.scrollTrigger || config.triggers.triggerOnScrollPercent || 0;
+                setValue('showBubbleAfterMs', config.triggers.showBubbleAfterMs);
+                setValue('openAfterMs', config.triggers.openAfterMs);
+                setChecked('exitIntent', config.triggers.exitIntent || config.triggers.triggerOnExitIntent);
+                setValue('scrollTrigger', config.triggers.scrollTrigger || config.triggers.triggerOnScrollPercent);
             }
             
             // Overlay settings
             if (config.overlay) {
-                document.getElementById('overlayBg').value = config.overlay.bg || 'rgba(0,0,0,0.5)';
-                document.getElementById('windowMode').value = config.overlay.windowMode ? 'windowed' : 'fullscreen';
-                document.getElementById('windowWidth').value = parseInt(config.overlay.windowWidth) || 420;
-                document.getElementById('windowHeight').value = parseInt(config.overlay.windowHeight) || 650;
+                setValue('overlayBg', config.overlay.bg);
+                setValue('windowMode', config.overlay.windowMode ? 'windowed' : 'fullscreen');
+                setValue('windowWidth', parseInt(config.overlay.windowWidth));
+                setValue('windowHeight', parseInt(config.overlay.windowHeight));
             }
             
             // Rules
             if (config.rules) {
-                document.getElementById('appendUTM').checked = config.rules.appendUTM || false;
-                document.getElementById('showOnMobile').checked = config.rules.showOnMobile !== false;
-                document.getElementById('showOnDesktop').checked = config.rules.showOnDesktop !== false;
+                setChecked('appendUTM', config.rules.appendUTM);
+                setChecked('showOnMobile', config.rules.showOnMobile !== false);
+                setChecked('showOnDesktop', config.rules.showOnDesktop !== false);
             }
             
             // Analytics
             if (config.analytics) {
-                document.getElementById('trackOpens').checked = config.analytics.trackOpens || false;
+                setChecked('trackOpens', config.analytics.trackOpens);
             }
             
             // Advanced settings
-            document.getElementById('noOverlay').checked = config.noOverlay || false;
-            document.getElementById('teaserEnabled').checked = config.teaserEnabled || (config.teaser && config.teaser.enabled) || false;
-            document.getElementById('teaserText').value = config.teaserText || (config.teaser && config.teaser.text) || '';
-            document.getElementById('teaserDelay').value = config.teaserDelay || (config.teaser && config.teaser.delayMs) || 5000;
-            document.getElementById('teaserAutoclose').value = config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs) || 10000;
-            document.getElementById('webhookUrl').value = config.webhookUrl || '';
+            setChecked('noOverlay', config.noOverlay);
+            setChecked('teaserEnabled', config.teaserEnabled || (config.teaser && config.teaser.enabled));
+            setValue('teaserText', config.teaserText || (config.teaser && config.teaser.text));
+            setValue('teaserDelay', config.teaserDelay || (config.teaser && config.teaser.delayMs));
+            setValue('teaserAutoclose', config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs));
+            setValue('webhookUrl', config.webhookUrl);
             
             updatePreview();
         }
