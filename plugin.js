@@ -116,7 +116,7 @@
             height: 100%;
             ${finalConfig.noOverlay ? 'background: transparent;' : 'background: rgba(0,0,0,0.5);'}
             z-index: 2147483646;
-            display: none;
+            display: none !important;
           }
           .ai-prl-chat-iframe {
             width: 100%;
@@ -137,8 +137,8 @@
             display: none;
           }
           @media (min-width: 768px) {
-            .ai-prl-chat-overlay {
-              display: flex;
+            .ai-prl-chat-overlay.show {
+              display: flex !important;
               align-items: flex-end;
               justify-content: ${finalConfig.position.includes('right') ? 'flex-end' : 'flex-start'};
               padding: 20px;
@@ -150,8 +150,8 @@
               box-shadow: 0 20px 60px rgba(0,0,0,0.3);
               margin-bottom: 80px;
             }
-            .ai-prl-chat-close {
-              display: block;
+            .ai-prl-chat-close.show {
+              display: block !important;
             }
           }
         </style>
@@ -161,7 +161,7 @@
                  <div class="ai-prl-chat-overlay" onclick="window.ChatWidget.close()">
            <iframe class="ai-prl-chat-iframe" src="about:blank"></iframe>
          </div>
-         <button class="ai-prl-chat-close" onclick="window.ChatWidget.close()">✕ Cerrar</button>
+         <button class="ai-prl-chat-close" onclick="window.ChatWidget.close()">✕ Close</button>
       `;
       
       document.body.appendChild(bubble);
@@ -185,8 +185,8 @@
          // Try fallback URL if primary fails
         const tryOpen = (url) => {
           iframe.src = url;
-          overlay.style.display = window.innerWidth >= 768 ? 'flex' : 'block';
-          if (closeBtn) closeBtn.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+          overlay.classList.add('show');
+          if (closeBtn) closeBtn.classList.add('show');
           chatOpened = true;
           
           if (finalConfig.analytics) console.log('[AI PRL Assist] Chat opened with URL:', url);
@@ -203,8 +203,8 @@
        };
 
        window.ChatWidget.close = () => {
-         overlay.style.display = 'none';
-         if (closeBtn) closeBtn.style.display = 'none';
+         overlay.classList.remove('show');
+         if (closeBtn) closeBtn.classList.remove('show');
          iframe.src = 'about:blank';
          chatOpened = false;
          if (finalConfig.analytics) console.log('[AI PRL Assist] Chat closed');
