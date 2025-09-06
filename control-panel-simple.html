@@ -775,7 +775,7 @@ ChatWidget.setup({
                 
                 if (data.success && data.config) {
                     console.log('🔴 DEBUG: About to call populateFormWithConfig');
-                    populateFormWithConfig(data.config);
+                    populateFormWithConfig(data.config, data.siteId, data.clientName);
                     console.log('✅ Loaded client config:', siteId);
                     
                     // Visual feedback - make selector green on success
@@ -800,8 +800,10 @@ ChatWidget.setup({
         }
 
         // Populate form with loaded configuration
-        function populateFormWithConfig(config) {
+        function populateFormWithConfig(config, siteId, clientName) {
             console.log('🔴 DEBUG: populateFormWithConfig() called with config:', config);
+            console.log('🔴 DEBUG: siteId:', siteId);
+            console.log('🔴 DEBUG: clientName:', clientName);
             
             // Helper function to safely set element value
             const setValue = (id, value) => {
@@ -838,15 +840,20 @@ ChatWidget.setup({
                 }
             };
             
-            // Basic settings
-            setValue('siteId', config.siteId);
-            setValue('clientName', config.clientName);
+            // Basic settings - use the parameters passed to the function
+            setValue('siteId', siteId);
+            setValue('clientName', clientName);
             setValue('fallbackUrl', config.fallbackUrl);
             
             // Bubble settings
             if (config.bubble) {
                 setValue('color', config.bubble.bg);
+                setValue('textColor', config.bubble.color);
+                setValue('outlineColor', config.bubble.outline);
                 setValue('size', config.bubble.size);
+                setValue('bubbleLabel', config.bubble.label);
+                setValue('zIndex', config.bubble.zIndex);
+                setChecked('pulse', config.bubble.pulse);
                 // Handle different position formats
                 let position = config.bubble.position || 'bottom-right';
                 if (position === 'br') position = 'bottom-right';
@@ -873,6 +880,11 @@ ChatWidget.setup({
             
             // Rules
             if (config.rules) {
+                setValue('minWidth', config.rules.minWidth);
+                setValue('maxWidth', config.rules.maxWidth);
+                setValue('frequencyCap', config.rules.frequencyCapHours);
+                setValue('includePaths', (config.rules.includePaths || []).join('\n'));
+                setValue('excludePaths', (config.rules.excludePaths || []).join('\n'));
                 setChecked('appendUTM', config.rules.appendUTM);
                 setChecked('showOnMobile', config.rules.showOnMobile !== false);
                 setChecked('showOnDesktop', config.rules.showOnDesktop !== false);
@@ -890,6 +902,14 @@ ChatWidget.setup({
             setValue('teaserDelay', config.teaserDelay || (config.teaser && config.teaser.delayMs));
             setValue('teaserAutoclose', config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs));
             setValue('webhookUrl', config.webhookUrl);
+            
+            // Extract chatId and accountId from chatUrl
+            if (config.chatUrl) {
+                const chatIdMatch = config.chatUrl.match(/id=([^&]+)/);
+                const accountIdMatch = config.chatUrl.match(/p=([^&]+)/);
+                if (chatIdMatch) setValue('chatId', chatIdMatch[1]);
+                if (accountIdMatch) setValue('accountId', accountIdMatch[1]);
+            }
             
             console.log('🔴 DEBUG: About to call updatePreview()');
             updatePreview();
@@ -932,7 +952,7 @@ ChatWidget.setup({
                     console.log('🔴 DEBUG: About to call populateFormWithConfig with aiprlassist-default');
                     
                     // Use the same function as loadSelectedClient
-                    populateFormWithConfig(config);
+                    populateFormWithConfig(config, data.siteId, data.clientName);
                     
                     console.log('✅ Loaded default config from database:', data);
                 } else {
