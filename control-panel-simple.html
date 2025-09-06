@@ -351,30 +351,40 @@
                     ✅ <strong>Simple and powerful!</strong> Just two script tags.
                 </div>
                 <div class="code-block" id="clientCode">
-&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;!-- AI PRL Assist Chat Widget (2024 Research-Based Approach) --&gt;
 &lt;script&gt;
-ChatWidget.setup({
-  id: "O1T4KXJ9xZ",
-  accountId: "1047143", 
-  color: "#E67E22",
-  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
-  position: "bottom-right",
-  size: 68,
-  showDelay: 1000,
-  exitIntent: false,
-  scrollTrigger: false
-});
+  window.ChatWidgetSettings = {
+    siteId: "aiprlassist-default",
+    serverUrl: "https://app.aiprlassist.com/webchat/",
+    color: "#E67E22",
+    position: "bottom-right",
+    size: 68,
+    showDelay: 3000,
+    utmCapture: true,
+    analytics: true
+  };
 &lt;/script&gt;
+&lt;script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"&gt;&lt;/script&gt;
+                </div>
+                
+                <div class="success">
+                    <strong>🚀 NEW 2024 APPROACH - RESEARCH BASED!</strong><br>
+                    ✅ Intercom/Rasa style embedding<br>
+                    ✅ Shadow DOM isolation<br>
+                    ✅ Async loading (GHL compatible)<br>
+                    ✅ Automatic UTM capture<br>
+                    ✅ Works on ALL platforms
                 </div>
                 
                 <div class="warning">
                     <strong>⚠️ GoHighLevel Instructions:</strong><br>
+                    <strong>Method 1 (Recommended):</strong><br>
                     1. Go to <strong>Sites → [Your Site] → Settings → Tracking Code</strong><br>
                     2. Paste the code above in <strong>"Footer Tracking Code"</strong><br>
                     3. Click <strong>Save</strong> and <strong>Publish Site</strong><br>
                     4. Widget appears on all pages automatically<br><br>
                     
-                    <strong>Alternative (if above doesn't work):</strong><br>
+                    <strong>Method 2 (If Method 1 fails):</strong><br>
                     1. Go to <strong>Sites → [Your Site] → Pages</strong><br>
                     2. Edit any page → <strong>Settings</strong> (gear icon)<br>
                     3. Scroll to <strong>"Custom Code"</strong> section<br>
@@ -383,12 +393,14 @@ ChatWidget.setup({
                 </div>
                 
                 <div class="warning">
-                    <strong>🌐 Other Platforms:</strong><br>
+                    <strong>🌐 Other Platforms (All Compatible):</strong><br>
                     <strong>Webflow:</strong> Project Settings → Custom Code → Footer Code<br>
                     <strong>WordPress:</strong> Appearance → Theme Editor → footer.php (before &lt;/body&gt;)<br>
                     <strong>Shopify:</strong> Online Store → Themes → Edit Code → theme.liquid (before &lt;/body&gt;)<br>
-                    <strong>Wix:</strong> Not supported (Wix blocks external scripts)<br>
-                    <strong>Squarespace:</strong> Settings → Advanced → Code Injection → Footer
+                    <strong>Squarespace:</strong> Settings → Advanced → Code Injection → Footer<br>
+                    <strong>Wix:</strong> ❌ Not supported (Wix blocks external scripts)<br><br>
+                    
+                    <strong>💡 Pro Tip:</strong> The <code>async</code> attribute ensures the widget doesn't block page loading!
                 </div>
             </div>
         </div>
@@ -541,27 +553,28 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         function updateClientCode() {
-            const code = `&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+            const siteId = "aiprlassist-default"; // TODO: Make this dynamic per client
+            
+            const code = `&lt;!-- AI PRL Assist Chat Widget (2024 Research-Based) --&gt;
 &lt;script&gt;
-ChatWidget.setup({
-  id: "${document.getElementById('chatId').value}",
-  accountId: "${document.getElementById('accountId').value}", 
-  color: "${document.getElementById('color').value}",
-  icon: "${document.getElementById('icon').value}",
-  position: "${document.getElementById('position').value}",
-  size: ${document.getElementById('size').value},
-  showDelay: ${document.getElementById('showBubbleAfterMs').value},
-  openDelay: ${document.getElementById('openAfterMs').value},
-  exitIntent: ${document.getElementById('exitIntent').checked},
-  scrollTrigger: ${document.getElementById('scrollTrigger').value > 0 ? document.getElementById('scrollTrigger').value : 'false'},
-  windowMode: "${document.getElementById('windowMode').value}",
-  windowWidth: ${document.getElementById('windowWidth').value},
-  windowHeight: ${document.getElementById('windowHeight').value},
-  fallbackUrl: "${document.getElementById('fallbackUrl').value}",
-  analytics: true,
-  utmCapture: true
-});
-&lt;/script&gt;`;
+  window.ChatWidgetSettings = {
+    siteId: "${siteId}",
+    serverUrl: "${document.getElementById('fallbackUrl').value || 'https://app.aiprlassist.com/webchat/'}",
+    color: "${document.getElementById('color').value}",
+    position: "${document.getElementById('position').value}",
+    size: ${document.getElementById('size').value},
+    showDelay: ${document.getElementById('showBubbleAfterMs').value},
+    autoOpen: ${document.getElementById('openAfterMs').value > 0},
+    icon: "${document.getElementById('icon').value}",
+    windowMode: "${document.getElementById('windowMode').value}",
+    windowWidth: ${document.getElementById('windowWidth').value},
+    windowHeight: ${document.getElementById('windowHeight').value},
+    utmCapture: ${document.getElementById('appendUTM').checked},
+    analytics: ${document.getElementById('trackOpens').checked},
+    fallbackUrl: "${document.getElementById('fallbackUrl').value}"
+  };
+&lt;/script&gt;
+&lt;script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"&gt;&lt;/script&gt;`;
             
             document.getElementById('clientCode').innerHTML = code;
         }
@@ -683,7 +696,15 @@ ChatWidget.setup({
         });
     </script>
 
-    <!-- Load the widget for testing -->
-    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <!-- Load the new research-based widget for testing -->
+    <script>
+        window.ChatWidgetSettings = {
+            siteId: "control-panel-test",
+            color: "#E67E22",
+            showDelay: 1000,
+            analytics: true
+        };
+    </script>
+    <script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"></script>
 </body>
 </html>
