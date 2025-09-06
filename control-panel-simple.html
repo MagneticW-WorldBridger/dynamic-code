@@ -351,20 +351,23 @@
                     ✅ <strong>Simple and powerful!</strong> Just two script tags.
                 </div>
                 <div class="code-block" id="clientCode">
-&lt;!-- AI PRL Assist Chat Widget (2024 Research-Based Approach) --&gt;
+&lt;!-- AI PRL Assist Chat Widget (Working Version) --&gt;
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  window.ChatWidgetSettings = {
-    siteId: "aiprlassist-default",
-    serverUrl: "https://app.aiprlassist.com/webchat/",
-    color: "#E67E22",
-    position: "bottom-right",
-    size: 68,
-    showDelay: 3000,
-    utmCapture: true,
-    analytics: true
-  };
+ChatWidget.setup({
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143",
+  color: "#E67E22",
+  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
+  position: "bottom-right",
+  size: 68,
+  showDelay: 3000,
+  exitIntent: false,
+  scrollTrigger: false,
+  utmCapture: true,
+  analytics: true
+});
 &lt;/script&gt;
-&lt;script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"&gt;&lt;/script&gt;
                 </div>
                 
                 <div class="success">
@@ -553,28 +556,28 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         function updateClientCode() {
-            const siteId = "aiprlassist-default"; // TODO: Make this dynamic per client
-            
-            const code = `&lt;!-- AI PRL Assist Chat Widget (2024 Research-Based) --&gt;
+            const code = `&lt;!-- AI PRL Assist Chat Widget (Working Version) --&gt;
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  window.ChatWidgetSettings = {
-    siteId: "${siteId}",
-    serverUrl: "${document.getElementById('fallbackUrl').value || 'https://app.aiprlassist.com/webchat/'}",
-    color: "${document.getElementById('color').value}",
-    position: "${document.getElementById('position').value}",
-    size: ${document.getElementById('size').value},
-    showDelay: ${document.getElementById('showBubbleAfterMs').value},
-    autoOpen: ${document.getElementById('openAfterMs').value > 0},
-    icon: "${document.getElementById('icon').value}",
-    windowMode: "${document.getElementById('windowMode').value}",
-    windowWidth: ${document.getElementById('windowWidth').value},
-    windowHeight: ${document.getElementById('windowHeight').value},
-    utmCapture: ${document.getElementById('appendUTM').checked},
-    analytics: ${document.getElementById('trackOpens').checked},
-    fallbackUrl: "${document.getElementById('fallbackUrl').value}"
-  };
-&lt;/script&gt;
-&lt;script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"&gt;&lt;/script&gt;`;
+ChatWidget.setup({
+  id: "${document.getElementById('chatId').value}",
+  accountId: "${document.getElementById('accountId').value}",
+  color: "${document.getElementById('color').value}",
+  icon: "${document.getElementById('icon').value}",
+  position: "${document.getElementById('position').value}",
+  size: ${document.getElementById('size').value},
+  showDelay: ${document.getElementById('showBubbleAfterMs').value},
+  openDelay: ${document.getElementById('openAfterMs').value},
+  exitIntent: ${document.getElementById('exitIntent').checked},
+  scrollTrigger: ${document.getElementById('scrollTrigger').value > 0 ? document.getElementById('scrollTrigger').value : false},
+  windowMode: "${document.getElementById('windowMode').value}",
+  windowWidth: ${document.getElementById('windowWidth').value},
+  windowHeight: ${document.getElementById('windowHeight').value},
+  fallbackUrl: "${document.getElementById('fallbackUrl').value}",
+  analytics: ${document.getElementById('trackOpens').checked},
+  utmCapture: ${document.getElementById('appendUTM').checked}
+});
+&lt;/script&gt;`;
             
             document.getElementById('clientCode').innerHTML = code;
         }
@@ -696,15 +699,17 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         });
     </script>
 
-    <!-- Load the new research-based widget for testing -->
+    <!-- Load the working widget for testing -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
     <script>
-        window.ChatWidgetSettings = {
-            siteId: "control-panel-test",
+        ChatWidget.setup({
+            id: "O1T4KXJ9xZ",
+            accountId: "1047143",
             color: "#E67E22",
             showDelay: 1000,
-            analytics: true
-        };
+            analytics: true,
+            utmCapture: true
+        });
     </script>
-    <script async src="https://dynamiccode-ochre.vercel.app/widget-improved.js"></script>
 </body>
 </html>

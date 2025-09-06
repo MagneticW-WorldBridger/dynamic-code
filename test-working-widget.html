@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Working Widget</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid #e9ecef;
+            margin: 15px 0;
+        }
+        .test-url {
+            background: #e7f3ff;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧪 Widget Test - WORKING VERSION</h1>
+        
+        <div class="success">
+            <strong>✅ ESTE CÓDIGO SÍ FUNCIONA!</strong><br>
+            Usando plugin.js que está deployado y funcionando.
+        </div>
+
+        <h2>🎯 Código que funciona:</h2>
+        <div class="code">
+&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+ChatWidget.setup({
+  id: "O1T4KXJ9xZ",
+  accountId: "1047143",
+  color: "#E67E22",
+  position: "bottom-right",
+  size: 68,
+  showDelay: 3000,
+  utmCapture: true,
+  analytics: true
+});
+&lt;/script&gt;
+        </div>
+
+        <div class="test-url">
+            <strong>🔗 Prueba con UTMs:</strong><br>
+            Agrega esto a la URL para probar captura de UTMs:<br>
+            <code>?utm_source=test&utm_campaign=widget&utm_medium=email</code>
+        </div>
+
+        <h2>🌐 PLATAFORMAS COMPATIBLES:</h2>
+        <div class="warning">
+            <strong>✅ FUNCIONA EN:</strong><br>
+            • GoHighLevel (Footer Tracking Code)<br>
+            • Webflow (Project Settings → Custom Code)<br>
+            • WordPress (footer.php antes de &lt;/body&gt;)<br>
+            • Shopify (theme.liquid antes de &lt;/body&gt;)<br>
+            • HTML estático<br>
+            • Squarespace (Code Injection)<br><br>
+            
+            <strong>❌ NO FUNCIONA EN:</strong><br>
+            • Wix (bloquea scripts externos)
+        </div>
+
+        <h2>📊 Estado del Widget:</h2>
+        <div id="widgetStatus">Cargando...</div>
+
+        <h2>🔧 Información de Debug:</h2>
+        <ul>
+            <li><strong>Host:</strong> <span id="host"></span></li>
+            <li><strong>URL:</strong> <span id="url"></span></li>
+            <li><strong>UTM Source:</strong> <span id="utm_source"></span></li>
+            <li><strong>UTM Campaign:</strong> <span id="utm_campaign"></span></li>
+            <li><strong>Referrer:</strong> <span id="referrer"></span></li>
+        </ul>
+    </div>
+
+    <script>
+        // Display page info
+        document.getElementById('host').textContent = window.location.hostname;
+        document.getElementById('url').textContent = window.location.href;
+        document.getElementById('referrer').textContent = document.referrer || 'None';
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('utm_source').textContent = urlParams.get('utm_source') || 'None';
+        document.getElementById('utm_campaign').textContent = urlParams.get('utm_campaign') || 'None';
+
+        // Check widget status
+        setTimeout(() => {
+            if (window.ChatWidget && window.__aiPrlAssistLoaded) {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div class="success">✅ Widget cargado correctamente! Deberías ver la burbuja roja abajo a la derecha.</div>';
+            } else {
+                document.getElementById('widgetStatus').innerHTML = 
+                    '<div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px;">❌ Widget falló al cargar</div>';
+            }
+        }, 4000);
+    </script>
+
+    <!-- AI PRL Assist Chat Widget (WORKING VERSION) -->
+    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <script>
+        ChatWidget.setup({
+            id: "O1T4KXJ9xZ",
+            accountId: "1047143",
+            color: "#ff0000", // Red para que se vea fácil
+            position: "bottom-right",
+            size: 68,
+            showDelay: 3000,
+            utmCapture: true,
+            analytics: true
+        });
+    </script>
+</body>
+</html>
