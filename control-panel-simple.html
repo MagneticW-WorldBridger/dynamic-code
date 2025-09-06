@@ -142,6 +142,17 @@
         <div class="header">
             <h1>🚀 AI PRL Assist - Simple Plugin Control Panel</h1>
             <p>Configure your chat widget with simple, powerful parameters</p>
+            
+            <!-- CLIENT SELECTOR -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="clientSelector">📋 Select Existing Client:</label>
+                <select id="clientSelector" onchange="loadSelectedClient()">
+                    <option value="">-- Select a client to load --</option>
+                </select>
+                <button type="button" class="btn" onclick="refreshClientList()" style="margin-top: 10px; background: #28a745;">
+                    🔄 Refresh Client List
+                </button>
+            </div>
         </div>
 
         <div class="tabs">
@@ -154,6 +165,14 @@
             <div class="grid">
                 <div class="card">
                     <h3>🎨 Widget Appearance</h3>
+                    <div class="form-group">
+                        <label>Site ID (Unique Client Identifier)</label>
+                        <input type="text" id="siteId" value="aiprlassist-default" placeholder="e.g., cliente-orange-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Name</label>
+                        <input type="text" id="clientName" value="AI PRL Assist (Default)" placeholder="Client display name">
+                    </div>
                     <div class="form-group">
                         <label>Chat ID</label>
                         <input type="text" id="chatId" value="O1T4KXJ9xZ" placeholder="Your chat ID">
@@ -485,7 +504,7 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         async function saveToDatabase() {
-            const siteId = "aiprlassist-default"; // Use default for now
+            const siteId = document.getElementById('siteId').value || "aiprlassist-default";
             const config = {
                 chatUrl: "https://app.aiprlassist.com/webchat/?p=" + document.getElementById('accountId').value + "&id=" + document.getElementById('chatId').value,
                 fallbackUrl: document.getElementById('fallbackUrl').value,
@@ -561,30 +580,17 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         }
 
         function updateClientCode() {
-            const siteId = "aiprlassist-default"; // TODO: Make this dynamic per client
+            const siteId = document.getElementById('siteId').value || "aiprlassist-default";
+            const chatId = document.getElementById('chatId').value || siteId;
+            const accountId = document.getElementById('accountId').value || "1047143";
             
             const code = `&lt;!-- AI PRL Assist Chat Widget (Remote Config Enabled) --&gt;
 &lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
-  siteId: "${siteId}", // Remote config enabled!
-  id: "${document.getElementById('chatId').value}",
-  accountId: "${document.getElementById('accountId').value}",
-  color: "${document.getElementById('color').value}",
-  icon: "${document.getElementById('icon').value}",
-  position: "${document.getElementById('position').value}",
-  size: ${document.getElementById('size').value},
-  showDelay: ${document.getElementById('showBubbleAfterMs').value},
-  openDelay: ${document.getElementById('openAfterMs').value},
-  exitIntent: ${document.getElementById('exitIntent').checked},
-  scrollTrigger: ${document.getElementById('scrollTrigger').value > 0 ? document.getElementById('scrollTrigger').value : false},
-  windowMode: "${document.getElementById('windowMode').value}",
-  windowWidth: ${document.getElementById('windowWidth').value},
-  windowHeight: ${document.getElementById('windowHeight').value},
-  fallbackUrl: "${document.getElementById('fallbackUrl').value}",
-  analytics: ${document.getElementById('trackOpens').checked},
-  utmCapture: ${document.getElementById('appendUTM').checked},
-  noOverlay: ${document.getElementById('noOverlay').checked}
+  siteId: "${siteId}",
+  id: "${chatId}",
+  accountId: "${accountId}"
 });
 &lt;/script&gt;`;
             
@@ -614,6 +620,107 @@ ChatWidget.setup({
             document.body.appendChild(script);
             
             alert('🧪 Test widget loaded! Check bottom-right corner.');
+        }
+
+        // Load list of all clients
+        async function refreshClientList() {
+            try {
+                const response = await fetch('/api/configs');
+                const data = await response.json();
+                
+                const selector = document.getElementById('clientSelector');
+                selector.innerHTML = '<option value="">-- Select a client to load --</option>';
+                
+                if (data.success && data.configs) {
+                    data.configs.forEach(config => {
+                        const option = document.createElement('option');
+                        option.value = config.site_id;
+                        option.textContent = `${config.site_id} - ${config.client_name}`;
+                        selector.appendChild(option);
+                    });
+                    console.log('✅ Client list refreshed:', data.configs.length, 'clients');
+                }
+            } catch (error) {
+                console.error('Error refreshing client list:', error);
+            }
+        }
+
+        // Load selected client configuration
+        async function loadSelectedClient() {
+            const selector = document.getElementById('clientSelector');
+            const siteId = selector.value;
+            
+            if (!siteId) return;
+            
+            try {
+                const response = await fetch(`/api/load-config?siteId=${siteId}`);
+                const data = await response.json();
+                
+                if (data.success && data.config) {
+                    populateFormWithConfig(data.config);
+                    console.log('✅ Loaded client config:', siteId);
+                } else {
+                    console.error('Failed to load client config:', data);
+                }
+            } catch (error) {
+                console.error('Error loading client config:', error);
+            }
+        }
+
+        // Populate form with loaded configuration
+        function populateFormWithConfig(config) {
+            // Basic settings
+            document.getElementById('siteId').value = config.siteId || '';
+            document.getElementById('clientName').value = config.clientName || '';
+            document.getElementById('chatUrl').value = config.chatUrl || '';
+            document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
+            
+            // Bubble settings
+            if (config.bubble) {
+                document.getElementById('bubbleColor').value = config.bubble.bg || '#E67E22';
+                document.getElementById('bubbleSize').value = config.bubble.size || 68;
+                document.getElementById('bubblePosition').value = config.bubble.position || 'bottom-right';
+                document.getElementById('bubbleIcon').value = config.bubble.icon || '';
+            }
+            
+            // Trigger settings
+            if (config.triggers) {
+                document.getElementById('showDelay').value = config.triggers.showBubbleAfterMs || 3000;
+                document.getElementById('openDelay').value = config.triggers.openAfterMs || 0;
+                document.getElementById('exitIntent').checked = config.triggers.exitIntent || false;
+                document.getElementById('scrollTrigger').value = config.triggers.scrollTrigger || 0;
+            }
+            
+            // Overlay settings
+            if (config.overlay) {
+                document.getElementById('overlayBg').value = config.overlay.bg || 'rgba(0,0,0,0.5)';
+                document.getElementById('windowMode').checked = config.overlay.windowMode || false;
+                document.getElementById('windowWidth').value = config.overlay.windowWidth || '420px';
+                document.getElementById('windowHeight').value = config.overlay.windowHeight || '650px';
+            }
+            
+            // Rules
+            if (config.rules) {
+                document.getElementById('appendUTM').checked = config.rules.appendUTM || false;
+                document.getElementById('showOnMobile').checked = config.rules.showOnMobile !== false;
+                document.getElementById('showOnDesktop').checked = config.rules.showOnDesktop !== false;
+            }
+            
+            // Analytics
+            if (config.analytics) {
+                document.getElementById('consoleLogs').checked = config.analytics.console || false;
+                document.getElementById('trackOpens').checked = config.analytics.trackOpens || false;
+            }
+            
+            // Advanced settings
+            document.getElementById('noOverlay').checked = config.noOverlay || false;
+            document.getElementById('teaserEnabled').checked = config.teaserEnabled || false;
+            document.getElementById('teaserText').value = config.teaserText || '';
+            document.getElementById('teaserDelay').value = config.teaserDelay || 5000;
+            document.getElementById('teaserAutoclose').value = config.teaserAutoclose || 10000;
+            document.getElementById('webhookUrl').value = config.webhookUrl || '';
+            
+            updatePreview();
         }
 
         // Load configuration from database on page load
@@ -706,6 +813,9 @@ ChatWidget.setup({
             
             // Load from database on startup
             loadFromDatabase();
+            
+            // Load client list on startup
+            refreshClientList();
         });
     </script>
 
