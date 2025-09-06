@@ -167,8 +167,20 @@
                         <input type="color" id="color" value="#E67E22">
                     </div>
                     <div class="form-group">
+                        <label>Text Color</label>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label>Outline Color</label>
+                        <input type="color" id="outlineColor" value="#3498DB">
+                    </div>
+                    <div class="form-group">
                         <label>Icon URL</label>
                         <input type="url" id="icon" value="https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png">
+                    </div>
+                    <div class="form-group">
+                        <label>Bubble Label/Message</label>
+                        <input type="text" id="bubbleLabel" value="Hi! Need help?" placeholder="Message shown on bubble">
                     </div>
                     <div class="form-group">
                         <label>Position</label>
@@ -180,6 +192,95 @@
                     <div class="form-group">
                         <label>Size (px)</label>
                         <input type="number" id="size" value="68" min="40" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Z-Index</label>
+                        <input type="number" id="zIndex" value="2147483000" min="1000" max="2147483647">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pulse" checked> Pulse Animation
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⏰ Triggers & Timing</h3>
+                    <div class="form-group">
+                        <label>Show Bubble After (ms)</label>
+                        <input type="number" id="showBubbleAfterMs" value="3000" min="0" max="60000">
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-Open After (ms) - 0 = disabled</label>
+                        <input type="number" id="openAfterMs" value="0" min="0" max="300000">
+                    </div>
+                    <div class="form-group">
+                        <label>Scroll Trigger (%) - 0 = disabled</label>
+                        <input type="number" id="scrollTrigger" value="0" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="exitIntent"> Exit Intent Trigger
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📱 Display Rules</h3>
+                    <div class="form-group">
+                        <label>Include Paths (one per line, * = all)</label>
+                        <textarea id="includePaths" rows="3">*</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Exclude Paths (one per line)</label>
+                        <textarea id="excludePaths" rows="3" placeholder="/admin/*&#10;/checkout/*"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="showOnMobile" checked> Show on Mobile
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="showOnDesktop" checked> Show on Desktop
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="appendUTM" checked> Capture UTM Parameters
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🖼️ Chat Window</h3>
+                    <div class="form-group">
+                        <label>Window Mode</label>
+                        <select id="windowMode">
+                            <option value="windowed">Windowed (Desktop)</option>
+                            <option value="fullscreen">Fullscreen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Window Width (px)</label>
+                        <input type="number" id="windowWidth" value="420" min="300" max="800">
+                    </div>
+                    <div class="form-group">
+                        <label>Window Height (px)</label>
+                        <input type="number" id="windowHeight" value="650" min="400" max="900">
+                    </div>
+                    <div class="form-group">
+                        <label>Overlay Background</label>
+                        <input type="text" id="overlayBg" value="rgba(0,0,0,0.45)" placeholder="rgba(0,0,0,0.45)">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="closeOnEsc" checked> Close on ESC key
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Fallback URL (if main chat fails)</label>
+                        <input type="url" id="fallbackUrl" value="https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403">
                     </div>
                 </div>
 
@@ -208,25 +309,36 @@
                     ✅ <strong>Simple and powerful!</strong> Just two script tags.
                 </div>
                 <div class="code-block" id="clientCode">
-&lt;script src="https://dynamiccode-ochre.vercel.app/plugin.js"&gt;&lt;/script&gt;
+&lt;script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 ChatWidget.setup({
-  id: "O1T4KXJ9xZ",
-  accountId: "1047143", 
-  color: "#E67E22",
-  icon: "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68b225bbb40ac6d4eb8b4ded.png",
-  position: "bottom-right",
-  size: 68
+  siteId: "aiprlassist-default"
 });
 &lt;/script&gt;
                 </div>
                 
                 <div class="warning">
                     <strong>⚠️ GoHighLevel Instructions:</strong><br>
-                    1. Go to Settings → Tracking Code<br>
-                    2. Paste the code above in "Footer Tracking Code"<br>
-                    3. Save and publish<br>
-                    4. Widget appears on all pages automatically
+                    1. Go to <strong>Sites → [Your Site] → Settings → Tracking Code</strong><br>
+                    2. Paste the code above in <strong>"Footer Tracking Code"</strong><br>
+                    3. Click <strong>Save</strong> and <strong>Publish Site</strong><br>
+                    4. Widget appears on all pages automatically<br><br>
+                    
+                    <strong>Alternative (if above doesn't work):</strong><br>
+                    1. Go to <strong>Sites → [Your Site] → Pages</strong><br>
+                    2. Edit any page → <strong>Settings</strong> (gear icon)<br>
+                    3. Scroll to <strong>"Custom Code"</strong> section<br>
+                    4. Paste in <strong>"Footer Code"</strong> field<br>
+                    5. Save and publish
+                </div>
+                
+                <div class="warning">
+                    <strong>🌐 Other Platforms:</strong><br>
+                    <strong>Webflow:</strong> Project Settings → Custom Code → Footer Code<br>
+                    <strong>WordPress:</strong> Appearance → Theme Editor → footer.php (before &lt;/body&gt;)<br>
+                    <strong>Shopify:</strong> Online Store → Themes → Edit Code → theme.liquid (before &lt;/body&gt;)<br>
+                    <strong>Wix:</strong> Not supported (Wix blocks external scripts)<br>
+                    <strong>Squarespace:</strong> Settings → Advanced → Code Injection → Footer
                 </div>
             </div>
         </div>
@@ -306,36 +418,38 @@ https://app.aiprlassist.com/webchat/?p=1047143&id=O1T4KXJ9xZ&embed=1&host=client
         async function saveToDatabase() {
             const siteId = "aiprlassist-default"; // Use default for now
             const config = {
-                chatUrl: "https://app.aiprlassist.com/webchat/?p=1047143&id=" + document.getElementById('chatId').value,
-                fallbackUrl: "https://app.aiprlassist.com/webchat/?p=1047143&ref=1746442093403",
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=" + document.getElementById('accountId').value + "&id=" + document.getElementById('chatId').value,
+                fallbackUrl: document.getElementById('fallbackUrl').value,
                 bubble: {
                     position: document.getElementById('position').value === 'bottom-left' ? 'bl' : 'br',
                     size: parseInt(document.getElementById('size').value),
                     bg: document.getElementById('color').value,
-                    color: "#ffffff",
+                    color: document.getElementById('textColor').value,
+                    outline: document.getElementById('outlineColor').value,
+                    label: document.getElementById('bubbleLabel').value,
                     iconUrl: document.getElementById('icon').value,
-                    pulse: true,
-                    zIndex: 2147483000
+                    pulse: document.getElementById('pulse').checked,
+                    zIndex: parseInt(document.getElementById('zIndex').value)
                 },
                 triggers: {
-                    showBubbleAfterMs: 3000,
-                    openAfterMs: 0,
-                    triggerOnScrollPercent: 0,
-                    triggerOnExitIntent: false
+                    showBubbleAfterMs: parseInt(document.getElementById('showBubbleAfterMs').value),
+                    openAfterMs: parseInt(document.getElementById('openAfterMs').value),
+                    triggerOnScrollPercent: parseInt(document.getElementById('scrollTrigger').value),
+                    triggerOnExitIntent: document.getElementById('exitIntent').checked
                 },
                 rules: {
-                    includePaths: ["*"],
-                    excludePaths: [],
-                    showOnMobile: true,
-                    showOnDesktop: true,
-                    appendUTM: true
+                    includePaths: document.getElementById('includePaths').value.split('\n').filter(p => p.trim()),
+                    excludePaths: document.getElementById('excludePaths').value.split('\n').filter(p => p.trim()),
+                    showOnMobile: document.getElementById('showOnMobile').checked,
+                    showOnDesktop: document.getElementById('showOnDesktop').checked,
+                    appendUTM: document.getElementById('appendUTM').checked
                 },
                 overlay: {
-                    bg: "rgba(0,0,0,0.45)",
-                    closeOnEsc: true,
-                    windowMode: true,
-                    windowWidth: "420px",
-                    windowHeight: "650px"
+                    bg: document.getElementById('overlayBg').value,
+                    closeOnEsc: document.getElementById('closeOnEsc').checked,
+                    windowMode: document.getElementById('windowMode').value === 'windowed',
+                    windowWidth: document.getElementById('windowWidth').value + "px",
+                    windowHeight: document.getElementById('windowHeight').value + "px"
                 },
                 analytics: {
                     console: true
@@ -411,13 +525,41 @@ ChatWidget.setup({
                 if (response.ok && data.success) {
                     const config = data.config;
                     
-                    // Populate form with database data
-                    document.getElementById('chatId').value = config.chatUrl?.match(/id=([^&]+)/)?.[1] || 'xaLiCGQ3VYp6mQF2k';
+                    // Basic settings
+                    document.getElementById('chatId').value = config.chatUrl?.match(/id=([^&]+)/)?.[1] || 'O1T4KXJ9xZ';
                     document.getElementById('accountId').value = config.chatUrl?.match(/p=([^&]+)/)?.[1] || '1047143';
+                    
+                    // Appearance
                     document.getElementById('color').value = config.bubble?.bg || '#E67E22';
+                    document.getElementById('textColor').value = config.bubble?.color || '#ffffff';
+                    document.getElementById('outlineColor').value = config.bubble?.outline || '#3498DB';
                     document.getElementById('icon').value = config.bubble?.iconUrl || '';
+                    document.getElementById('bubbleLabel').value = config.bubble?.label || 'Hi! Need help?';
                     document.getElementById('position').value = config.bubble?.position === 'bl' ? 'bottom-left' : 'bottom-right';
                     document.getElementById('size').value = config.bubble?.size || 68;
+                    document.getElementById('zIndex').value = config.bubble?.zIndex || 2147483000;
+                    document.getElementById('pulse').checked = config.bubble?.pulse !== false;
+                    
+                    // Triggers
+                    document.getElementById('showBubbleAfterMs').value = config.triggers?.showBubbleAfterMs || 3000;
+                    document.getElementById('openAfterMs').value = config.triggers?.openAfterMs || 0;
+                    document.getElementById('scrollTrigger').value = config.triggers?.triggerOnScrollPercent || 0;
+                    document.getElementById('exitIntent').checked = config.triggers?.triggerOnExitIntent || false;
+                    
+                    // Rules
+                    document.getElementById('includePaths').value = (config.rules?.includePaths || ['*']).join('\n');
+                    document.getElementById('excludePaths').value = (config.rules?.excludePaths || []).join('\n');
+                    document.getElementById('showOnMobile').checked = config.rules?.showOnMobile !== false;
+                    document.getElementById('showOnDesktop').checked = config.rules?.showOnDesktop !== false;
+                    document.getElementById('appendUTM').checked = config.rules?.appendUTM !== false;
+                    
+                    // Overlay
+                    document.getElementById('windowMode').value = config.overlay?.windowMode === false ? 'fullscreen' : 'windowed';
+                    document.getElementById('windowWidth').value = parseInt(config.overlay?.windowWidth) || 420;
+                    document.getElementById('windowHeight').value = parseInt(config.overlay?.windowHeight) || 650;
+                    document.getElementById('overlayBg').value = config.overlay?.bg || 'rgba(0,0,0,0.45)';
+                    document.getElementById('closeOnEsc').checked = config.overlay?.closeOnEsc !== false;
+                    document.getElementById('fallbackUrl').value = config.fallbackUrl || '';
                     
                     updatePreview();
                     updateClientCode();
@@ -433,7 +575,12 @@ ChatWidget.setup({
 
         // Auto-update preview when inputs change
         document.addEventListener('DOMContentLoaded', function() {
-            const inputs = ['color', 'icon', 'size', 'chatId', 'accountId', 'position'];
+            const inputs = [
+                'color', 'textColor', 'outlineColor', 'icon', 'bubbleLabel', 'position', 'size', 'zIndex', 'pulse',
+                'chatId', 'accountId', 'showBubbleAfterMs', 'openAfterMs', 'scrollTrigger', 'exitIntent',
+                'includePaths', 'excludePaths', 'showOnMobile', 'showOnDesktop', 'appendUTM',
+                'windowMode', 'windowWidth', 'windowHeight', 'overlayBg', 'closeOnEsc', 'fallbackUrl'
+            ];
             inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -447,7 +594,7 @@ ChatWidget.setup({
         });
     </script>
 
-    <!-- Load the plugin for testing -->
-    <script src="https://dynamiccode-ochre.vercel.app/plugin.js"></script>
+    <!-- Load the widget for testing -->
+    <script src="https://dynamiccode-ochre.vercel.app/chat-widget-db.js"></script>
 </body>
 </html>
