@@ -943,6 +943,182 @@ ChatWidget.setup({
             }
         }
 
+        // Auto-save debounce timer
+        let autoSaveTimer = null;
+        let lastSavedConfig = null;
+
+        // Auto-save function with debounce
+        function autoSave() {
+            console.log('🔴 DEBUG: autoSave() called');
+            
+            // Show "Saving..." indicator
+            showAutoSaveIndicator('⏳ Saving...');
+            
+            // Clear existing timer
+            if (autoSaveTimer) {
+                clearTimeout(autoSaveTimer);
+            }
+            
+            // Set new timer (save after 2 seconds of no changes)
+            autoSaveTimer = setTimeout(async () => {
+                console.log('🔴 DEBUG: Auto-saving after 2 seconds of inactivity');
+                
+                const currentConfig = getCurrentConfig();
+                const configString = JSON.stringify(currentConfig);
+                
+                // Only save if config actually changed
+                if (configString !== lastSavedConfig) {
+                    console.log('🔴 DEBUG: Config changed, auto-saving...');
+                    showAutoSaveIndicator('💾 Saving...');
+                    await saveToDatabaseSilent();
+                    lastSavedConfig = configString;
+                    showAutoSaveIndicator('✅ Saved!');
+                } else {
+                    console.log('🔴 DEBUG: Config unchanged, skipping auto-save');
+                    showAutoSaveIndicator('✅ Up to date');
+                }
+            }, 2000);
+        }
+
+        // Show auto-save indicator
+        function showAutoSaveIndicator(message) {
+            // Remove existing indicator
+            const existing = document.getElementById('autoSaveIndicator');
+            if (existing) {
+                existing.remove();
+            }
+            
+            // Create new indicator
+            const indicator = document.createElement('div');
+            indicator.id = 'autoSaveIndicator';
+            indicator.innerHTML = message;
+            indicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: #2196F3;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+                z-index: 10000;
+                opacity: 0.9;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            `;
+            document.body.appendChild(indicator);
+            
+            // Auto-remove after 2 seconds
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.remove();
+                }
+            }, 2000);
+        }
+
+        // Silent save (no alerts, just console logs)
+        async function saveToDatabaseSilent() {
+            console.log('🔴 DEBUG: saveToDatabaseSilent() called');
+            
+            const siteId = document.getElementById('siteId').value || "aiprlassist-default";
+            const config = getCurrentConfig();
+            
+            try {
+                const response = await fetch('/api/save-config-real', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        siteId: siteId,
+                        clientName: document.getElementById('clientName').value || "AI PRL Assist (Default)",
+                        config: config
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    console.log('✅ AUTO-SAVED TO DATABASE!');
+                    
+                    // Show subtle success indicator
+                    const indicator = document.createElement('div');
+                    indicator.innerHTML = '💾 Auto-saved';
+                    indicator.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        left: 20px;
+                        background: #4caf50;
+                        color: white;
+                        padding: 8px 12px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        z-index: 10000;
+                        opacity: 0.8;
+                    `;
+                    document.body.appendChild(indicator);
+                    setTimeout(() => {
+                        document.body.removeChild(indicator);
+                    }, 1500);
+                } else {
+                    console.error('❌ AUTO-SAVE FAILED:', result.error);
+                }
+            } catch (error) {
+                console.error('❌ AUTO-SAVE ERROR:', error);
+            }
+        }
+
+        // Get current form configuration
+        function getCurrentConfig() {
+            return {
+                chatUrl: "https://app.aiprlassist.com/webchat/?p=" + document.getElementById('accountId').value + "&id=" + document.getElementById('chatId').value,
+                fallbackUrl: document.getElementById('fallbackUrl').value,
+                bubble: {
+                    position: document.getElementById('position').value === 'bottom-left' ? 'bl' : 'br',
+                    size: parseInt(document.getElementById('size').value),
+                    bg: document.getElementById('color').value,
+                    color: document.getElementById('textColor').value,
+                    outline: document.getElementById('outlineColor').value,
+                    label: document.getElementById('bubbleLabel').value,
+                    iconUrl: document.getElementById('icon').value,
+                    pulse: document.getElementById('pulse').checked,
+                    zIndex: parseInt(document.getElementById('zIndex').value)
+                },
+                teaser: {
+                    enabled: document.getElementById('teaserEnabled').checked,
+                    text: document.getElementById('teaserText').value,
+                    delayMs: parseInt(document.getElementById('teaserDelay').value),
+                    autocloseMs: parseInt(document.getElementById('teaserAutoclose').value)
+                },
+                triggers: {
+                    showBubbleAfterMs: parseInt(document.getElementById('showBubbleAfterMs').value),
+                    openAfterMs: parseInt(document.getElementById('openAfterMs').value),
+                    triggerOnScrollPercent: parseInt(document.getElementById('scrollTrigger').value),
+                    triggerOnExitIntent: document.getElementById('exitIntent').checked
+                },
+                rules: {
+                    includePaths: document.getElementById('includePaths').value.split('\n').filter(p => p.trim()),
+                    excludePaths: document.getElementById('excludePaths').value.split('\n').filter(p => p.trim()),
+                    showOnMobile: document.getElementById('showOnMobile').checked,
+                    showOnDesktop: document.getElementById('showOnDesktop').checked,
+                    minWidth: parseInt(document.getElementById('minWidth').value),
+                    maxWidth: parseInt(document.getElementById('maxWidth').value),
+                    frequencyCapHours: parseInt(document.getElementById('frequencyCap').value),
+                    appendUTM: document.getElementById('appendUTM').checked
+                },
+                overlay: {
+                    bg: document.getElementById('overlayBg').value,
+                    closeOnEsc: document.getElementById('closeOnEsc').checked,
+                    windowMode: document.getElementById('windowMode').value === 'windowed',
+                    windowWidth: document.getElementById('windowWidth').value + "px",
+                    windowHeight: document.getElementById('windowHeight').value + "px"
+                },
+                analytics: {
+                    console: true,
+                    trackOpens: document.getElementById('trackOpens').checked
+                },
+                noOverlay: document.getElementById('noOverlay').checked
+            };
+        }
+
         // Auto-update preview when inputs change
         document.addEventListener('DOMContentLoaded', function() {
             const inputs = [
@@ -956,8 +1132,14 @@ ChatWidget.setup({
             inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.addEventListener('input', updatePreview);
-                    element.addEventListener('change', updatePreview);
+                    element.addEventListener('input', () => {
+                        updatePreview();
+                        autoSave(); // Auto-save on every change
+                    });
+                    element.addEventListener('change', () => {
+                        updatePreview();
+                        autoSave(); // Auto-save on every change
+                    });
                 }
             });
             
