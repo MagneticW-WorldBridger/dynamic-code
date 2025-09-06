@@ -624,60 +624,156 @@ ChatWidget.setup({
 
         // Load list of all clients
         async function refreshClientList() {
+            console.log('🔴 DEBUG: refreshClientList() called');
+            
+            const selector = document.getElementById('clientSelector');
+            console.log('🔴 DEBUG: selector element:', selector);
+            
+            // Visual feedback - make button red while loading
+            const refreshBtn = document.querySelector('button[onclick="refreshClientList()"]');
+            if (refreshBtn) {
+                refreshBtn.style.backgroundColor = '#ff5722';
+                refreshBtn.innerHTML = '🔄 Loading...';
+            }
+            
             try {
+                console.log('🔴 DEBUG: Fetching client list from /api/configs');
                 const response = await fetch('/api/configs');
-                const data = await response.json();
+                console.log('🔴 DEBUG: Response status:', response.status);
                 
-                const selector = document.getElementById('clientSelector');
+                const data = await response.json();
+                console.log('🔴 DEBUG: Response data:', data);
+                
                 selector.innerHTML = '<option value="">-- Select a client to load --</option>';
                 
                 if (data.success && data.configs) {
-                    data.configs.forEach(config => {
+                    console.log('🔴 DEBUG: Adding', data.configs.length, 'clients to dropdown');
+                    data.configs.forEach((config, index) => {
+                        console.log(`🔴 DEBUG: Adding client ${index + 1}:`, config.siteId, config.clientName);
                         const option = document.createElement('option');
                         option.value = config.siteId;
                         option.textContent = `${config.siteId} - ${config.clientName}`;
                         selector.appendChild(option);
                     });
                     console.log('✅ Client list refreshed:', data.configs.length, 'clients');
+                    
+                    // Visual feedback - make button green on success
+                    if (refreshBtn) {
+                        refreshBtn.style.backgroundColor = '#4caf50';
+                        refreshBtn.innerHTML = '✅ Loaded ' + data.configs.length + ' clients';
+                        setTimeout(() => {
+                            refreshBtn.style.backgroundColor = '#28a745';
+                            refreshBtn.innerHTML = '🔄 Refresh Client List';
+                        }, 2000);
+                    }
+                } else {
+                    console.error('❌ Failed to load client list:', data);
+                    // Visual feedback - make button red on error
+                    if (refreshBtn) {
+                        refreshBtn.style.backgroundColor = '#f44336';
+                        refreshBtn.innerHTML = '❌ Failed to load';
+                    }
                 }
             } catch (error) {
-                console.error('Error refreshing client list:', error);
+                console.error('❌ Error refreshing client list:', error);
+                // Visual feedback - make button red on error
+                if (refreshBtn) {
+                    refreshBtn.style.backgroundColor = '#f44336';
+                    refreshBtn.innerHTML = '❌ Error loading';
+                }
             }
         }
 
         // Load selected client configuration
         async function loadSelectedClient() {
+            console.log('🔴 DEBUG: loadSelectedClient() called');
+            
             const selector = document.getElementById('clientSelector');
             const siteId = selector.value;
             
-            if (!siteId) return;
+            console.log('🔴 DEBUG: selector element:', selector);
+            console.log('🔴 DEBUG: siteId selected:', siteId);
+            
+            if (!siteId) {
+                console.log('🔴 DEBUG: No siteId selected, returning');
+                return;
+            }
+            
+            // Visual feedback - make selector red while loading
+            selector.style.border = '3px solid red';
+            selector.style.backgroundColor = '#ffebee';
             
             try {
+                console.log('🔴 DEBUG: Fetching config for siteId:', siteId);
                 const response = await fetch(`/api/load-config?siteId=${siteId}`);
+                console.log('🔴 DEBUG: Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('🔴 DEBUG: Response data:', data);
                 
                 if (data.success && data.config) {
+                    console.log('🔴 DEBUG: About to call populateFormWithConfig');
                     populateFormWithConfig(data.config);
                     console.log('✅ Loaded client config:', siteId);
+                    
+                    // Visual feedback - make selector green on success
+                    selector.style.border = '3px solid green';
+                    selector.style.backgroundColor = '#e8f5e8';
+                    setTimeout(() => {
+                        selector.style.border = '';
+                        selector.style.backgroundColor = '';
+                    }, 2000);
                 } else {
-                    console.error('Failed to load client config:', data);
+                    console.error('❌ Failed to load client config:', data);
+                    // Visual feedback - make selector red on error
+                    selector.style.border = '3px solid red';
+                    selector.style.backgroundColor = '#ffebee';
                 }
             } catch (error) {
-                console.error('Error loading client config:', error);
+                console.error('❌ Error loading client config:', error);
+                // Visual feedback - make selector red on error
+                selector.style.border = '3px solid red';
+                selector.style.backgroundColor = '#ffebee';
             }
         }
 
         // Populate form with loaded configuration
         function populateFormWithConfig(config) {
+            console.log('🔴 DEBUG: populateFormWithConfig() called with config:', config);
+            
             // Helper function to safely set element value
             const setValue = (id, value) => {
                 const element = document.getElementById(id);
-                if (element) element.value = value || '';
+                console.log(`🔴 DEBUG: setValue(${id}, ${value}) - element found:`, !!element);
+                if (element) {
+                    element.value = value || '';
+                    // Visual feedback - flash element green
+                    element.style.backgroundColor = '#e8f5e8';
+                    element.style.border = '2px solid green';
+                    setTimeout(() => {
+                        element.style.backgroundColor = '';
+                        element.style.border = '';
+                    }, 1000);
+                } else {
+                    console.error(`❌ Element with id '${id}' not found!`);
+                }
             };
             
             const setChecked = (id, value) => {
                 const element = document.getElementById(id);
-                if (element) element.checked = value || false;
+                console.log(`🔴 DEBUG: setChecked(${id}, ${value}) - element found:`, !!element);
+                if (element) {
+                    element.checked = value || false;
+                    // Visual feedback - flash element green
+                    element.style.backgroundColor = '#e8f5e8';
+                    element.style.border = '2px solid green';
+                    setTimeout(() => {
+                        element.style.backgroundColor = '';
+                        element.style.border = '';
+                    }, 1000);
+                } else {
+                    console.error(`❌ Element with id '${id}' not found!`);
+                }
             };
             
             // Basic settings
@@ -733,7 +829,29 @@ ChatWidget.setup({
             setValue('teaserAutoclose', config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs));
             setValue('webhookUrl', config.webhookUrl);
             
+            console.log('🔴 DEBUG: About to call updatePreview()');
             updatePreview();
+            console.log('🔴 DEBUG: populateFormWithConfig() completed successfully');
+            
+            // Visual feedback - show success message
+            const successDiv = document.createElement('div');
+            successDiv.innerHTML = '✅ CONFIG LOADED SUCCESSFULLY!';
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4caf50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            `;
+            document.body.appendChild(successDiv);
+            setTimeout(() => {
+                document.body.removeChild(successDiv);
+            }, 3000);
         }
 
         // Load configuration from database on page load
