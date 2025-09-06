@@ -634,8 +634,8 @@ ChatWidget.setup({
                 if (data.success && data.configs) {
                     data.configs.forEach(config => {
                         const option = document.createElement('option');
-                        option.value = config.site_id;
-                        option.textContent = `${config.site_id} - ${config.client_name}`;
+                        option.value = config.siteId;
+                        option.textContent = `${config.siteId} - ${config.clientName}`;
                         selector.appendChild(option);
                     });
                     console.log('✅ Client list refreshed:', data.configs.length, 'clients');
