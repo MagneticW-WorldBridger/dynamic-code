@@ -679,16 +679,20 @@ ChatWidget.setup({
             if (config.bubble) {
                 document.getElementById('color').value = config.bubble.bg || '#E67E22';
                 document.getElementById('size').value = config.bubble.size || 68;
-                document.getElementById('position').value = config.bubble.position || 'bottom-right';
-                document.getElementById('icon').value = config.bubble.icon || '';
+                // Handle different position formats
+                let position = config.bubble.position || 'bottom-right';
+                if (position === 'br') position = 'bottom-right';
+                if (position === 'bl') position = 'bottom-left';
+                document.getElementById('position').value = position;
+                document.getElementById('icon').value = config.bubble.icon || config.bubble.iconUrl || '';
             }
             
             // Trigger settings
             if (config.triggers) {
                 document.getElementById('showBubbleAfterMs').value = config.triggers.showBubbleAfterMs || 3000;
                 document.getElementById('openAfterMs').value = config.triggers.openAfterMs || 0;
-                document.getElementById('exitIntent').checked = config.triggers.exitIntent || false;
-                document.getElementById('scrollTrigger').value = config.triggers.scrollTrigger || 0;
+                document.getElementById('exitIntent').checked = config.triggers.exitIntent || config.triggers.triggerOnExitIntent || false;
+                document.getElementById('scrollTrigger').value = config.triggers.scrollTrigger || config.triggers.triggerOnScrollPercent || 0;
             }
             
             // Overlay settings
@@ -713,10 +717,10 @@ ChatWidget.setup({
             
             // Advanced settings
             document.getElementById('noOverlay').checked = config.noOverlay || false;
-            document.getElementById('teaserEnabled').checked = config.teaserEnabled || false;
-            document.getElementById('teaserText').value = config.teaserText || '';
-            document.getElementById('teaserDelay').value = config.teaserDelay || 5000;
-            document.getElementById('teaserAutoclose').value = config.teaserAutoclose || 10000;
+            document.getElementById('teaserEnabled').checked = config.teaserEnabled || (config.teaser && config.teaser.enabled) || false;
+            document.getElementById('teaserText').value = config.teaserText || (config.teaser && config.teaser.text) || '';
+            document.getElementById('teaserDelay').value = config.teaserDelay || (config.teaser && config.teaser.delayMs) || 5000;
+            document.getElementById('teaserAutoclose').value = config.teaserAutoclose || (config.teaser && config.teaser.autocloseMs) || 10000;
             document.getElementById('webhookUrl').value = config.webhookUrl || '';
             
             updatePreview();
