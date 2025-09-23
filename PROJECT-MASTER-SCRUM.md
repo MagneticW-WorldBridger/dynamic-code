@@ -145,11 +145,12 @@ teaser_polls (id, site_id, session_id, page_data, utm_data, custom_data, created
 
 ### 🔴 HIGH PRIORITY
 **BLOCK-001**: Polling initialization not starting consistently  
-**Status**: INVESTIGATING  
+**Status**: RESOLVED ✅  
 **Assigned**: Development Team  
-**Description**: Widget loads and sends webhooks correctly, but real-time polling logs not appearing in console  
-**Impact**: Manual teaser messages may not display in real-time  
-**Debug Steps Added**: Enhanced logging for `realTimeTeaser` config validation  
+**Description**: Widget was initializing twice due to autoInit() race condition, causing polling to be configured then overwritten  
+**Root Cause**: autoInit() called immediately AND on DOMContentLoaded, plus manual setup() calls  
+**Solution**: Fixed initialization sequence, added race condition protection, improved error handling  
+**Impact**: Manual teaser messages now display in real-time consistently  
 
 ### 🟡 MEDIUM PRIORITY
 None currently identified.
@@ -258,7 +259,7 @@ Resolve polling initialization issues and implement comprehensive testing suite.
 - Comprehensive monitoring and analytics
 - One minor blocker identified and under active investigation
 
-**Ready for Production**: YES (with polling fix)  
+**Ready for Production**: YES ✅  
 **Business Value Delivered**: HIGH  
 **Technical Debt**: MINIMAL  
 **Team Velocity**: EXCELLENT  
