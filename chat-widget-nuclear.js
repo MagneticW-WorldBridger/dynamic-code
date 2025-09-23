@@ -771,7 +771,22 @@
               }
             }
           }
+          // Make sure teaser is visible
           teaser.style.display = 'flex';
+          teaser.style.opacity = '1';
+          teaser.style.visibility = 'visible';
+          
+          // Add a subtle animation to draw attention
+          teaser.style.transform = 'scale(1.05)';
+          setTimeout(() => {
+            teaser.style.transform = 'scale(1)';
+          }, 200);
+          
+          if (finalConfig.analytics.console) {
+            console.log('[AI PRL Assist] ✅ Teaser shown with message:', customMessage || 'default message');
+          }
+        } else if (finalConfig.analytics.console) {
+          console.warn('[AI PRL Assist] ⚠️ Teaser element not found!');
         }
       };
 
@@ -930,6 +945,10 @@
         
         const pollForTeaserMessages = async () => {
           try {
+            if (finalConfig.analytics.console) {
+              console.log('[AI PRL Assist] 🔄 Polling for teaser messages...');
+            }
+            
             const { utmData, customData } = extractUrlData();
             
             const response = await fetch(`${finalConfig.apiBase || window.location.origin}/api/teaser-messages`, {
@@ -955,14 +974,25 @@
             
             if (response.ok) {
               const data = await response.json();
+              if (finalConfig.analytics.console) {
+                console.log('[AI PRL Assist] 📨 Polling response:', data);
+              }
+              
               if (data.message && data.message !== window.ChatWidget._lastTeaserMessage) {
                 window.ChatWidget._lastTeaserMessage = data.message;
+                
+                if (finalConfig.analytics.console) {
+                  console.log('[AI PRL Assist] 🎯 NEW TEASER MESSAGE RECEIVED:', data.message);
+                }
+                
                 window.ChatWidget.showTeaser(data.message);
                 
                 sendWebhook('teaser_message_received', {
                   message: data.message,
                   source: 'external_ai'
                 });
+              } else if (finalConfig.analytics.console && !data.message) {
+                console.log('[AI PRL Assist] 📭 No new teaser messages');
               }
             }
           } catch (error) {
