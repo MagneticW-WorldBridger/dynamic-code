@@ -8,6 +8,12 @@
 
   // Setup function - called by client
   window.ChatWidget.setup = async (config) => {
+    // Prevent double initialization
+    if (window.ChatWidget._initialized) {
+      console.warn('[AI PRL Assist] Widget already initialized, skipping...');
+      return;
+    }
+    
     const {
       siteId,
       analytics = true,
@@ -475,10 +481,14 @@
       // const modal = widget.querySelector('.ai-prl-open-modal');
       // if (modal) modal.style.display = 'none';
 
-      // Add proper event binding for bubble click
+      // Add proper event binding for bubble click - toggle open/close
       if (bubble) {
         bubble.addEventListener('click', () => {
-          window.ChatWidget.open();
+          if (chatOpened) {
+            window.ChatWidget.close();
+          } else {
+            window.ChatWidget.open();
+          }
         });
       }
 
@@ -500,7 +510,7 @@
           }
           iframe.src = chatUrl;
           overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
-          if (closeBtn) closeBtn.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+          if (closeBtn) closeBtn.style.display = 'block'; // Always show close button
           
           if (finalConfig.analytics.console) {
             console.log('[AI PRL Assist] Overlay display set to:', overlay.style.display);
@@ -508,6 +518,10 @@
         }
         
         chatOpened = true;
+        
+        // Close teaser when chat opens
+        if (teaser) teaser.style.display = 'none';
+        
         sendWebhook('chat_opened', { chatUrl });
         
         if (finalConfig.analytics.console) {
@@ -655,6 +669,9 @@
           customizations: Object.keys(finalConfig).length
         });
       }
+      
+      // Mark as initialized
+      window.ChatWidget._initialized = true;
     };
 
     // Wait for DOM
