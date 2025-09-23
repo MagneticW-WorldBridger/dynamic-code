@@ -85,12 +85,16 @@ export default async function handler(req, res) {
       }
 
       // Get pending message for this session from database
+      console.log(`[Teaser API] Looking for messages for session: ${sessionId}`);
+      
       const messageResult = await client.query(
         `SELECT id, message_text, created_at FROM teaser_messages 
          WHERE session_id = $1 AND delivered = FALSE 
          ORDER BY created_at ASC LIMIT 1`,
         [sessionId]
       );
+      
+      console.log(`[Teaser API] Found ${messageResult.rows.length} pending messages`);
       
       if (messageResult.rows.length > 0) {
         const message = messageResult.rows[0];
