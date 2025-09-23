@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodstock Furniture - Chairs Collection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .product {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        .product:hover {
+            transform: translateY(-5px);
+        }
+        .product h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .product p {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        .price {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 15px;
+        }
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 400px;
+            z-index: 1000;
+        }
+        .debug-info h4 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+        .debug-info div {
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        .webhook-log {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 500px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .webhook-log h4 {
+            margin: 0 0 10px 0;
+            color: #ffff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <h4>🔍 DEBUG INFO</h4>
+        <div><strong>URL:</strong> <span id="current-url"></span></div>
+        <div><strong>UTM Source:</strong> <span id="utm-source"></span></div>
+        <div><strong>Customer ID:</strong> <span id="customer-id"></span></div>
+        <div><strong>Session ID:</strong> <span id="session-id">Loading...</span></div>
+        <div><strong>Widget Status:</strong> <span id="widget-status">Loading...</span></div>
+    </div>
+
+    <div class="webhook-log">
+        <h4>📡 WEBHOOK LOG</h4>
+        <div id="webhook-events">Waiting for events...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🪑 Woodstock Furniture</h1>
+            <p>Premium Chairs Collection - Testing Real-Time AI Teaser System</p>
+        </div>
+
+        <div class="products">
+            <div class="product">
+                <h3>Ergonomic Office Chair</h3>
+                <p>Perfect for long work sessions. Adjustable height, lumbar support, and premium materials.</p>
+                <div class="price">$299.99</div>
+            </div>
+            <div class="product">
+                <h3>Vintage Leather Armchair</h3>
+                <p>Classic design meets modern comfort. Genuine leather with solid wood frame.</p>
+                <div class="price">$599.99</div>
+            </div>
+            <div class="product">
+                <h3>Modern Dining Set</h3>
+                <p>Contemporary style for your dining room. Set of 4 chairs with matching table.</p>
+                <div class="price">$899.99</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Woodstock Chat Widget -->
+    <script>
+        // Debug info display
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('utm-source').textContent = urlParams.get('utm_source') || 'None';
+        document.getElementById('customer-id').textContent = urlParams.get('customer_id') || 'None';
+
+        // Webhook event logging
+        const webhookLog = document.getElementById('webhook-events');
+        let eventCount = 0;
+
+        function logWebhookEvent(event, data) {
+            eventCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const eventDiv = document.createElement('div');
+            eventDiv.innerHTML = `
+                <strong>[${eventCount}] ${timestamp} - ${event}</strong><br>
+                SessionID: ${data.sessionId || 'N/A'}<br>
+                UTM: ${JSON.stringify(data.utm || {})}<br>
+                Custom: ${JSON.stringify(data.custom || {})}<br>
+                ---
+            `;
+            webhookLog.insertBefore(eventDiv, webhookLog.firstChild);
+        }
+
+        // Widget configuration
+        window.ChatWidget = window.ChatWidget || {};
+        window.ChatWidget.siteId = "woodstock_outlet";
+        window.ChatWidget.apiBase = "https://dynamiccode-ochre.vercel.app";
+        window.ChatWidget.analytics = { console: true };
+
+        // Override webhook function to log events
+        window.ChatWidget.onWebhookSent = function(eventType, payload) {
+            logWebhookEvent(eventType, payload);
+            
+            // Update session ID in debug info
+            if (payload.sessionId) {
+                document.getElementById('session-id').textContent = payload.sessionId;
+            }
+        };
+    </script>
+
+    <script
+        async
+        src="https://dynamiccode-ochre.vercel.app/chat-widget-nuclear.js"
+        onload="
+            try{ 
+                if(window.ChatWidget && window.ChatWidget.setup){ 
+                    window.ChatWidget.setup({ 
+                        siteId: window.ChatWidget.siteId, 
+                        apiBase: window.ChatWidget.apiBase, 
+                        analytics: true 
+                    }); 
+                    document.getElementById('widget-status').textContent = 'Loaded ✅';
+                } 
+            }catch(e){ 
+                console.error('[AI PRL Assist] setup() failed:', e); 
+                document.getElementById('widget-status').textContent = 'Error ❌';
+            }
+        "
+        onerror="
+            console.error('[AI PRL Assist] Loader failed to load from Vercel');
+            document.getElementById('widget-status').textContent = 'Failed ❌';
+        "
+    ></script>
+</body>
+</html>

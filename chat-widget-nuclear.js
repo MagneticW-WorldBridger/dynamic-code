@@ -165,20 +165,31 @@
         console.log('[AI PRL Assist] 📤 Sending webhook:', eventType, payload);
       }
 
-      fetch(finalConfig.webhookUrl, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Widget-Source': 'ai-prl-assist',
-          'X-Site-ID': siteId,
-          'X-Event-Type': eventType
-        },
-        body: JSON.stringify(payload)
-      }).catch(error => {
-        if (finalConfig.analytics.console) {
-          console.error('[AI PRL Assist] Webhook failed:', error);
+      // Call custom webhook handler if provided
+      if (window.ChatWidget.onWebhookSent) {
+        try {
+          window.ChatWidget.onWebhookSent(eventType, payload);
+        } catch (e) {
+          console.warn('[AI PRL Assist] Custom webhook handler failed:', e);
         }
-      });
+      }
+
+      if (finalConfig.webhookUrl) {
+        fetch(finalConfig.webhookUrl, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Widget-Source': 'ai-prl-assist',
+            'X-Site-ID': siteId,
+            'X-Event-Type': eventType
+          },
+          body: JSON.stringify(payload)
+        }).catch(error => {
+          if (finalConfig.analytics.console) {
+            console.error('[AI PRL Assist] Webhook failed:', error);
+          }
+        });
+      }
     };
 
     // Generate dynamic CSS from config
