@@ -939,9 +939,19 @@
       }
       
       // Real-time teaser message system
+      if (finalConfig.analytics.console) {
+        console.log('[AI PRL Assist] 🔍 Checking realTimeTeaser config:', finalConfig.realTimeTeaser);
+      }
+      
       if (finalConfig.realTimeTeaser?.enabled) {
         const pollInterval = finalConfig.realTimeTeaser.pollIntervalMs || 10000; // Default 10 seconds
         const apiKey = finalConfig.realTimeTeaser.apiKey;
+        
+        if (finalConfig.analytics.console) {
+          console.log('[AI PRL Assist] 🚀 STARTING REAL-TIME TEASER POLLING!');
+          console.log('[AI PRL Assist] Poll interval:', pollInterval + 'ms');
+          console.log('[AI PRL Assist] API Key:', apiKey);
+        }
         
         const pollForTeaserMessages = async () => {
           try {
@@ -1007,6 +1017,8 @@
         
         // Initial poll after 3 seconds
         setTimeout(pollForTeaserMessages, 3000);
+      } else if (finalConfig.analytics.console) {
+        console.log('[AI PRL Assist] ⚠️ Real-time teaser polling DISABLED or not configured');
       }
 
       // Mark as initialized
