@@ -16,17 +16,68 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    // Return cached events for dashboard
-    const events = Array.from(eventCache.values())
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, 100); // Last 100 events
-
-    return res.status(200).json({
-      success: true,
-      events,
-      totalCached: eventCache.size,
-      lastUpdated: new Date().toISOString()
+    // Connect to database to get recent events
+    const client = new Client({
+      connectionString: process.env.POSTGRES_URL
     });
+    
+    try {
+      await client.connect();
+      
+      // Get recent events from database
+      const result = await client.query(`
+        SELECT 
+          id,
+          event_type as event,
+          site_id as "siteId",
+          session_id as "sessionId",
+          page_data as page,
+          utm_data as utm,
+          custom_data as custom,
+          session_data as "sessionData",
+          should_trigger_ai as "shouldTriggerAI",
+          created_at as timestamp
+        FROM webhook_events_internal 
+        ORDER BY created_at DESC 
+        LIMIT 100
+      `);
+      
+      const events = result.rows.map(row => ({
+        ...row,
+        interactionScore: row.sessionData?.interactionScore || 0,
+        pageViews: row.sessionData?.pageViews || 0
+      }));
+
+      console.log(`[Internal Webhook] GET request - DB events: ${events.length}, Cache size: ${eventCache.size}`);
+
+      return res.status(200).json({
+        success: true,
+        events,
+        totalCached: eventCache.size,
+        totalInDB: events.length,
+        lastUpdated: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('[Internal Webhook GET Error]', error);
+      
+      // Fallback to cache if DB fails
+      const events = Array.from(eventCache.values())
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 100);
+
+      return res.status(200).json({
+        success: true,
+        events,
+        totalCached: eventCache.size,
+        lastUpdated: new Date().toISOString(),
+        source: 'cache_fallback'
+      });
+    } finally {
+      if (client) {
+        await client.end();
+      }
+    }
   }
 
   if (req.method !== 'POST') {
@@ -124,11 +175,13 @@ export default async function handler(req, res) {
     };
 
     eventCache.set(cacheKey, cachedEvent);
+    console.log(`[Internal Webhook] Event cached: ${cacheKey}, total cache size: ${eventCache.size}`);
 
     // Clean cache if too large
     if (eventCache.size > MAX_CACHE_SIZE) {
       const oldestKey = eventCache.keys().next().value;
       eventCache.delete(oldestKey);
+      console.log(`[Internal Webhook] Cache cleaned, removed: ${oldestKey}`);
     }
 
     // AI TRIGGERING LOGIC
