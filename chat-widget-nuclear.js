@@ -94,27 +94,89 @@
       return url.toString();
     };
 
-    // Webhook system
+    // Extract UTM and custom parameters from URL
+    const extractUrlData = () => {
+      const urlParams = new URLSearchParams(location.search);
+      const utmData = {};
+      const customData = {};
+      
+      // Extract UTM parameters
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
+        const value = urlParams.get(param);
+        if (value) utmData[param] = value;
+      });
+      
+      // Extract custom parameters (customer_id, customer_email, etc.)
+      urlParams.forEach((value, key) => {
+        if (!key.startsWith('utm_') && key !== 'embed' && key !== 'host' && key !== 'page' && key !== 'ref') {
+          customData[key] = value;
+        }
+      });
+      
+      return { utmData, customData };
+    };
+
+    // Webhook system with full data capture
     const sendWebhook = (eventType, data = {}) => {
       if (!finalConfig.webhookUrl || !finalConfig.webhookEvents.includes(eventType)) return;
+      
+      const { utmData, customData } = extractUrlData();
       
       const payload = {
         event: eventType,
         timestamp: new Date().toISOString(),
         siteId: siteId,
-        page: location.href,
+        sessionId: `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        
+        // Page data
+        page: {
+          url: location.href,
+          pathname: location.pathname,
+          search: location.search,
+          hash: location.hash,
+          title: document.title,
+          referrer: document.referrer
+        },
+        
+        // UTM data
+        utm: utmData,
+        
+        // Custom URL parameters (customer_id, customer_email, etc.)
+        custom: customData,
+        
+        // Visitor data
+        visitor: {
+          userAgent: navigator.userAgent,
+          language: navigator.language,
+          platform: navigator.platform,
+          screenWidth: screen.width,
+          screenHeight: screen.height,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        },
+        
+        // Host data
         host: location.hostname,
-        userAgent: navigator.userAgent,
+        
+        // Event-specific data
         ...data
       };
 
+      if (finalConfig.analytics.console) {
+        console.log('[AI PRL Assist] 📤 Sending webhook:', eventType, payload);
+      }
+
       fetch(finalConfig.webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Widget-Source': 'ai-prl-assist',
+          'X-Site-ID': siteId,
+          'X-Event-Type': eventType
+        },
         body: JSON.stringify(payload)
       }).catch(error => {
         if (finalConfig.analytics.console) {
-          console.warn('[AI PRL Assist] Webhook failed:', error);
+          console.error('[AI PRL Assist] Webhook failed:', error);
         }
       });
     };
@@ -634,8 +696,20 @@
         if (teaser) teaser.style.display = 'none';
       };
 
-      window.ChatWidget.showTeaser = () => {
-        if (teaser) teaser.style.display = 'flex';
+      window.ChatWidget.showTeaser = (customMessage = null) => {
+        if (teaser) {
+          // If custom message provided, update teaser text
+          if (customMessage) {
+            const teaserTextElement = teaser.querySelector('.ai-prl-teaser-text');
+            if (teaserTextElement) {
+              teaserTextElement.textContent = customMessage;
+              if (finalConfig.analytics.console) {
+                console.log('[AI PRL Assist] 🎯 Custom teaser message:', customMessage);
+              }
+            }
+          }
+          teaser.style.display = 'flex';
+        }
       };
 
       // Modal functions - DISABLED: Direct bubble click now opens chat directly
@@ -700,9 +774,16 @@
         console.log('[AI PRL Assist] User Agent:', navigator.userAgent);
       }
 
+      // Send page_view webhook immediately when widget loads
+      sendWebhook('page_view', {
+        widgetLoaded: true,
+        bubbleVisible: false
+      });
+
       // Show bubble after delay
       setTimeout(() => {
         bubble.style.display = 'flex';
+        sendWebhook('bubble_shown');
         if (finalConfig.analytics.console) {
           console.log('[AI PRL Assist] Bubble shown');
         }
@@ -765,8 +846,65 @@
         });
       }
       
+      // Real-time teaser message system
+      if (finalConfig.realTimeTeaser?.enabled) {
+        const pollInterval = finalConfig.realTimeTeaser.pollIntervalMs || 10000; // Default 10 seconds
+        const apiKey = finalConfig.realTimeTeaser.apiKey;
+        
+        const pollForTeaserMessages = async () => {
+          try {
+            const { utmData, customData } = extractUrlData();
+            
+            const response = await fetch(`${finalConfig.apiBase || window.location.origin}/api/teaser-messages`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-API-Key': apiKey,
+                'X-Site-ID': siteId
+              },
+              body: JSON.stringify({
+                siteId,
+                sessionId: window.ChatWidget._sessionId,
+                page: {
+                  url: location.href,
+                  pathname: location.pathname,
+                  title: document.title
+                },
+                utm: utmData,
+                custom: customData,
+                timestamp: new Date().toISOString()
+              })
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.message && data.message !== window.ChatWidget._lastTeaserMessage) {
+                window.ChatWidget._lastTeaserMessage = data.message;
+                window.ChatWidget.showTeaser(data.message);
+                
+                sendWebhook('teaser_message_received', {
+                  message: data.message,
+                  source: 'external_ai'
+                });
+              }
+            }
+          } catch (error) {
+            if (finalConfig.analytics.console) {
+              console.warn('[AI PRL Assist] Teaser polling failed:', error);
+            }
+          }
+        };
+        
+        // Start polling
+        setInterval(pollForTeaserMessages, pollInterval);
+        
+        // Initial poll after 3 seconds
+        setTimeout(pollForTeaserMessages, 3000);
+      }
+
       // Mark as initialized
       window.ChatWidget._initialized = true;
+      window.ChatWidget._sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     };
 
     // Wait for DOM
