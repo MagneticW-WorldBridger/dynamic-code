@@ -47,15 +47,12 @@ export default async function handler(req, res) {
     const config = configResult.rows[0].config;
     const expectedApiKey = config.realTimeTeaser?.apiKey;
     
-    // Temporary: Skip API key validation for debugging
-    console.log(`[Teaser API] Expected key: ${expectedApiKey}, Received: ${apiKey}`);
-    
-    // if (!expectedApiKey || apiKey !== expectedApiKey) {
-    //   return res.status(401).json({ 
-    //     error: 'Invalid API key',
-    //     code: 'INVALID_API_KEY'
-    //   });
-    // }
+    if (!expectedApiKey || apiKey !== expectedApiKey) {
+      return res.status(401).json({ 
+        error: 'Invalid API key',
+        code: 'INVALID_API_KEY'
+      });
+    }
 
     // Create table if not exists
     await client.query(`
