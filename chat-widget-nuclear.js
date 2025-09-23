@@ -63,15 +63,18 @@
     }
 
     // Build chat URL with UTM passthrough
-    const buildChatUrl = () => {
+    const buildChatUrl = (useCleanUrl = false) => {
       const baseUrl = finalConfig.chatUrl;
       const url = new URL(baseUrl);
       
-      // Add current page context
-      url.searchParams.set('embed', '1');
-      url.searchParams.set('host', location.hostname);
-      url.searchParams.set('page', location.href);
-      if (document.referrer) url.searchParams.set('ref', document.referrer);
+      // If useCleanUrl is true, don't add embed parameters (for fallback)
+      if (!useCleanUrl) {
+        // Add current page context
+        url.searchParams.set('embed', '1');
+        url.searchParams.set('host', location.hostname);
+        url.searchParams.set('page', location.href);
+        if (document.referrer) url.searchParams.set('ref', document.referrer);
+      }
       
       // Capture and pass UTM parameters
       if (finalConfig.rules.appendUTM) {
@@ -604,6 +607,67 @@
           }
         });
       }
+
+      // SECRET COMBOS
+      document.addEventListener('keydown', (e) => {
+        // SECRET FALLBACK COMBO: Ctrl+Shift+F (or Cmd+Shift+F on Mac)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+          e.preventDefault();
+          
+          if (finalConfig.analytics.console) {
+            console.log('[AI PRL Assist] 🔑 SECRET FALLBACK ACTIVATED!');
+            console.log('[AI PRL Assist] Switching to fallback URL:', finalConfig.fallbackUrl);
+          }
+          
+          // Close current chat
+          window.ChatWidget.close();
+          
+          // Wait a bit then open with fallback URL
+          setTimeout(() => {
+            if (finalConfig.noOverlay) {
+              window.open(finalConfig.fallbackUrl, '_blank', 'width=420,height=650,scrollbars=yes,resizable=yes');
+            } else {
+              iframe.src = finalConfig.fallbackUrl;
+              overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
+              if (closeBtn) closeBtn.style.display = 'block';
+            }
+            
+            if (finalConfig.analytics.console) {
+              console.log('[AI PRL Assist] 🚀 Fallback URL loaded successfully!');
+            }
+          }, 500);
+        }
+        
+        // SECRET CLEAN URL COMBO: Ctrl+Shift+C (or Cmd+Shift+C on Mac)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+          e.preventDefault();
+          
+          const cleanUrl = buildChatUrl(true); // Use clean URL without embed params
+          
+          if (finalConfig.analytics.console) {
+            console.log('[AI PRL Assist] 🧹 SECRET CLEAN URL ACTIVATED!');
+            console.log('[AI PRL Assist] Using clean URL (no embed params):', cleanUrl);
+          }
+          
+          // Close current chat
+          window.ChatWidget.close();
+          
+          // Wait a bit then open with clean URL
+          setTimeout(() => {
+            if (finalConfig.noOverlay) {
+              window.open(cleanUrl, '_blank', 'width=420,height=650,scrollbars=yes,resizable=yes');
+            } else {
+              iframe.src = cleanUrl;
+              overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
+              if (closeBtn) closeBtn.style.display = 'block';
+            }
+            
+            if (finalConfig.analytics.console) {
+              console.log('[AI PRL Assist] ✨ Clean URL loaded successfully!');
+            }
+          }, 500);
+        }
+      });
 
       // Show bubble after delay
       setTimeout(() => {
