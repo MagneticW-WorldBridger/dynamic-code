@@ -9,10 +9,13 @@
   // Setup function - called by client
   window.ChatWidget.setup = async (config) => {
     // Prevent double initialization
-    if (window.ChatWidget._initialized) {
-      console.warn('[AI PRL Assist] Widget already initialized, skipping...');
+    if (window.ChatWidget._initialized || window.ChatWidget._initializing) {
+      console.warn('[AI PRL Assist] ⚠️ Widget already initialized or initializing, skipping...');
       return;
     }
+    
+    // Mark as initializing to prevent race conditions
+    window.ChatWidget._initializing = true;
     
     const {
       siteId,
@@ -49,10 +52,13 @@
       }
     } catch (error) {
       if (analytics) console.error(`[AI PRL Assist] Error loading config for siteId: ${siteId}`, error);
+      window.ChatWidget._initializing = false;
+      return;
     }
 
     if (!finalConfig) {
       console.error('[AI PRL Assist] No configuration found for siteId:', siteId);
+      window.ChatWidget._initializing = false;
       return;
     }
 
@@ -1023,8 +1029,14 @@
 
       // Mark as initialized
       window.ChatWidget._initialized = true;
+      window.ChatWidget._initializing = false;
       window.ChatWidget._sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       window.ChatWidget._pageLoadTime = Date.now();
+      
+      if (finalConfig.analytics.console) {
+        console.log('[AI PRL Assist] ✅ Widget initialization completed successfully!');
+        console.log('[AI PRL Assist] Session ID:', window.ChatWidget._sessionId);
+      }
     };
 
     // Wait for DOM
@@ -1050,10 +1062,11 @@
     }
   };
   
-  // Try auto-init immediately and on DOM ready
-  autoInit();
+  // Try auto-init only once
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoInit);
+  } else {
+    autoInit();
   }
 
 })();
