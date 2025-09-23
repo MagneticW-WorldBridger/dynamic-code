@@ -94,6 +94,56 @@
       return url.toString();
     };
 
+    // Smart triggering logic
+    const calculateInteractionScore = () => {
+      let score = 0;
+      
+      // High-value pages
+      const highValuePages = ['/chairs', '/products', '/checkout', '/cart'];
+      if (highValuePages.some(page => location.pathname.includes(page))) {
+        score += 30;
+      }
+      
+      // UTM campaigns
+      const urlParams = new URLSearchParams(location.search);
+      if (urlParams.get('utm_campaign')) score += 20;
+      if (urlParams.get('utm_source') === 'facebook') score += 15;
+      if (urlParams.get('utm_medium') === 'cpc') score += 10;
+      
+      // Custom parameters (customer identified)
+      if (urlParams.get('customer_id')) score += 25;
+      if (urlParams.get('customer_email')) score += 20;
+      
+      // Time on page (longer = more interested)
+      const timeOnPage = Date.now() - (window.ChatWidget._pageLoadTime || Date.now());
+      if (timeOnPage > 30000) score += 15; // 30+ seconds
+      if (timeOnPage > 60000) score += 25; // 1+ minute
+      
+      return score;
+    };
+
+    const shouldTriggerAI = (sessionData) => {
+      const now = Date.now();
+      const timeSinceLastTeaser = now - sessionData.lastTeaserSent;
+      const minInterval = 5 * 60 * 1000; // 5 minutes minimum between AI triggers
+      
+      // Don't trigger if too recent
+      if (timeSinceLastTeaser < minInterval) {
+        return false;
+      }
+      
+      // Trigger conditions (OR logic - any one triggers)
+      const conditions = [
+        sessionData.interactionScore >= 50, // High interest score
+        sessionData.pageViews >= 3, // Multiple page views
+        location.pathname.includes('/checkout'), // Critical page
+        location.pathname.includes('/cart'), // Shopping intent
+        new URLSearchParams(location.search).get('customer_id') // Known customer
+      ];
+      
+      return conditions.some(condition => condition);
+    };
+
     // Extract UTM and custom parameters from URL
     const extractUrlData = () => {
       const urlParams = new URLSearchParams(location.search);
@@ -785,10 +835,24 @@
         console.log('[AI PRL Assist] User Agent:', navigator.userAgent);
       }
 
-      // Send page_view webhook immediately when widget loads
+      // Smart triggering system
+      const sessionData = {
+        pageViews: 0,
+        lastTeaserSent: 0,
+        interactionScore: 0,
+        startTime: Date.now()
+      };
+
+      // Increment page views and calculate interaction score
+      sessionData.pageViews++;
+      sessionData.interactionScore += calculateInteractionScore();
+
+      // Send page_view webhook with smart triggering logic
       sendWebhook('page_view', {
         widgetLoaded: true,
-        bubbleVisible: false
+        bubbleVisible: false,
+        sessionData: sessionData,
+        shouldTriggerAI: shouldTriggerAI(sessionData)
       });
 
       // Show bubble after delay
@@ -916,6 +980,7 @@
       // Mark as initialized
       window.ChatWidget._initialized = true;
       window.ChatWidget._sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      window.ChatWidget._pageLoadTime = Date.now();
     };
 
     // Wait for DOM
