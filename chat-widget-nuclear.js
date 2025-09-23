@@ -371,7 +371,6 @@
           
           @media (min-width: 768px) {
             .ai-prl-chat-overlay {
-              display: none !important; /* ensure hidden until JS explicitly opens it */
               align-items: ${overlay.windowMode ? 'flex-end' : 'center'};
               justify-content: ${bubble.position === 'bl' ? 'flex-start' : 'flex-end'};
               padding: 20px;
@@ -468,7 +467,7 @@
       const teaser = widget.querySelector('.ai-prl-teaser');
 
       // Ensure overlay and close button are hidden on init
-      if (overlay) overlay.style.display = 'none';
+      if (overlay) overlay.style.setProperty('display', 'none', 'important');
       if (closeBtn) closeBtn.style.display = 'none';
       if (iframe) iframe.src = 'about:blank';
       
@@ -494,9 +493,18 @@
           window.open(chatUrl, '_blank', 'width=420,height=650,scrollbars=yes,resizable=yes');
         } else {
           // Normal overlay behavior
+          if (finalConfig.analytics.console) {
+            console.log('[AI PRL Assist] Opening overlay, screen width:', window.innerWidth);
+            console.log('[AI PRL Assist] Overlay element:', overlay);
+            console.log('[AI PRL Assist] Iframe element:', iframe);
+          }
           iframe.src = chatUrl;
-          overlay.style.display = window.innerWidth >= 768 ? 'flex' : 'block';
+          overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
           if (closeBtn) closeBtn.style.display = window.innerWidth >= 768 ? 'block' : 'none';
+          
+          if (finalConfig.analytics.console) {
+            console.log('[AI PRL Assist] Overlay display set to:', overlay.style.display);
+          }
         }
         
         chatOpened = true;
@@ -509,7 +517,7 @@
 
       window.ChatWidget.close = () => {
         if (overlay) {
-          overlay.style.display = 'none';
+          overlay.style.setProperty('display', 'none', 'important');
           if (closeBtn) closeBtn.style.display = 'none';
           if (iframe) iframe.src = 'about:blank';
         }
