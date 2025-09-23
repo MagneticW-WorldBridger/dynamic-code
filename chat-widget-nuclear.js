@@ -608,66 +608,14 @@
         });
       }
 
-      // SECRET COMBOS
-      document.addEventListener('keydown', (e) => {
-        // SECRET FALLBACK COMBO: Ctrl+Shift+F (or Cmd+Shift+F on Mac)
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
-          e.preventDefault();
-          
-          if (finalConfig.analytics.console) {
-            console.log('[AI PRL Assist] 🔑 SECRET FALLBACK ACTIVATED!');
-            console.log('[AI PRL Assist] Switching to fallback URL:', finalConfig.fallbackUrl);
-          }
-          
-          // Close current chat
-          window.ChatWidget.close();
-          
-          // Wait a bit then open with fallback URL
-          setTimeout(() => {
-            if (finalConfig.noOverlay) {
-              window.open(finalConfig.fallbackUrl, '_blank', 'width=420,height=650,scrollbars=yes,resizable=yes');
-            } else {
-              iframe.src = finalConfig.fallbackUrl;
-              overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
-              if (closeBtn) closeBtn.style.display = 'block';
-            }
-            
-            if (finalConfig.analytics.console) {
-              console.log('[AI PRL Assist] 🚀 Fallback URL loaded successfully!');
-            }
-          }, 500);
-        }
-        
-        // SECRET CLEAN URL COMBO: Ctrl+Shift+C (or Cmd+Shift+C on Mac)
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-          e.preventDefault();
-          
-          const cleanUrl = buildChatUrl(true); // Use clean URL without embed params
-          
-          if (finalConfig.analytics.console) {
-            console.log('[AI PRL Assist] 🧹 SECRET CLEAN URL ACTIVATED!');
-            console.log('[AI PRL Assist] Using clean URL (no embed params):', cleanUrl);
-          }
-          
-          // Close current chat
-          window.ChatWidget.close();
-          
-          // Wait a bit then open with clean URL
-          setTimeout(() => {
-            if (finalConfig.noOverlay) {
-              window.open(cleanUrl, '_blank', 'width=420,height=650,scrollbars=yes,resizable=yes');
-            } else {
-              iframe.src = cleanUrl;
-              overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
-              if (closeBtn) closeBtn.style.display = 'block';
-            }
-            
-            if (finalConfig.analytics.console) {
-              console.log('[AI PRL Assist] ✨ Clean URL loaded successfully!');
-            }
-          }, 500);
-        }
-      });
+      // DEBUG: Log iframe details for troubleshooting
+      if (finalConfig.analytics.console) {
+        console.log('[AI PRL Assist] 🔍 IFRAME DEBUG INFO:');
+        console.log('[AI PRL Assist] Parent domain:', window.location.hostname);
+        console.log('[AI PRL Assist] Parent URL:', window.location.href);
+        console.log('[AI PRL Assist] Referrer:', document.referrer);
+        console.log('[AI PRL Assist] User Agent:', navigator.userAgent);
+      }
 
       // Show bubble after delay
       setTimeout(() => {
