@@ -1,7 +1,7 @@
-import { createPool } from '@vercel/postgres';
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   // Enable CORS for widget loading
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -21,19 +21,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  try {
-    // Create connection pool with explicit connection string
-    const pool = createPool({
-      connectionString: process.env.POSTGRES_URL
-    });
+  const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL,
+    ssl: { rejectUnauthorized: false }
+  });
 
+  try {
     if (req.method === 'GET') {
       // Load configuration
-      const result = await pool.sql`
-        SELECT config, client_name, updated_at 
-        FROM widget_configs 
-        WHERE site_id = ${siteId}
-      `;
+      const result = await pool.query(
+        'SELECT config, client_name, updated_at FROM widget_configs WHERE site_id = $1',
+        [siteId]
+      );
 
       if (result.rows.length === 0) {
         return res.status(404).json({ 
@@ -66,28 +65,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
-      // Validate config structure
-      const requiredFields = ['chatUrl', 'bubble', 'triggers', 'rules'];
-      for (const field of requiredFields) {
-        if (!config[field]) {
-          return res.status(400).json({ 
-            error: `Missing required config field: ${field}`,
-            code: 'INVALID_CONFIG',
-            field
-          });
-        }
+      // Validate config structure - only check for essential fields
+      if (!config.bubble) {
+        return res.status(400).json({ 
+          error: 'Missing required config field: bubble',
+          code: 'INVALID_CONFIG',
+          field: 'bubble'
+        });
       }
 
-      const result = await pool.sql`
+      const result = await pool.query(`
         INSERT INTO widget_configs (site_id, client_name, config, updated_at)
-        VALUES (${siteId}, ${clientName || `Client ${siteId}`}, ${JSON.stringify(config)}, NOW())
+        VALUES ($1, $2, $3, NOW())
         ON CONFLICT (site_id)
         DO UPDATE SET 
-          client_name = ${clientName || `Client ${siteId}`},
-          config = ${JSON.stringify(config)}, 
+          client_name = $2,
+          config = $3, 
           updated_at = NOW()
         RETURNING id, created_at, updated_at
-      `;
+      `, [siteId, clientName || `Client ${siteId}`, JSON.stringify(config)]);
 
       return res.status(200).json({
         success: true,
@@ -102,11 +98,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'DELETE') {
       // Delete configuration
-      const result = await pool.sql`
-        DELETE FROM widget_configs 
-        WHERE site_id = ${siteId}
-        RETURNING id, client_name
-      `;
+      const result = await pool.query(
+        'DELETE FROM widget_configs WHERE site_id = $1 RETURNING id, client_name',
+        [siteId]
+      );
 
       if (result.rows.length === 0) {
         return res.status(404).json({ 
@@ -138,5 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       message: error.message,
       siteId
     });
+  } finally {
+    await pool.end();
   }
 }

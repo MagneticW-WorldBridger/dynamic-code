@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 COMPREHENSIVE FIELD MAPPING TEST</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 20px;
+            background: #f8f9fa;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .field-test {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #results {
+            max-height: 600px;
+            overflow-y: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 COMPREHENSIVE FIELD MAPPING TEST</h1>
+    
+    <div class="test-section">
+        <h3>🎯 TESTING EVERY SINGLE FIELD:</h3>
+        <p>This will verify that EVERY field in the control panel correctly maps to:</p>
+        <ul>
+            <li>✅ Database storage (JSON structure)</li>
+            <li>✅ Widget rendering (CSS/behavior)</li>
+            <li>✅ Round-trip consistency (save → load → display)</li>
+        </ul>
+        
+        <button onclick="runComprehensiveTest()">🚀 Test ALL Fields</button>
+        <button onclick="testSpecificConfig()">🎯 Test Specific Config</button>
+        <button onclick="clearResults()">🧹 Clear Results</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        let results = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `field-test ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+        }
+
+        // Complete list of ALL fields in the control panel
+        const ALL_FIELDS = {
+            // Basic Info
+            'siteId': { type: 'text', dbPath: 'site_id', expected: 'test-field-mapping' },
+            'clientName': { type: 'text', dbPath: 'client_name', expected: 'Test Client Mapping' },
+            'chatId': { type: 'text', dbPath: 'chatUrl', expected: 'TEST123', transform: 'chatUrl' },
+            'accountId': { type: 'text', dbPath: 'chatUrl', expected: '999888', transform: 'chatUrl' },
+            
+            // Bubble Appearance
+            'color': { type: 'color', dbPath: 'bubble.bg', expected: '#ff5733' },
+            'textColor': { type: 'color', dbPath: 'bubble.color', expected: '#000000' },
+            'outlineColor': { type: 'color', dbPath: 'bubble.outline', expected: '#00ff00' },
+            'icon': { type: 'url', dbPath: 'bubble.iconUrl', expected: 'https://example.com/test-icon.png' },
+            'bubbleLabel': { type: 'text', dbPath: 'bubble.label', expected: 'Test Label Message' },
+            'position': { type: 'select', dbPath: 'bubble.position', expected: 'bottom-left', dbValue: 'bl' },
+            'size': { type: 'number', dbPath: 'bubble.size', expected: 75 },
+            'zIndex': { type: 'number', dbPath: 'bubble.zIndex', expected: 1000000 },
+            'pulse': { type: 'checkbox', dbPath: 'bubble.pulse', expected: false },
+            
+            // Triggers & Timing
+            'showBubbleAfterMs': { type: 'number', dbPath: 'triggers.showBubbleAfterMs', expected: 5000 },
+            'openAfterMs': { type: 'number', dbPath: 'triggers.openAfterMs', expected: 10000 },
+            'scrollTrigger': { type: 'number', dbPath: 'triggers.triggerOnScrollPercent', expected: 50 },
+            'exitIntent': { type: 'checkbox', dbPath: 'triggers.triggerOnExitIntent', expected: true },
+            
+            // Display Rules
+            'includePaths': { type: 'textarea', dbPath: 'rules.includePaths', expected: ['/test/*', '/demo/*'] },
+            'excludePaths': { type: 'textarea', dbPath: 'rules.excludePaths', expected: ['/admin/*', '/private/*'] },
+            'showOnMobile': { type: 'checkbox', dbPath: 'rules.showOnMobile', expected: false },
+            'showOnDesktop': { type: 'checkbox', dbPath: 'rules.showOnDesktop', expected: true },
+            'appendUTM': { type: 'checkbox', dbPath: 'rules.appendUTM', expected: false },
+            'minWidth': { type: 'number', dbPath: 'rules.minWidth', expected: 768 },
+            'maxWidth': { type: 'number', dbPath: 'rules.maxWidth', expected: 1920 },
+            'frequencyCap': { type: 'number', dbPath: 'rules.frequencyCapHours', expected: 48 },
+            
+            // Teaser Messages
+            'teaserEnabled': { type: 'checkbox', dbPath: 'teaser.enabled', expected: true },
+            'teaserText': { type: 'text', dbPath: 'teaser.text', expected: 'Test teaser message!' },
+            'teaserDelay': { type: 'number', dbPath: 'teaser.delayMs', expected: 7000 },
+            'teaserAutoclose': { type: 'number', dbPath: 'teaser.autocloseMs', expected: 20000 },
+            
+            // Analytics
+            'trackOpens': { type: 'checkbox', dbPath: 'analytics.trackOpens', expected: false },
+            
+            // Overlay Settings
+            'windowMode': { type: 'select', dbPath: 'overlay.windowMode', expected: 'fullscreen', dbValue: false },
+            'windowWidth': { type: 'number', dbPath: 'overlay.windowWidth', expected: 500, transform: 'px' },
+            'windowHeight': { type: 'number', dbPath: 'overlay.windowHeight', expected: 700, transform: 'px' },
+            'overlayBg': { type: 'text', dbPath: 'overlay.bg', expected: 'rgba(255,0,0,0.8)' },
+            'closeOnEsc': { type: 'checkbox', dbPath: 'overlay.closeOnEsc', expected: false },
+            
+            // Advanced
+            'fallbackUrl': { type: 'url', dbPath: 'fallbackUrl', expected: 'https://test-fallback.com' },
+            'webhookUrl': { type: 'url', dbPath: 'webhookUrl', expected: 'https://test-webhook.com/endpoint' },
+            'noOverlay': { type: 'checkbox', dbPath: 'noOverlay', expected: true },
+            
+            // Webhook Events
+            'webhookChatOpened': { type: 'checkbox', dbPath: 'webhookEvents', expected: true, arrayValue: 'chat_opened' },
+            'webhookChatClosed': { type: 'checkbox', dbPath: 'webhookEvents', expected: false, arrayValue: 'chat_closed' },
+            'webhookTeaserShown': { type: 'checkbox', dbPath: 'webhookEvents', expected: true, arrayValue: 'teaser_shown' },
+            'webhookTeaserAutoclosed': { type: 'checkbox', dbPath: 'webhookEvents', expected: false, arrayValue: 'teaser_autoclosed' }
+        };
+
+        async function runComprehensiveTest() {
+            clearResults();
+            log('🚀 Starting COMPREHENSIVE field mapping test...', 'info');
+            log(`📊 Testing ${Object.keys(ALL_FIELDS).length} fields total`, 'info');
+            
+            const testSiteId = 'test-field-mapping-' + Date.now();
+            
+            try {
+                // Step 1: Create test configuration
+                log('📝 Step 1: Creating test configuration...', 'info');
+                const testConfig = await createTestConfig(testSiteId);
+                
+                // Step 2: Save to database
+                log('💾 Step 2: Saving to database...', 'info');
+                const saveResult = await saveTestConfig(testSiteId, testConfig);
+                
+                if (!saveResult.success) {
+                    log('❌ Failed to save test config: ' + saveResult.error, 'error');
+                    return;
+                }
+                
+                // Step 3: Load from database
+                log('📡 Step 3: Loading from database...', 'info');
+                const loadedConfig = await loadTestConfig(testSiteId);
+                
+                if (!loadedConfig.success) {
+                    log('❌ Failed to load test config: ' + loadedConfig.error, 'error');
+                    return;
+                }
+                
+                // Step 4: Verify each field
+                log('🔍 Step 4: Verifying each field mapping...', 'info');
+                await verifyAllFields(testConfig, loadedConfig.config);
+                
+                // Step 5: Test widget rendering
+                log('🎨 Step 5: Testing widget rendering...', 'info');
+                await testWidgetRendering(testSiteId, loadedConfig.config);
+                
+                log('✅ COMPREHENSIVE TEST COMPLETED!', 'success');
+                
+            } catch (error) {
+                log('❌ Test failed with error: ' + error.message, 'error');
+            }
+        }
+
+        async function createTestConfig(siteId) {
+            log('🏗️ Building test configuration with all field values...', 'info');
+            
+            const config = {
+                chatUrl: `https://app.aiprlassist.com/webchat/?p=999888&id=TEST123`,
+                fallbackUrl: ALL_FIELDS.fallbackUrl.expected,
+                bubble: {
+                    position: ALL_FIELDS.position.dbValue,
+                    size: ALL_FIELDS.size.expected,
+                    bg: ALL_FIELDS.color.expected,
+                    color: ALL_FIELDS.textColor.expected,
+                    outline: ALL_FIELDS.outlineColor.expected,
+                    label: ALL_FIELDS.bubbleLabel.expected,
+                    iconUrl: ALL_FIELDS.icon.expected,
+                    pulse: ALL_FIELDS.pulse.expected,
+                    zIndex: ALL_FIELDS.zIndex.expected
+                },
+                teaser: {
+                    enabled: ALL_FIELDS.teaserEnabled.expected,
+                    text: ALL_FIELDS.teaserText.expected,
+                    delayMs: ALL_FIELDS.teaserDelay.expected,
+                    autocloseMs: ALL_FIELDS.teaserAutoclose.expected
+                },
+                triggers: {
+                    showBubbleAfterMs: ALL_FIELDS.showBubbleAfterMs.expected,
+                    openAfterMs: ALL_FIELDS.openAfterMs.expected,
+                    triggerOnScrollPercent: ALL_FIELDS.scrollTrigger.expected,
+                    triggerOnExitIntent: ALL_FIELDS.exitIntent.expected
+                },
+                rules: {
+                    includePaths: ALL_FIELDS.includePaths.expected,
+                    excludePaths: ALL_FIELDS.excludePaths.expected,
+                    showOnMobile: ALL_FIELDS.showOnMobile.expected,
+                    showOnDesktop: ALL_FIELDS.showOnDesktop.expected,
+                    minWidth: ALL_FIELDS.minWidth.expected,
+                    maxWidth: ALL_FIELDS.maxWidth.expected,
+                    frequencyCapHours: ALL_FIELDS.frequencyCap.expected,
+                    appendUTM: ALL_FIELDS.appendUTM.expected
+                },
+                overlay: {
+                    bg: ALL_FIELDS.overlayBg.expected,
+                    closeOnEsc: ALL_FIELDS.closeOnEsc.expected,
+                    windowMode: ALL_FIELDS.windowMode.dbValue,
+                    windowWidth: ALL_FIELDS.windowWidth.expected + 'px',
+                    windowHeight: ALL_FIELDS.windowHeight.expected + 'px'
+                },
+                analytics: {
+                    console: true,
+                    trackOpens: ALL_FIELDS.trackOpens.expected
+                },
+                noOverlay: ALL_FIELDS.noOverlay.expected,
+                webhookUrl: ALL_FIELDS.webhookUrl.expected,
+                webhookEvents: [
+                    ALL_FIELDS.webhookChatOpened.expected ? 'chat_opened' : null,
+                    ALL_FIELDS.webhookTeaserShown.expected ? 'teaser_shown' : null
+                ].filter(Boolean)
+            };
+            
+            log('✅ Test configuration created with ' + Object.keys(config).length + ' top-level properties', 'success');
+            return config;
+        }
+
+        async function saveTestConfig(siteId, config) {
+            const response = await fetch('https://dynamiccode-ochre.vercel.app/api/save-config-real', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    siteId: siteId,
+                    clientName: ALL_FIELDS.clientName.expected,
+                    config: config
+                })
+            });
+            
+            return await response.json();
+        }
+
+        async function loadTestConfig(siteId) {
+            const response = await fetch(`https://dynamiccode-ochre.vercel.app/api/load-config?siteId=${siteId}`);
+            return await response.json();
+        }
+
+        async function verifyAllFields(originalConfig, loadedConfig) {
+            let passedFields = 0;
+            let failedFields = 0;
+            
+            for (const [fieldName, fieldInfo] of Object.entries(ALL_FIELDS)) {
+                try {
+                    const result = verifyField(fieldName, fieldInfo, originalConfig, loadedConfig);
+                    if (result.passed) {
+                        log(`✅ ${fieldName}: ${result.message}`, 'success');
+                        passedFields++;
+                    } else {
+                        log(`❌ ${fieldName}: ${result.message}`, 'error');
+                        failedFields++;
+                    }
+                } catch (error) {
+                    log(`💥 ${fieldName}: Error during verification - ${error.message}`, 'error');
+                    failedFields++;
+                }
+            }
+            
+            log(`📊 FIELD VERIFICATION SUMMARY: ${passedFields} passed, ${failedFields} failed`, 
+                failedFields === 0 ? 'success' : 'error');
+        }
+
+        function verifyField(fieldName, fieldInfo, originalConfig, loadedConfig) {
+            const dbPath = fieldInfo.dbPath;
+            const expected = fieldInfo.expected;
+            
+            // Get value from loaded config using dot notation
+            const actualValue = getNestedValue(loadedConfig, dbPath);
+            
+            // Handle special cases
+            if (fieldInfo.arrayValue) {
+                // Webhook events are arrays
+                const isInArray = Array.isArray(actualValue) && actualValue.includes(fieldInfo.arrayValue);
+                const shouldBeInArray = fieldInfo.expected;
+                
+                if (isInArray === shouldBeInArray) {
+                    return { passed: true, message: `Array value "${fieldInfo.arrayValue}" correctly ${shouldBeInArray ? 'included' : 'excluded'}` };
+                } else {
+                    return { passed: false, message: `Expected "${fieldInfo.arrayValue}" to be ${shouldBeInArray ? 'included' : 'excluded'} in array, but got: ${JSON.stringify(actualValue)}` };
+                }
+            }
+            
+            // Handle transformations
+            if (fieldInfo.transform === 'px') {
+                const expectedWithPx = expected + 'px';
+                if (actualValue === expectedWithPx) {
+                    return { passed: true, message: `Value correctly transformed to "${expectedWithPx}"` };
+                } else {
+                    return { passed: false, message: `Expected "${expectedWithPx}", got "${actualValue}"` };
+                }
+            }
+            
+            // Direct comparison
+            if (JSON.stringify(actualValue) === JSON.stringify(expected)) {
+                return { passed: true, message: `Value matches expected: ${JSON.stringify(expected)}` };
+            } else {
+                return { passed: false, message: `Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actualValue)}` };
+            }
+        }
+
+        function getNestedValue(obj, path) {
+            return path.split('.').reduce((current, key) => {
+                return current && current[key] !== undefined ? current[key] : undefined;
+            }, obj);
+        }
+
+        async function testWidgetRendering(siteId, config) {
+            log('🎨 Testing widget rendering with loaded config...', 'info');
+            
+            // Clear any existing widgets
+            document.querySelectorAll('.ai-prl-chat-bubble, .ai-prl-chat-overlay').forEach(el => el.remove());
+            window.__aiPrlAssistLoaded = false;
+            
+            // Load widget
+            const script = document.createElement('script');
+            script.src = 'https://dynamiccode-ochre.vercel.app/chat-widget-db.js?' + Date.now();
+            
+            return new Promise((resolve) => {
+                script.onload = () => {
+                    window.ChatWidget.setup({
+                        siteId: siteId,
+                        analytics: true
+                    });
+                    
+                    setTimeout(() => {
+                        const bubble = document.querySelector('.ai-prl-chat-bubble');
+                        if (bubble) {
+                            const styles = window.getComputedStyle(bubble);
+                            log(`🎨 Widget rendered successfully:`, 'success');
+                            log(`   - Background: ${styles.backgroundColor}`, 'info');
+                            log(`   - Size: ${styles.width} x ${styles.height}`, 'info');
+                            log(`   - Position: left=${styles.left}, right=${styles.right}`, 'info');
+                            
+                            // Test specific field mappings in rendered widget
+                            testRenderedFieldMappings(bubble, config);
+                        } else {
+                            log('❌ Widget failed to render!', 'error');
+                        }
+                        resolve();
+                    }, 2000);
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        function testRenderedFieldMappings(bubble, config) {
+            const styles = window.getComputedStyle(bubble);
+            
+            // Test color mapping
+            const expectedColor = config.bubble.bg;
+            const actualColor = rgbToHex(styles.backgroundColor);
+            if (actualColor.toLowerCase() === expectedColor.toLowerCase()) {
+                log(`✅ Color mapping: ${expectedColor} → ${actualColor}`, 'success');
+            } else {
+                log(`❌ Color mapping failed: expected ${expectedColor}, got ${actualColor}`, 'error');
+            }
+            
+            // Test size mapping
+            const expectedSize = config.bubble.size + 'px';
+            if (styles.width === expectedSize && styles.height === expectedSize) {
+                log(`✅ Size mapping: ${config.bubble.size} → ${styles.width}`, 'success');
+            } else {
+                log(`❌ Size mapping failed: expected ${expectedSize}, got ${styles.width}x${styles.height}`, 'error');
+            }
+            
+            // Test position mapping
+            const expectedPosition = config.bubble.position === 'bl' ? 'left' : 'right';
+            const actualPosition = styles.left !== 'auto' && styles.left !== '0px' ? 'left' : 'right';
+            if (expectedPosition === actualPosition) {
+                log(`✅ Position mapping: ${config.bubble.position} → ${actualPosition}`, 'success');
+            } else {
+                log(`❌ Position mapping failed: expected ${expectedPosition}, got ${actualPosition}`, 'error');
+            }
+        }
+
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g);
+            if (!result) return rgb;
+            return "#" + ((1 << 24) + (parseInt(result[0]) << 16) + (parseInt(result[1]) << 8) + parseInt(result[2])).toString(16).slice(1);
+        }
+
+        async function testSpecificConfig() {
+            clearResults();
+            log('🎯 Testing existing aiprlassist-default config...', 'info');
+            
+            try {
+                const response = await fetch('https://dynamiccode-ochre.vercel.app/api/load-config?siteId=aiprlassist-default');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ Loaded existing config successfully', 'success');
+                    log('📊 Config structure:', 'info');
+                    log(JSON.stringify(data.config, null, 2), 'info');
+                    
+                    // Test widget rendering
+                    await testWidgetRendering('aiprlassist-default', data.config);
+                } else {
+                    log('❌ Failed to load config: ' + data.error, 'error');
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-start message
+        window.onload = () => {
+            log('🔬 Comprehensive field mapping test ready!', 'info');
+            log('👆 Click "Test ALL Fields" to verify every single field maps correctly', 'info');
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+

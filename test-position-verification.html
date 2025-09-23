@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Position Verification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+            min-height: 100vh;
+        }
+        .test-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .position-indicator {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 0, 0, 0.3);
+            border: 2px solid red;
+            border-radius: 50%;
+            z-index: 999999;
+        }
+        .left-indicator {
+            left: 20px;
+            bottom: 20px;
+        }
+        .right-indicator {
+            right: 20px;
+            bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h2>🎯 Position Verification Test</h2>
+        <p><strong>Database says:</strong> aiprlassist-default position = "bl" (should be LEFT)</p>
+        <p><strong>Expected:</strong> Widget should appear in BOTTOM-LEFT corner</p>
+        <p><strong>Red circles show expected positions:</strong></p>
+        <ul>
+            <li>Left circle = where "bl" should place widget</li>
+            <li>Right circle = where "br" should place widget</li>
+        </ul>
+        <button onclick="loadWidget()">Load Widget</button>
+        <button onclick="checkPosition()">Check Position</button>
+        <div id="results"></div>
+    </div>
+
+    <!-- Position indicators -->
+    <div class="position-indicator left-indicator" title="BL position"></div>
+    <div class="position-indicator right-indicator" title="BR position"></div>
+
+    <script>
+        function loadWidget() {
+            // Load the widget script
+            const script = document.createElement('script');
+            script.src = 'https://dynamiccode-ochre.vercel.app/chat-widget-db.js';
+            script.onload = () => {
+                console.log('Widget script loaded');
+                
+                // Setup widget with database config
+                window.ChatWidget.setup({
+                    siteId: 'aiprlassist-default',
+                    analytics: true
+                });
+                
+                document.getElementById('results').innerHTML += '<p>✅ Widget loaded with siteId: aiprlassist-default</p>';
+                
+                // Check position after 3 seconds
+                setTimeout(checkPosition, 3000);
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function checkPosition() {
+            const bubble = document.querySelector('.ai-prl-chat-bubble');
+            const results = document.getElementById('results');
+            
+            if (!bubble) {
+                results.innerHTML += '<p>❌ No bubble found!</p>';
+                return;
+            }
+
+            const styles = window.getComputedStyle(bubble);
+            const leftValue = styles.left;
+            const rightValue = styles.right;
+            
+            results.innerHTML += `<p><strong>Bubble CSS:</strong></p>`;
+            results.innerHTML += `<p>left: ${leftValue}</p>`;
+            results.innerHTML += `<p>right: ${rightValue}</p>`;
+            
+            // Determine actual position
+            if (leftValue !== 'auto' && leftValue !== '0px') {
+                results.innerHTML += '<p>🔍 <strong>ACTUAL POSITION: LEFT SIDE</strong></p>';
+            } else if (rightValue !== 'auto' && rightValue !== '0px') {
+                results.innerHTML += '<p>🔍 <strong>ACTUAL POSITION: RIGHT SIDE</strong></p>';
+            } else {
+                results.innerHTML += '<p>🔍 <strong>POSITION: UNCLEAR</strong></p>';
+            }
+
+            // Check if it matches database expectation
+            results.innerHTML += '<p>📊 <strong>Database says:</strong> position = "bl" (should be LEFT)</p>';
+            
+            if (leftValue !== 'auto' && leftValue !== '0px') {
+                results.innerHTML += '<p>✅ <strong>CORRECT:</strong> Widget is on LEFT as expected from "bl"</p>';
+            } else {
+                results.innerHTML += '<p>❌ <strong>BUG:</strong> Widget is NOT on LEFT despite "bl" in database</p>';
+            }
+
+            // Also check the icon
+            const img = bubble.querySelector('img');
+            if (img) {
+                results.innerHTML += `<p>🖼️ <strong>Icon src:</strong> ${img.src}</p>`;
+                results.innerHTML += `<p>🖼️ <strong>Icon loaded:</strong> ${img.complete ? 'Yes' : 'No'}</p>`;
+            } else {
+                results.innerHTML += '<p>❌ <strong>No icon found in bubble</strong></p>';
+            }
+        }
+
+        // Auto-load on page load
+        window.onload = () => {
+            document.getElementById('results').innerHTML = '<p>🚀 Page loaded. Click "Load Widget" to test.</p>';
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI PRL Assist - No Overlay Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+            min-height: 100vh;
+        }
+        .info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>🚀 AI PRL Assist - No Overlay Configuration</h1>
+        
+        <h3>✅ CONFIRMED SETTINGS:</h3>
+        <ul>
+            <li>📍 <strong>Position:</strong> <span class="highlight">Bottom Right</span> (normal place)</li>
+            <li>🖼️ <strong>Image:</strong> <span class="highlight">Your specified PNG</span> (somewhat big - 85px)</li>
+            <li>🚫 <strong>NO OVERLAY:</strong> <span class="highlight">Chat opens in new window</span></li>
+            <li>🚫 <strong>NO AUTO-CHAT:</strong> <span class="highlight">openAfterMs: 0</span></li>
+            <li>✅ <strong>AUTO-TEASER:</strong> <span class="highlight">Shows after 3 seconds, closes after 15s</span></li>
+            <li>🔗 <strong>AI PRL URL:</strong> <span class="highlight">Same as other configs</span></li>
+        </ul>
+
+        <h3>🧪 EXPECTED BEHAVIOR:</h3>
+        <ol>
+            <li>Widget appears in <strong>bottom-right</strong> after 2 seconds</li>
+            <li>Teaser message appears after <strong>3 seconds</strong></li>
+            <li>Teaser auto-closes after <strong>15 seconds</strong></li>
+            <li>Clicking bubble or teaser opens chat in <strong>NEW WINDOW</strong> (no overlay)</li>
+            <li>Chat <strong>NEVER opens automatically</strong></li>
+        </ol>
+    </div>
+
+    <!-- Load the NUCLEAR widget -->
+    <script src="https://dynamiccode-ochre.vercel.app/chat-widget-nuclear.js"></script>
+    <script>
+        window.ChatWidget.setup({
+            siteId: 'aiprl-no-overlay',
+            analytics: true
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+

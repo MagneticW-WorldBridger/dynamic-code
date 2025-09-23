@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Widget Control Panel V1</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+            height: 100vh;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .preview-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1 {
+            color: #4c51bf;
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .section {
+            margin-bottom: 32px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid #4c51bf;
+        }
+        
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        
+        select, input[type="text"], input[type="color"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.1);
+        }
+        
+        .color-input {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .color-input input[type="color"] {
+            width: 60px;
+            height: 44px;
+            padding: 4px;
+            cursor: pointer;
+        }
+        
+        .color-input input[type="text"] {
+            flex: 1;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #f0fff4;
+            color: #38a169;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #e53e3e;
+            border: 1px solid #feb2b2;
+        }
+        
+        .status.loading {
+            background: #ebf8ff;
+            color: #3182ce;
+            border: 1px solid #90cdf4;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f7fafc;
+        }
+        
+        .client-selector {
+            background: white;
+            border: 2px solid #4c51bf;
+        }
+        
+        .field-info {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- CONTROL PANEL -->
+        <div class="control-panel">
+            <h1>🎯 Widget Control Panel V1</h1>
+            
+            <div id="status" class="status loading">
+                🔄 Loading clients...
+            </div>
+            
+            <!-- CLIENT SELECTOR -->
+            <div class="section">
+                <h3>📋 Select Client</h3>
+                <div class="form-group">
+                    <label for="clientSelect">Choose Client:</label>
+                    <select id="clientSelect" class="client-selector">
+                        <option value="">Loading clients...</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- BASIC FIELDS -->
+            <div class="section">
+                <h3>💬 Basic Bubble Settings</h3>
+                
+                <div class="form-group">
+                    <label for="bubbleColor">Bubble Background Color:</label>
+                    <div class="color-input">
+                        <input type="color" id="bubbleColorPicker" value="#007bff">
+                        <input type="text" id="bubbleColor" value="#007bff" placeholder="#007bff">
+                    </div>
+                    <div class="field-info">Controls the background color of the chat bubble</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bubbleLabel">Bubble Label Text:</label>
+                    <input type="text" id="bubbleLabel" value="Need help?" placeholder="Enter bubble text">
+                    <div class="field-info">Text that appears when hovering over the bubble</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="teaserText">Teaser Message Text:</label>
+                    <input type="text" id="teaserText" value="Hi! Need help?" placeholder="Enter teaser message">
+                    <div class="field-info">Text that appears in the popup message bubble</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bubblePosition">Bubble Position:</label>
+                    <select id="bubblePosition">
+                        <option value="br">Bottom Right</option>
+                        <option value="bl">Bottom Left</option>
+                        <option value="tr">Top Right</option>
+                        <option value="tl">Top Left</option>
+                    </select>
+                    <div class="field-info">Where the bubble appears on the page</div>
+                </div>
+            </div>
+            
+            <!-- SAVE BUTTON -->
+            <button class="btn" onclick="saveConfig()">
+                💾 SAVE CONFIGURATION
+            </button>
+        </div>
+        
+        <!-- PREVIEW PANEL -->
+        <div class="preview-panel">
+            <h1>👀 Live Preview</h1>
+            <div id="previewStatus" class="status loading">
+                🔄 Select a client to see preview...
+            </div>
+            <iframe id="previewIframe" class="preview-iframe" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let currentConfig = null;
+        let currentSiteId = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadClients();
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            // Client selector change
+            document.getElementById('clientSelect').addEventListener('change', function() {
+                const siteId = this.value;
+                if (siteId) {
+                    loadClientConfig(siteId);
+                }
+            });
+            
+            // Color picker sync
+            document.getElementById('bubbleColorPicker').addEventListener('input', function() {
+                document.getElementById('bubbleColor').value = this.value;
+                updatePreview();
+            });
+            
+            document.getElementById('bubbleColor').addEventListener('input', function() {
+                document.getElementById('bubbleColorPicker').value = this.value;
+                updatePreview();
+            });
+            
+            // Other field changes
+            document.getElementById('bubbleLabel').addEventListener('input', updatePreview);
+            document.getElementById('teaserText').addEventListener('input', updatePreview);
+            document.getElementById('bubblePosition').addEventListener('change', updatePreview);
+        }
+        
+        async function loadClients() {
+            try {
+                updateStatus('🔄 Loading clients...', 'loading');
+                
+                const response = await fetch('/api/configs');
+                if (!response.ok) throw new Error('Failed to load clients');
+                
+                const data = await response.json();
+                console.log('API Response:', data); // Debug log
+                
+                // Handle the API response structure
+                const clients = data.configs || data || [];
+                
+                if (!Array.isArray(clients)) {
+                    throw new Error('API did not return an array of clients');
+                }
+                
+                const select = document.getElementById('clientSelect');
+                select.innerHTML = '<option value="">Select a client...</option>';
+                
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.siteId || client.site_id;
+                    option.textContent = `${client.siteId || client.site_id} (${client.clientName || client.client_name || 'No name'})`;
+                    select.appendChild(option);
+                });
+                
+                updateStatus(`✅ Loaded ${clients.length} clients`, 'success');
+                
+            } catch (error) {
+                console.error('Error loading clients:', error);
+                updateStatus(`❌ Failed to load clients: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadClientConfig(siteId) {
+            try {
+                updateStatus(`🔄 Loading config for ${siteId}...`, 'loading');
+                updatePreviewStatus(`🔄 Loading preview for ${siteId}...`, 'loading');
+                
+                const response = await fetch(`/api/config/${siteId}`);
+                if (!response.ok) throw new Error('Failed to load config');
+                
+                const data = await response.json();
+                console.log('Config API Response:', data); // Debug log
+                
+                // Handle the API response structure
+                currentConfig = data.config || data;
+                currentSiteId = siteId;
+                
+                // Populate form fields
+                populateForm(currentConfig);
+                
+                // Update preview
+                updatePreviewIframe(siteId);
+                
+                updateStatus(`✅ Loaded config for ${siteId}`, 'success');
+                updatePreviewStatus(`✅ Preview loaded for ${siteId}`, 'success');
+                
+            } catch (error) {
+                console.error('Error loading config:', error);
+                updateStatus(`❌ Failed to load config for ${siteId}`, 'error');
+                updatePreviewStatus(`❌ Failed to load preview`, 'error');
+            }
+        }
+        
+        function populateForm(config) {
+            // Populate bubble fields
+            const bubbleColor = config.bubble?.bg || '#007bff';
+            document.getElementById('bubbleColor').value = bubbleColor;
+            document.getElementById('bubbleColorPicker').value = bubbleColor;
+            
+            document.getElementById('bubbleLabel').value = config.bubble?.label || 'Need help?';
+            document.getElementById('teaserText').value = config.teaser?.text || 'Hi! Need help?';
+            document.getElementById('bubblePosition').value = config.bubble?.position || 'br';
+        }
+        
+        function updatePreview() {
+            if (!currentSiteId) return;
+            
+            // Get current form values
+            const bubbleColor = document.getElementById('bubbleColor').value;
+            const bubbleLabel = document.getElementById('bubbleLabel').value;
+            const teaserText = document.getElementById('teaserText').value;
+            const bubblePosition = document.getElementById('bubblePosition').value;
+            
+            // Update current config (in memory only)
+            if (currentConfig) {
+                currentConfig.bubble = currentConfig.bubble || {};
+                currentConfig.bubble.bg = bubbleColor;
+                currentConfig.bubble.label = bubbleLabel;
+                currentConfig.bubble.position = bubblePosition;
+                
+                currentConfig.teaser = currentConfig.teaser || {};
+                currentConfig.teaser.text = teaserText;
+            }
+            
+            // FORCE refresh preview iframe with timestamp to bypass cache
+            const iframe = document.getElementById('previewIframe');
+            const timestamp = Date.now();
+            iframe.src = `/test-frontend-preview.html?siteId=${currentSiteId}&t=${timestamp}&preview=true`;
+            
+            console.log('🔄 Preview updated with:', { bubbleColor, bubbleLabel, teaserText, bubblePosition });
+        }
+        
+        function updatePreviewIframe(siteId) {
+            const iframe = document.getElementById('previewIframe');
+            const timestamp = Date.now();
+            // The widget script reads siteId from URL, so we need to pass it in the preview page URL
+            iframe.src = `/test-frontend-preview.html?siteId=${siteId}&t=${timestamp}`;
+        }
+        
+        async function saveConfig() {
+            if (!currentSiteId || !currentConfig) {
+                updateStatus('❌ No client selected', 'error');
+                return;
+            }
+            
+            try {
+                updateStatus('💾 Saving configuration...', 'loading');
+                
+                // Get current form values
+                const bubbleColor = document.getElementById('bubbleColor').value;
+                const bubbleLabel = document.getElementById('bubbleLabel').value;
+                const teaserText = document.getElementById('teaserText').value;
+                const bubblePosition = document.getElementById('bubblePosition').value;
+                
+                // Update ONLY the changed fields in the COMPLETE config
+                const configToSave = {
+                    ...currentConfig,
+                    bubble: {
+                        ...currentConfig.bubble,
+                        bg: bubbleColor,
+                        label: bubbleLabel,
+                        position: bubblePosition
+                    },
+                    teaser: {
+                        ...currentConfig.teaser,
+                        text: teaserText
+                    }
+                };
+                
+                console.log('💾 Saving complete config:', configToSave);
+                
+                // Save to API with COMPLETE config
+                const response = await fetch(`/api/config/${currentSiteId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ config: configToSave })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(`Failed to save config: ${errorData.error || 'Unknown error'}`);
+                }
+                
+                // Update current config
+                currentConfig = configToSave;
+                
+                updateStatus('✅ Configuration saved successfully!', 'success');
+                
+                // Refresh preview
+                setTimeout(() => {
+                    updatePreviewIframe(currentSiteId);
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error saving config:', error);
+                updateStatus(`❌ Failed to save: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        function updatePreviewStatus(message, type) {
+            const status = document.getElementById('previewStatus');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+    </script>
+</body>
+</html>
