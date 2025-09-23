@@ -507,16 +507,91 @@
         } else {
           // Normal overlay behavior
           if (finalConfig.analytics.console) {
-            console.log('[AI PRL Assist] Opening overlay, screen width:', window.innerWidth);
+            console.log('[AI PRL Assist] 🚀 OPENING OVERLAY - FULL DEBUG');
+            console.log('[AI PRL Assist] Screen width:', window.innerWidth);
+            console.log('[AI PRL Assist] Chat URL:', chatUrl);
             console.log('[AI PRL Assist] Overlay element:', overlay);
             console.log('[AI PRL Assist] Iframe element:', iframe);
+            console.log('[AI PRL Assist] Parent domain:', window.location.hostname);
+            console.log('[AI PRL Assist] Parent protocol:', window.location.protocol);
+            console.log('[AI PRL Assist] Document referrer:', document.referrer);
           }
+          
+          // Add iframe event listeners for debugging
+          iframe.addEventListener('load', () => {
+            if (finalConfig.analytics.console) {
+              console.log('[AI PRL Assist] ✅ IFRAME LOADED SUCCESSFULLY');
+              console.log('[AI PRL Assist] Iframe src:', iframe.src);
+              console.log('[AI PRL Assist] Iframe contentWindow:', iframe.contentWindow);
+              
+              // Try to check iframe content (may be blocked by CORS)
+              try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc) {
+                  console.log('[AI PRL Assist] Iframe document title:', iframeDoc.title);
+                  console.log('[AI PRL Assist] Iframe document URL:', iframeDoc.URL);
+                  
+                  // Check for error messages in the iframe
+                  const bodyText = iframeDoc.body ? iframeDoc.body.innerText : 'No body';
+                  if (bodyText.toLowerCase().includes('error') || bodyText.toLowerCase().includes('permission')) {
+                    console.error('[AI PRL Assist] 🚨 ERROR DETECTED IN IFRAME:', bodyText.substring(0, 200));
+                  }
+                } else {
+                  console.log('[AI PRL Assist] Cannot access iframe document (CORS blocked)');
+                }
+              } catch (e) {
+                console.log('[AI PRL Assist] Cannot access iframe content (CORS blocked):', e.message);
+              }
+            }
+          });
+          
+          iframe.addEventListener('error', (e) => {
+            if (finalConfig.analytics.console) {
+              console.error('[AI PRL Assist] ❌ IFRAME ERROR:', e);
+              console.error('[AI PRL Assist] Error details:', {
+                type: e.type,
+                target: e.target,
+                message: e.message || 'No message'
+              });
+              console.log('[AI PRL Assist] Trying fallback URL...');
+            }
+            
+            // Try fallback URL on error
+            if (finalConfig.fallbackUrl && iframe.src !== finalConfig.fallbackUrl) {
+              setTimeout(() => {
+                iframe.src = finalConfig.fallbackUrl;
+                if (finalConfig.analytics.console) {
+                  console.log('[AI PRL Assist] 🔄 FALLBACK URL LOADED:', finalConfig.fallbackUrl);
+                }
+              }, 1000);
+            }
+          });
+          
           iframe.src = chatUrl;
           overlay.style.setProperty('display', window.innerWidth >= 768 ? 'flex' : 'block', 'important');
           if (closeBtn) closeBtn.style.display = 'block'; // Always show close button
           
           if (finalConfig.analytics.console) {
             console.log('[AI PRL Assist] Overlay display set to:', overlay.style.display);
+            console.log('[AI PRL Assist] 🔍 MONITORING IFRAME LOADING...');
+            
+            // Monitor iframe loading with timeout
+            let loadingTimeout = setTimeout(() => {
+              console.warn('[AI PRL Assist] ⏰ IFRAME TAKING TOO LONG TO LOAD (>10s)');
+              console.log('[AI PRL Assist] Current iframe src:', iframe.src);
+              console.log('[AI PRL Assist] Iframe readyState:', iframe.readyState);
+              
+              // Try fallback after timeout
+              if (finalConfig.fallbackUrl && iframe.src !== finalConfig.fallbackUrl) {
+                console.log('[AI PRL Assist] 🔄 SWITCHING TO FALLBACK DUE TO TIMEOUT');
+                iframe.src = finalConfig.fallbackUrl;
+              }
+            }, 10000);
+            
+            // Clear timeout when iframe loads
+            iframe.addEventListener('load', () => {
+              clearTimeout(loadingTimeout);
+            }, { once: true });
           }
         }
         
