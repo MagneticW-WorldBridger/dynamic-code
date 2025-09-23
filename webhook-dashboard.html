@@ -193,6 +193,119 @@
             margin-left: 10px;
         }
         
+        .send-teaser-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .send-teaser-btn:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+        
+        .send-teaser-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .teaser-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .teaser-modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            color: white;
+        }
+        
+        .teaser-modal h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .teaser-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .teaser-form textarea {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .teaser-form textarea::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .teaser-form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .teaser-form button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .teaser-form .send-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .teaser-form .send-btn:hover {
+            background: #45a049;
+        }
+        
+        .teaser-form .cancel-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .teaser-form .cancel-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .session-info {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
         .loading {
             text-align: center;
             padding: 40px;
@@ -261,6 +374,30 @@
                 <h3>🔄 Loading events...</h3>
                 <p>Connecting to webhook stream...</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Teaser Modal -->
+    <div id="teaser-modal" class="teaser-modal">
+        <div class="teaser-modal-content">
+            <h3>📨 Send Custom Teaser Message</h3>
+            
+            <div id="session-info" class="session-info">
+                <!-- Session info will be populated here -->
+            </div>
+            
+            <form class="teaser-form" id="teaser-form">
+                <textarea 
+                    id="teaser-message" 
+                    placeholder="Enter your custom teaser message here...&#10;&#10;Examples:&#10;🎉 Special offer just for you! 20% off your next purchase!&#10;👋 Hi there! I noticed you're browsing our chairs collection. Need help finding the perfect one?&#10;🛍️ Your cart is waiting! Complete your order in the next 10 minutes for free shipping!"
+                    required
+                ></textarea>
+                
+                <div class="teaser-form-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeTeaserModal()">Cancel</button>
+                    <button type="submit" class="send-btn">🚀 Send Teaser</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -355,6 +492,16 @@
                 }
 
                 container.innerHTML = filteredEvents.map(event => this.renderEvent(event)).join('');
+                
+                // Add event listeners to teaser buttons
+                container.querySelectorAll('.send-teaser-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const sessionId = e.target.dataset.sessionId;
+                        const siteId = e.target.dataset.siteId;
+                        const eventData = JSON.parse(e.target.dataset.event);
+                        openTeaserModal(sessionId, siteId, eventData);
+                    });
+                });
             }
 
             renderEvent(event) {
@@ -400,6 +547,10 @@
                                 <p><strong>Email:</strong> ${event.custom.customer_email || 'N/A'}</p>
                             </div>
                         </div>
+                        
+                        <button class="send-teaser-btn" data-session-id="${event.sessionId}" data-site-id="${event.siteId}" data-event='${JSON.stringify(event)}'>
+                            📨 Send Custom Teaser
+                        </button>
                     </div>
                 `;
             }
@@ -483,6 +634,122 @@
 
         // Initialize dashboard
         const dashboard = new WebhookDashboard();
+        
+        // Global variables for teaser modal
+        let currentSessionId = null;
+        let currentSiteId = null;
+        let currentEventData = null;
+        
+        // Teaser Modal Functions
+        function openTeaserModal(sessionId, siteId, eventData) {
+            currentSessionId = sessionId;
+            currentSiteId = siteId;
+            currentEventData = eventData;
+            
+            // Populate session info
+            const sessionInfo = document.getElementById('session-info');
+            sessionInfo.innerHTML = `
+                <h4>🎯 Target Session</h4>
+                <p><strong>Session ID:</strong> ${sessionId.substring(0, 30)}...</p>
+                <p><strong>Site:</strong> ${siteId}</p>
+                <p><strong>Current Page:</strong> ${eventData.page?.pathname || 'N/A'}</p>
+                <p><strong>Customer ID:</strong> ${eventData.custom?.customer_id || 'N/A'}</p>
+                <p><strong>Interaction Score:</strong> ${eventData.interactionScore || 0}</p>
+            `;
+            
+            // Clear previous message
+            document.getElementById('teaser-message').value = '';
+            
+            // Show modal
+            document.getElementById('teaser-modal').style.display = 'flex';
+        }
+        
+        function closeTeaserModal() {
+            document.getElementById('teaser-modal').style.display = 'none';
+            currentSessionId = null;
+            currentSiteId = null;
+            currentEventData = null;
+        }
+        
+        // Handle teaser form submission
+        document.getElementById('teaser-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = document.getElementById('teaser-message').value.trim();
+            if (!message || !currentSessionId || !currentSiteId) {
+                alert('Missing required information');
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('.send-btn');
+            const originalText = submitBtn.textContent;
+            
+            try {
+                // Disable button and show loading
+                submitBtn.disabled = true;
+                submitBtn.textContent = '🔄 Sending...';
+                
+                // Send teaser message
+                const response = await fetch('/api/teaser-messages', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'woodstock_rt_key_2024',
+                        'X-Site-ID': currentSiteId
+                    },
+                    body: JSON.stringify({
+                        sessionId: currentSessionId,
+                        message: message,
+                        priority: 'manual',
+                        expiresIn: 600000 // 10 minutes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    // Success
+                    submitBtn.textContent = '✅ Sent!';
+                    submitBtn.style.background = '#4CAF50';
+                    
+                    // Show success message
+                    alert(`✅ Teaser sent successfully!\n\nMessage: "${message}"\nSession: ${currentSessionId.substring(0, 20)}...\nMessage ID: ${result.messageId}`);
+                    
+                    // Close modal after short delay
+                    setTimeout(() => {
+                        closeTeaserModal();
+                    }, 1000);
+                    
+                } else {
+                    throw new Error(result.error || 'Failed to send teaser');
+                }
+                
+            } catch (error) {
+                console.error('Failed to send teaser:', error);
+                alert(`❌ Failed to send teaser: ${error.message}`);
+                
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.style.background = '#4CAF50';
+                
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('teaser-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'teaser-modal') {
+                closeTeaserModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('teaser-modal').style.display === 'flex') {
+                closeTeaserModal();
+            }
+        });
     </script>
 </body>
 </html>
