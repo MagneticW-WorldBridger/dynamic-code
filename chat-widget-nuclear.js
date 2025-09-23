@@ -170,6 +170,8 @@
             background: ${overlay.bg};
             z-index: ${(bubble.zIndex || 2147483647) - 1};
             display: none !important; /* 🔑 keep hidden until ChatWidget.open() */
+            align-items: center;
+            justify-content: center;
           }
           
           .ai-prl-chat-iframe {
