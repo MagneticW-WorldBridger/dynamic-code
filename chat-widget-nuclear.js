@@ -67,8 +67,10 @@
       const baseUrl = finalConfig.chatUrl;
       const url = new URL(baseUrl);
       
-      // If useCleanUrl is true, don't add embed parameters (for fallback)
-      if (!useCleanUrl) {
+      // Check if we should skip embed parameters (for problematic chats)
+      const skipEmbedParams = useCleanUrl || finalConfig.skipEmbedParams || false;
+      
+      if (!skipEmbedParams) {
         // Add current page context
         url.searchParams.set('embed', '1');
         url.searchParams.set('host', location.hostname);
@@ -83,6 +85,10 @@
           const value = currentParams.get(param);
           if (value) url.searchParams.set(param, value);
         });
+      }
+      
+      if (finalConfig.analytics.console && skipEmbedParams) {
+        console.log('[AI PRL Assist] 🧹 Using clean URL (no embed params)');
       }
       
       return url.toString();
