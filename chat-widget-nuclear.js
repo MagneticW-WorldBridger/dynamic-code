@@ -168,7 +168,10 @@
 
     // Webhook system with full data capture
     const sendWebhook = (eventType, data = {}) => {
-      if (!finalConfig.webhookUrl || !finalConfig.webhookEvents.includes(eventType)) return;
+      // Use internal webhook if no external webhook configured
+      const webhookUrl = finalConfig.webhookUrl || `${finalConfig.apiBase || window.location.origin}/api/internal-webhook`;
+      
+      if (!finalConfig.webhookEvents.includes(eventType)) return;
       
       const { utmData, customData } = extractUrlData();
       
@@ -224,8 +227,8 @@
         }
       }
 
-      if (finalConfig.webhookUrl) {
-        fetch(finalConfig.webhookUrl, {
+      // Always send webhook (internal or external)
+      fetch(webhookUrl, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -239,7 +242,6 @@
             console.error('[AI PRL Assist] Webhook failed:', error);
           }
         });
-      }
     };
 
     // Generate dynamic CSS from config
