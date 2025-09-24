@@ -8,9 +8,16 @@
 
   // Setup function - called by client
   window.ChatWidget.setup = async (config) => {
+    // Generate session ID FIRST (only once)
+    if (!window.ChatWidget._sessionId) {
+      window.ChatWidget._sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      window.ChatWidget._pageLoadTime = Date.now();
+    }
+    
     // Prevent double initialization
     if (window.ChatWidget._initialized || window.ChatWidget._initializing) {
       console.warn('[AI PRL Assist] ⚠️ Widget already initialized or initializing, skipping...');
+      console.warn('[AI PRL Assist] Using existing session ID:', window.ChatWidget._sessionId);
       return;
     }
     
@@ -1030,8 +1037,6 @@
       // Mark as initialized
       window.ChatWidget._initialized = true;
       window.ChatWidget._initializing = false;
-      window.ChatWidget._sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      window.ChatWidget._pageLoadTime = Date.now();
       
       if (finalConfig.analytics.console) {
         console.log('[AI PRL Assist] ✅ Widget initialization completed successfully!');
