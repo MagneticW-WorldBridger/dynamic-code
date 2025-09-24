@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     try {
       await client.connect();
       
-      // Get recent events from database
+      // Get recent events from database (last 2 hours only for active sessions)
       const result = await client.query(`
         SELECT 
           id,
@@ -38,8 +38,9 @@ export default async function handler(req, res) {
           should_trigger_ai as "shouldTriggerAI",
           created_at as timestamp
         FROM webhook_events_internal 
+        WHERE created_at > NOW() - INTERVAL '2 hours'
         ORDER BY created_at DESC 
-        LIMIT 100
+        LIMIT 50
       `);
       
       const events = result.rows.map(row => ({
