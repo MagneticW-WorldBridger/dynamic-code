@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woodstock - Fixed Widget Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1e40af; }
+        .status { 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 5px; 
+            background: #e3f2fd; 
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>🪑 Woodstock Furniture Store</h1>
+        <p>Welcome to our furniture showroom! Browse our collection of quality furniture.</p>
+        
+        <div class="status">
+            <strong>🔧 Widget Status:</strong> Loading...
+            <div id="widget-status">Initializing chat widget...</div>
+        </div>
+
+        <h2>Featured Products</h2>
+        <p>Check out our latest furniture collections and get help from our AI assistant!</p>
+        
+        <ul>
+            <li>🛋️ Comfortable Sofas & Sectionals</li>
+            <li>🪑 Dining Room Sets</li>
+            <li>🛏️ Bedroom Furniture</li>
+            <li>📚 Office & Study Furniture</li>
+        </ul>
+    </div>
+
+    <!-- FIXED Woodstock Outlet Chat Widget -->
+    <script>
+        // Configuration
+        window.ChatWidget = window.ChatWidget || {};
+        window.ChatWidget.siteId = "woodstock_outlet";
+        window.ChatWidget.apiBase = "https://dynamiccode-ochre.vercel.app";
+        window.ChatWidget.analytics = { console: true };
+
+        // Widget initialization function with proper timing
+        function initializeWidget() {
+            console.log('[Widget Init] Starting initialization...');
+            
+            if (window.ChatWidget && window.ChatWidget.setup) {
+                try {
+                    console.log('[Widget Init] Calling setup()...');
+                    window.ChatWidget.setup({ 
+                        siteId: window.ChatWidget.siteId, 
+                        apiBase: window.ChatWidget.apiBase, 
+                        analytics: true 
+                    });
+                    
+                    document.getElementById('widget-status').innerHTML = '✅ Widget initialized successfully!';
+                    console.log('[Widget Init] ✅ Setup completed successfully!');
+                    
+                } catch(e) {
+                    console.error('[Widget Init] ❌ Setup failed:', e);
+                    document.getElementById('widget-status').innerHTML = '❌ Widget initialization failed: ' + e.message;
+                }
+            } else {
+                console.error('[Widget Init] ❌ ChatWidget.setup not found!');
+                document.getElementById('widget-status').innerHTML = '❌ Widget setup function not available';
+            }
+        }
+
+        // Script load success handler
+        function onWidgetScriptLoad() {
+            console.log('[Widget Init] 📦 Script loaded, waiting 100ms for initialization...');
+            document.getElementById('widget-status').innerHTML = '📦 Script loaded, initializing...';
+            
+            // Small delay to ensure widget is fully ready
+            setTimeout(initializeWidget, 100);
+        }
+
+        // Script load error handler  
+        function onWidgetScriptError() {
+            console.error('[Widget Init] 💥 Failed to load widget script!');
+            document.getElementById('widget-status').innerHTML = '💥 Failed to load widget from Vercel';
+        }
+    </script>
+
+    <script
+        async
+        src="https://dynamiccode-ochre.vercel.app/chat-widget-nuclear.js"
+        onload="onWidgetScriptLoad()"
+        onerror="onWidgetScriptError()"
+    ></script>
+
+</body>
+</html>
