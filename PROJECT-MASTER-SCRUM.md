@@ -144,6 +144,15 @@ teaser_polls (id, site_id, session_id, page_data, utm_data, custom_data, created
 ## 🚧 Current Blockers & Issues
 
 ### 🔴 HIGH PRIORITY
+**BLOCK-002**: Session ID mismatch between console logs and dashboard events  
+**Status**: IN PROGRESS 🔄  
+**Assigned**: Development Team  
+**Description**: Widget generating multiple different session IDs for each event, causing teaser messages to be sent to wrong session  
+**Root Cause**: Session ID was generated at END of initialization, allowing multiple initialization attempts to create different session IDs  
+**Solution Attempted**: Moved session ID generation to START of setup() function, only generate once per page load  
+**Current Status**: Session ID now generates once, but need to verify all events use same session ID  
+**Impact**: Teaser messages fail to reach client because session ID mismatch  
+
 **BLOCK-001**: Polling initialization not starting consistently  
 **Status**: RESOLVED ✅  
 **Assigned**: Development Team  
@@ -214,10 +223,11 @@ None currently identified.
 - Additional automated testing coverage
 
 ### Action Items 📋
-1. **IMMEDIATE**: Resolve polling initialization issue
-2. **SHORT-TERM**: Add automated testing suite
-3. **MEDIUM-TERM**: Performance optimization and caching
-4. **LONG-TERM**: Multi-tenant architecture scaling
+1. **IMMEDIATE**: Verify session ID consistency across all events and dashboard
+2. **IMMEDIATE**: Test teaser message delivery with consistent session ID
+3. **SHORT-TERM**: Add automated testing suite
+4. **MEDIUM-TERM**: Performance optimization and caching
+5. **LONG-TERM**: Multi-tenant architecture scaling
 
 ---
 

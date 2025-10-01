@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Woodstock - Embedded Config Test</title>
+</head>
+<body>
+    <h1>Woodstock Furniture - Test Page</h1>
+    <p>This page tests the widget with EMBEDDED configuration (no API fetch required).</p>
+
+    <!-- EMBEDDED CONFIG WIDGET - NO API CALLS NEEDED -->
+    <script>
+      // Full embedded configuration
+      window.ChatWidget = window.ChatWidget || {};
+      window.ChatWidget.siteId = "woodstock_outlet";
+      window.ChatWidget.apiBase = "https://dynamiccode-ochre.vercel.app";
+      window.ChatWidget.analytics = { console: true };
+      
+      // EMBEDDED CONFIG - bypasses API call
+      window.ChatWidget.embeddedConfig = {
+        "siteId": "woodstock_outlet",
+        "clientName": "Woodstock Furniture",
+        "rules": {
+          "maxWidth": 99999,
+          "minWidth": 0,
+          "appendUTM": true,
+          "excludePaths": ["/admin/*", "/staff/*"],
+          "includePaths": ["*"],
+          "showOnMobile": true,
+          "showOnDesktop": true,
+          "frequencyCapHours": 24
+        },
+        "bubble": {
+          "bg": "#1e40af",
+          "size": 75,
+          "color": "#ffffff",
+          "label": "Woodstock AI",
+          "pulse": true,
+          "zIndex": 2147483647,
+          "iconUrl": "https://storage.googleapis.com/msgsndr/ecow5j0SgdAz2vzC0C4Q/media/68d2ca791dbafc4004869120.png",
+          "outline": "#3b82f6",
+          "position": "br",
+          "outlineWidth": "2px",
+          "outlineOffset": "0px"
+        },
+        "teaser": {
+          "bg": "#ffffff",
+          "text": "Need furniture help? Chat with Woodstock AI!",
+          "color": "#1e40af",
+          "border": "2px solid #3b82f6",
+          "delayMs": 3000,
+          "enabled": true,
+          "fontSize": "14px",
+          "maxWidth": "350px",
+          "minWidth": "250px",
+          "boxShadow": "0 4px 12px rgba(30,64,175,0.2)",
+          "fontFamily": "Arial, sans-serif",
+          "fontWeight": "600",
+          "autocloseMs": 15000,
+          "borderRadius": "8px"
+        },
+        "apiBase": "https://dynamiccode-ochre.vercel.app",
+        "chatUrl": "https://woodstock.demo.aiprlassist.com",
+        "overlay": {
+          "bg": "rgba(0,0,0,0.6)",
+          "closeOnEsc": true,
+          "windowMode": true,
+          "windowWidth": "450px",
+          "windowHeight": "700px"
+        },
+        "triggers": {
+          "openAfterMs": 0,
+          "showBubbleAfterMs": 2000,
+          "triggerOnExitIntent": false,
+          "triggerOnScrollPercent": 0
+        },
+        "analytics": {
+          "console": true,
+          "trackOpens": true
+        },
+        "noOverlay": false,
+        "webhookUrl": "https://dynamiccode-ochre.vercel.app/api/internal-webhook",
+        "fallbackUrl": "https://woodstock.demo.aiprlassist.com",
+        "customStyles": {
+          "bubbleImageWidth": "80%",
+          "bubbleImageHeight": "80%",
+          "bubbleImageTransform": "none",
+          "bubbleImageBorderRadius": "50%"
+        },
+        "webhookEvents": [
+          "page_view",
+          "bubble_shown",
+          "chat_opened",
+          "teaser_shown",
+          "teaser_message_received"
+        ],
+        "realTimeTeaser": {
+          "apiKey": "woodstock_rt_key_2024",
+          "enabled": true,
+          "pollIntervalMs": 8000
+        },
+        "onlineIndicator": {
+          "size": 16,
+          "color": "#22c55e",
+          "pulse": true,
+          "border": "2px solid white",
+          "enabled": true,
+          "offsetX": "10px",
+          "offsetY": "50px",
+          "position": "bottom-right-offset",
+          "boxShadow": "0 0 6px 1px rgba(34,197,94,0.4)"
+        },
+        "skipEmbedParams": true
+      };
+    </script>
+    <script async src="https://dynamiccode-ochre.vercel.app/chat-widget-nuclear.js"></script>
+
+</body>
+</html>
+

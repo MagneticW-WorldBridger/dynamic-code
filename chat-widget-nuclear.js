@@ -35,36 +35,50 @@
       return;
     }
 
-    // Load configuration from database
+    // Load configuration - try embedded first, then database
     let finalConfig = null;
-    try {
-      const baseUrl = apiBase || window.location.origin;
-      const response = await fetch(`${baseUrl}/api/load-config?siteId=${siteId}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
+    
+    // Check for embedded configuration first (no API call needed)
+    if (window.ChatWidget.embeddedConfig) {
+      finalConfig = window.ChatWidget.embeddedConfig;
+      if (analytics) {
+        console.log(`[AI PRL Assist] ✅ Using EMBEDDED config for siteId: ${siteId}`, {
+          source: 'embedded',
+          configSize: Object.keys(finalConfig).length
+        });
+      }
+    } else {
+      // Fallback to database fetch
+      try {
+        const baseUrl = apiBase || window.location.origin;
+        const response = await fetch(`${baseUrl}/api/load-config?siteId=${siteId}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.config) {
-          finalConfig = data.config;
-          if (analytics) {
-            console.log(`[AI PRL Assist] Loaded config from database for siteId: ${siteId}`, {
-              clientName: data.clientName,
-              source: 'database',
-              updatedAt: data.updatedAt
-            });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.config) {
+            finalConfig = data.config;
+            if (analytics) {
+              console.log(`[AI PRL Assist] Loaded config from database for siteId: ${siteId}`, {
+                clientName: data.clientName,
+                source: 'database',
+                updatedAt: data.updatedAt
+              });
+            }
           }
         }
+      } catch (error) {
+        if (analytics) console.error(`[AI PRL Assist] Error loading config for siteId: ${siteId}`, error);
+        window.ChatWidget._initializing = false;
+        return;
       }
-    } catch (error) {
-      if (analytics) console.error(`[AI PRL Assist] Error loading config for siteId: ${siteId}`, error);
-      window.ChatWidget._initializing = false;
-      return;
     }
 
     if (!finalConfig) {
       console.error('[AI PRL Assist] No configuration found for siteId:', siteId);
+      console.error('[AI PRL Assist] Tried: embedded config and database API');
       window.ChatWidget._initializing = false;
       return;
     }
