@@ -145,13 +145,22 @@ teaser_polls (id, site_id, session_id, page_data, utm_data, custom_data, created
 
 ### 🔴 HIGH PRIORITY
 **BLOCK-002**: Session ID mismatch between console logs and dashboard events  
-**Status**: IN PROGRESS 🔄  
+**Status**: RESOLVED ✅  
 **Assigned**: Development Team  
-**Description**: Widget generating multiple different session IDs for each event, causing teaser messages to be sent to wrong session  
-**Root Cause**: Session ID was generated at END of initialization, allowing multiple initialization attempts to create different session IDs  
-**Solution Attempted**: Moved session ID generation to START of setup() function, only generate once per page load  
-**Current Status**: Session ID now generates once, but need to verify all events use same session ID  
-**Impact**: Teaser messages fail to reach client because session ID mismatch  
+**Description**: Widget was generating a NEW session ID for EACH webhook event instead of reusing the initial one  
+**Root Cause**: In `sendWebhook()` function (line 209), code was `sessionId: 'sess_${Date.now()}_${Math.random()...}'` instead of using `window.ChatWidget._sessionId`  
+**Solution**: Changed to `sessionId: window.ChatWidget._sessionId` to use the session ID generated at start of setup()  
+**Resolution Date**: October 1, 2025  
+**Impact**: Now all webhooks use the SAME session ID, allowing teaser messages to reach the correct client  
+
+**BLOCK-003**: Auto-initialization not passing apiBase and analytics config  
+**Status**: RESOLVED ✅  
+**Assigned**: Development Team  
+**Description**: autoInit() only passed siteId to setup(), ignoring apiBase and analytics settings from window.ChatWidget  
+**Root Cause**: autoInit() called `setup({ siteId: existingConfig.siteId })` without including other config properties  
+**Solution**: Updated autoInit() to pass full config: `{ siteId, apiBase, analytics }`  
+**Resolution Date**: October 1, 2025  
+**Impact**: Simple client embed code now works perfectly without manual setup() calls  
 
 **BLOCK-001**: Polling initialization not starting consistently  
 **Status**: RESOLVED ✅  
@@ -159,6 +168,7 @@ teaser_polls (id, site_id, session_id, page_data, utm_data, custom_data, created
 **Description**: Widget was initializing twice due to autoInit() race condition, causing polling to be configured then overwritten  
 **Root Cause**: autoInit() called immediately AND on DOMContentLoaded, plus manual setup() calls  
 **Solution**: Fixed initialization sequence, added race condition protection, improved error handling  
+**Resolution Date**: September 30, 2025  
 **Impact**: Manual teaser messages now display in real-time consistently  
 
 ### 🟡 MEDIUM PRIORITY
@@ -223,11 +233,12 @@ None currently identified.
 - Additional automated testing coverage
 
 ### Action Items 📋
-1. **IMMEDIATE**: Verify session ID consistency across all events and dashboard
-2. **IMMEDIATE**: Test teaser message delivery with consistent session ID
-3. **SHORT-TERM**: Add automated testing suite
-4. **MEDIUM-TERM**: Performance optimization and caching
-5. **LONG-TERM**: Multi-tenant architecture scaling
+1. ✅ **COMPLETED**: Verify session ID consistency across all events and dashboard
+2. ✅ **COMPLETED**: Test teaser message delivery with consistent session ID
+3. ✅ **COMPLETED**: Fix autoInit() to pass full configuration (apiBase, analytics)
+4. **SHORT-TERM**: Add automated testing suite
+5. **MEDIUM-TERM**: Performance optimization and caching
+6. **LONG-TERM**: Multi-tenant architecture scaling
 
 ---
 

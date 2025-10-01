@@ -206,7 +206,7 @@
         event: eventType,
         timestamp: new Date().toISOString(),
         siteId: siteId,
-        sessionId: `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        sessionId: window.ChatWidget._sessionId, // Use the session ID generated at initialization
         
         // Page data
         page: {
@@ -1069,7 +1069,18 @@
   const autoInit = () => {
     // Check if existingConfig has siteId (like your Webflow code)
     if (existingConfig && existingConfig.siteId) {
-      window.ChatWidget.setup({ siteId: existingConfig.siteId });
+      // Pass full config including apiBase and analytics
+      const setupConfig = {
+        siteId: existingConfig.siteId,
+        apiBase: existingConfig.apiBase || null,
+        analytics: existingConfig.analytics?.console || false
+      };
+      
+      if (existingConfig.analytics?.console) {
+        console.log('[AI PRL Assist] 🚀 AUTO-INIT detected configuration:', setupConfig);
+      }
+      
+      window.ChatWidget.setup(setupConfig);
       return;
     }
     
@@ -1081,11 +1092,13 @@
     }
   };
   
-  // Try auto-init only once
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', autoInit);
-  } else {
-    autoInit();
-  }
+  // Try auto-init only once - wait a tick to ensure config is set
+  setTimeout(() => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', autoInit);
+    } else {
+      autoInit();
+    }
+  }, 0);
 
 })();
