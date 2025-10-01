@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMPLE AUTO-INIT TEST - Woodstock</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin: 0 0 20px 0;
+        }
+        .status {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .debug-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .debug-line {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #4ade80;
+        }
+        .error {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+        .success {
+            border-left-color: #22c55e;
+            background: rgba(34, 197, 94, 0.2);
+        }
+        .warning {
+            border-left-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪑 WOODSTOCK AUTO-INIT TEST</h1>
+        
+        <div class="status" id="status">
+            ⏳ Initializing widget...
+        </div>
+
+        <div class="debug-box" id="debug-log">
+            <div class="debug-line">🚀 Starting debug session...</div>
+            <div class="debug-line">📍 Page loaded at: <span id="load-time"></span></div>
+        </div>
+
+        <h2>🎯 What Should Happen:</h2>
+        <ul>
+            <li>✅ Widget script loads</li>
+            <li>✅ Auto-init detects siteId</li>
+            <li>✅ Setup() called automatically</li>
+            <li>✅ Bubble appears (bottom-right)</li>
+            <li>✅ Teaser appears after 3 seconds</li>
+        </ul>
+
+        <h2>📦 Test Environment:</h2>
+        <ul>
+            <li><strong>Site ID:</strong> woodstock_outlet</li>
+            <li><strong>API Base:</strong> https://dynamiccode-ochre.vercel.app</li>
+            <li><strong>Widget URL:</strong> /chat-widget-nuclear.js</li>
+            <li><strong>Method:</strong> Auto-initialization (NO manual setup call)</li>
+        </ul>
+    </div>
+
+    <script>
+        // Debug logging system
+        const debugLog = document.getElementById('debug-log');
+        const statusDiv = document.getElementById('status');
+        const loadTime = document.getElementById('load-time');
+        
+        loadTime.textContent = new Date().toLocaleTimeString();
+        
+        function addLog(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = 'debug-line ' + type;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugLog.appendChild(line);
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        // Override console methods to capture widget logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const msg = args.join(' ');
+            if (msg.includes('[AI PRL Assist]')) {
+                addLog(msg, 'success');
+            }
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const msg = args.join(' ');
+            if (msg.includes('[AI PRL Assist]')) {
+                addLog(msg, 'error');
+            }
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            const msg = args.join(' ');
+            if (msg.includes('[AI PRL Assist]')) {
+                addLog(msg, 'warning');
+            }
+        };
+
+        // PRE-LOAD CONFIGURATION
+        addLog('📝 Setting up window.ChatWidget configuration...', 'info');
+        
+        window.ChatWidget = window.ChatWidget || {};
+        window.ChatWidget.siteId = "woodstock_outlet";
+        window.ChatWidget.apiBase = "https://dynamiccode-ochre.vercel.app";
+        window.ChatWidget.analytics = { console: true };
+        
+        addLog('✅ Configuration set:', 'success');
+        addLog(`   siteId: ${window.ChatWidget.siteId}`, 'success');
+        addLog(`   apiBase: ${window.ChatWidget.apiBase}`, 'success');
+        
+        statusDiv.innerHTML = '📝 Configuration set, loading widget script...';
+
+        // Check for widget elements every 2 seconds
+        let checkCount = 0;
+        const checker = setInterval(() => {
+            checkCount++;
+            const bubble = document.querySelector('.ai-prl-chat-bubble');
+            const teaser = document.querySelector('.ai-prl-teaser');
+            
+            if (bubble) {
+                addLog('🎉 WIDGET BUBBLE FOUND!', 'success');
+                addLog(`   Display: ${window.getComputedStyle(bubble).display}`, 'success');
+                addLog(`   Visibility: ${window.getComputedStyle(bubble).visibility}`, 'success');
+                statusDiv.innerHTML = '✅ Widget loaded successfully! Check bottom-right corner.';
+                clearInterval(checker);
+            } else if (checkCount > 20) {
+                addLog('❌ WIDGET NOT FOUND after 40 seconds!', 'error');
+                addLog('💡 Check browser console for errors', 'warning');
+                statusDiv.innerHTML = '❌ Widget failed to load. Check debug log below.';
+                clearInterval(checker);
+            } else if (checkCount % 5 === 0) {
+                addLog(`🔍 Still searching for widget... (${checkCount * 2}s)`, 'info');
+            }
+        }, 2000);
+
+        // Monitor script loading
+        addLog('📦 Widget script loading...', 'info');
+        
+        // Script load/error will be handled by inline handlers below
+    </script>
+
+    <!-- 🎯 WIDGET SCRIPT - AUTO-INIT MODE -->
+    <script
+        async
+        src="https://dynamiccode-ochre.vercel.app/chat-widget-nuclear.js"
+        onload="addLog('✅ Widget script loaded successfully!', 'success'); statusDiv.innerHTML = '⏳ Widget initializing...';"
+        onerror="addLog('❌ FAILED TO LOAD WIDGET SCRIPT!', 'error'); statusDiv.innerHTML = '❌ Script failed to load from Vercel.';"
+    ></script>
+
+</body>
+</html>
+
